@@ -5,7 +5,7 @@ requirements Parser::required;
 
 void Parser::init ()
 {
-	required.emplace("announce", std::forward_list<std::string>{"port","info_hash","left","numwant"});
+	required.emplace("announce", std::forward_list<std::string>{"port","info_hash","left"});
 }
 
 std::string Parser::check (const request& req)
