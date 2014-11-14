@@ -26,31 +26,31 @@ std::string RequestHandler::handle(std::string str, std::string ip)
 std::string RequestHandler::announce(const request& req)
 {
 	torMap.emplace(req.at("info_hash"), std::pair<peerMap, peerMap>());
-	peerMap pmap;
+	peerMap *pmap;
 	if (std::stoi(req.at("left")) > 0) {
-		pmap = torMap.at(req.at("info_hash")).second;
-		pmap.emplace(req.at("ip"), new User());
-		if (!pmap.at(req.at("ip"))->isSet())
-			pmap.at(req.at("ip"))->set(
+		pmap = &torMap.at(req.at("info_hash")).second;
+		pmap->emplace(req.at("ip"), new User());
+		if (!pmap->at(req.at("ip"))->isSet())
+			pmap->at(req.at("ip"))->set(
 				(Utility::ip_hex_encode(req.at("ip"))
 				 +
 				 Utility::port_hex_encode(req.at("port")))
 				);
-		pmap = torMap.at(req.at("info_hash")).first;
+		pmap = &torMap.at(req.at("info_hash")).first;
 	} else {
-		pmap = torMap.at(req.at("info_hash")).first;
-		pmap.emplace(req.at("ip"), new User());
-		if (!pmap.at(req.at("ip"))->isSet())
-			pmap.at(req.at("ip"))->set(
+		pmap = &torMap.at(req.at("info_hash")).first;
+		pmap->emplace(req.at("ip"), new User());
+		if (!pmap->at(req.at("ip"))->isSet())
+			pmap->at(req.at("ip"))->set(
 				(Utility::ip_hex_encode(req.at("ip"))
 				 +
 				 Utility::port_hex_encode(req.at("port")))
 				);
-		pmap = torMap.at(req.at("info_hash")).second;
+		pmap = &torMap.at(req.at("info_hash")).second;
 	}
 	std::string peers;
 	//int i = std::stoi(req.at("numwant"));
-	for ( auto it : pmap ) {
+	for ( auto it : *pmap ) {
 	//	if (i-- == 0)
 	//		break;
 		peers.append(it.second->get());
