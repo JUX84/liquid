@@ -2,7 +2,8 @@ BIN=bin/
 OBJ=obj/
 SRC=src/
 INC=inc/
-CXX=clang++ -std=c++14 -stdlib=libc++ -I$(INC)
+CXXFLAGS=-Wall -O2
+CXX=clang++ -std=c++14 -stdlib=libc++ -I$(INC) $(CXXFLAGS)
 
 $(BIN)server.bin: $(OBJ)main.o $(OBJ)server.o $(OBJ)connectionHandler.o $(OBJ)requestHandler.o $(OBJ)parser.o $(OBJ)response.o $(OBJ)utility.o $(OBJ)user.o $(OBJ)config.o
 	$(CXX) $(OBJ)*.o -o $(BIN)server.bin -lev -lz -lc++abi
