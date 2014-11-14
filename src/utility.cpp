@@ -15,9 +15,9 @@ std::string Utility::gzip_compress (const std::string& input)
 	std::string output;
 	memset(&zs, 0, sizeof(zs));
 	zs.next_in = (Bytef*)input.data();
-	zs.zalloc = NULL;
-	zs.zfree = NULL;
-	zs.opaque = NULL;
+	zs.zalloc = nullptr;
+	zs.zfree = nullptr;
+	zs.opaque = nullptr;
 	zs.avail_in = input.size();
 
 	deflateInit2(&zs, Z_BEST_COMPRESSION, Z_DEFLATED, 31, 8, Z_DEFAULT_STRATEGY);
