@@ -1,5 +1,4 @@
-#ifndef SERVER_HPP
-#define SERVER_HPP
+#pragma once
 
 #include <ev++.h>
 #include "connectionHandler.hpp"
@@ -18,5 +17,3 @@ private:
 	int sock;
 	ev::io watcher;
 };
-
-#endif

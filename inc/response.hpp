@@ -1,3 +1,5 @@
+#pragma once
+
 #include <string>
 
 std::string response_head (const bool& = false);

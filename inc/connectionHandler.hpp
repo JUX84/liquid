@@ -1,5 +1,4 @@
-#ifndef CONNECTIONHANDLER_HPP
-#define CONNECTIONHANDLER_HPP
+#pragma once
 
 #include <string>
 #include <memory>
@@ -37,5 +36,3 @@ private:
 
 	std::unique_ptr<ConnectionHandler> ptr;
 };
-
-#endif

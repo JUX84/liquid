@@ -1,3 +1,5 @@
+#pragma once
+
 #include <unordered_map>
 #include "parser.hpp"
 #include "user.hpp"
