@@ -4,7 +4,7 @@ SRC=src/
 INC=inc/
 CXX=clang++ -std=c++14 -stdlib=libc++ -I$(INC)
 
-$(BIN)server.bin: $(OBJ)main.o $(OBJ)server.o $(OBJ)connectionHandler.o $(OBJ)requestHandler.o $(OBJ)parser.o $(OBJ)response.o $(OBJ)utility.o
+$(BIN)server.bin: $(OBJ)main.o $(OBJ)server.o $(OBJ)connectionHandler.o $(OBJ)requestHandler.o $(OBJ)parser.o $(OBJ)response.o $(OBJ)utility.o $(OBJ)user.o
 	$(CXX) $(OBJ)*.o -o $(BIN)server.bin -lev -lz -lc++abi
 $(OBJ)main.o: $(SRC)main.cpp
 	$(CXX) -c $(SRC)main.cpp -o $(OBJ)main.o 
@@ -16,6 +16,8 @@ $(OBJ)requestHandler.o: $(SRC)requestHandler.cpp
 	$(CXX) -c $(SRC)requestHandler.cpp -o $(OBJ)requestHandler.o
 $(OBJ)utility.o: $(SRC)utility.cpp
 	$(CXX) -c $(SRC)utility.cpp -o $(OBJ)utility.o
+$(OBJ)user.o: $(SRC)user.cpp
+	$(CXX) -c $(SRC)user.cpp -o $(OBJ)user.o
 $(OBJ)response.o: $(SRC)response.cpp
 	$(CXX) -c $(SRC)response.cpp -o $(OBJ)response.o
 $(OBJ)parser.o: $(SRC)parser.cpp

@@ -5,7 +5,7 @@ requirements Parser::required;
 
 void Parser::init ()
 {
-	required.emplace("announce", std::forward_list<std::string>{"port","info_hash","left"});
+	required.emplace("announce", std::forward_list<std::string>{"port","info_hash","left"}); // init a set of required params in a request
 }
 
 std::string Parser::check (const request& req)
@@ -43,18 +43,21 @@ request Parser::parse (const std::string& input)
 		++pos;
 	if ( input[pos] != '?' ) { // Case 1, 2, 3
 		int i;
-		for (i=0; i < 8; ++i) {
-			if (input[pos+i] == '/')
+		for (i=0; i < 8; ++i) { // longest action possible is announce
+			if (input[pos+i] == '/' ||
+				input[pos+i] == '?' ||
+				input[pos+i] == '/')
 				break;
 		}
 		output.emplace("action", input.substr(pos,i));
 		pos += i;
-		// TODO: scrape, update, report(?)
 	}
 	if (input[pos] == '?') // Case 1,2,3,4
 		++pos;
 	else
 		return request(); // malformed
+
+	// ocelot-style parsing, should maybe replace with substr later
 	std::string key, value;
 	bool parsing_key = true;
 	bool found_data = false;
