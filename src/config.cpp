@@ -19,12 +19,24 @@ std::unordered_map<std::string, std::pair<std::string, bool>> Config::vars = {
 
 std::string Config::get(const std::string& name)
 {
-	return vars.at(name).first;
+	try {
+		return vars.at(name).first;
+	}
+	catch (const std::exception& e) {
+		std::cerr << "Error in Config::get(" + name + ")\n";
+		return "";
+	}
 }
 
 int Config::getInt(const std::string& name)
 {
-	return std::stoi(get(name));
+	try {
+		return std::stoi(vars.at(name).first);
+	}
+	catch (const std::exception& e) {
+		std::cerr << "Error in Config::getInt(" + name + ")\n";
+		return -1;
+	}
 }
 
 void Config::load(const std::string& file)
