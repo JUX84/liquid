@@ -4,15 +4,8 @@ SRC=src/
 INC=inc/
 CXX=clang++ -std=c++14 -stdlib=libc++ -I$(INC)
 
-all: $(BIN)server.bin $(BIN)client.bin
-server: $(BIN)server.bin
-client: $(BIN)client.bin
 $(BIN)server.bin: $(OBJ)main.o $(OBJ)server.o $(OBJ)connectionHandler.o $(OBJ)requestHandler.o $(OBJ)parser.o $(OBJ)response.o $(OBJ)utility.o
 	$(CXX) $(OBJ)*.o -o $(BIN)server.bin -lev -lz -lc++abi
-$(BIN)client.bin: client/$(OBJ)client.o
-	$(CXX) client/$(OBJ)client.o -o $(BIN)client.bin -lc++abi
-client/$(OBJ)client.o: client/client.cpp
-	$(CXX) -c client/client.cpp -o client/$(OBJ)client.o
 $(OBJ)main.o: $(SRC)main.cpp
 	$(CXX) -c $(SRC)main.cpp -o $(OBJ)main.o 
 $(OBJ)server.o: $(SRC)server.cpp
@@ -28,8 +21,8 @@ $(OBJ)response.o: $(SRC)response.cpp
 $(OBJ)parser.o: $(SRC)parser.cpp
 	$(CXX) -c $(SRC)parser.cpp -o $(OBJ)parser.o
 force: mrproper
-	make all
+	make
 mrproper: clean
 	rm -f $(BIN)*.bin
 clean:
-	rm -f $(OBJ)*.o client/$(OBJ)*.o
+	rm -f $(OBJ)*.o
