@@ -63,7 +63,7 @@ std::string RequestHandler::announce(const request& req)
         resp += "e12:min intervali300";
         resp += "e5:peers";
 	if(peers.empty()) {
-		resp += "0";
+		resp += "0:";
 	} else {
 		resp += std::to_string(peers.length());
 		resp += ":";

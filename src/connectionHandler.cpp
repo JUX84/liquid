@@ -12,7 +12,7 @@
 
 ConnectionHandler::ConnectionHandler(int socket)
 	: sock(socket), sent(0), MAX_REQUEST_SIZE(Config::getInt("max_request_size")),
-	BUFFER_SIZE(Config::getInt("bufer_size"))
+	BUFFER_SIZE(Config::getInt("read_buffer_size"))
 {
 	setSocketOptions();
 	getPeerInfo();
