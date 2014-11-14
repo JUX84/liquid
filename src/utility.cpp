@@ -2,6 +2,7 @@
 #include <cassert>
 #include <arpa/inet.h>
 #include <cctype>
+#include <cstring>
 #include "utility.hpp"
 
 #define CHUNK 32768

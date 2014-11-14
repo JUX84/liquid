@@ -1,5 +1,6 @@
 #include <iostream>
 #include <string>
+#include <cstring>
 #include <system_error>
 #include <stdexcept>
 #include <errno.h>
