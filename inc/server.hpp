@@ -3,8 +3,6 @@
 #include <ev++.h>
 #include "connectionHandler.hpp"
 
-#define THREAD_POOL_SIZE 5
-
 class Server
 {
 public:

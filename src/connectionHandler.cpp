@@ -1,4 +1,5 @@
 #include <string>
+#include <vector>
 #include <system_error>
 #include <unistd.h>
 #include <fcntl.h>
@@ -7,9 +8,11 @@
 #include <arpa/inet.h>
 #include "connectionHandler.hpp"
 #include "requestHandler.hpp"
+#include "config.hpp"
 
 ConnectionHandler::ConnectionHandler(int socket)
-	: sock(socket), sent(0)
+	: sock(socket), sent(0), MAX_REQUEST_SIZE(Config::getInt("max_request_size")),
+	BUFFER_SIZE(Config::getInt("bufer_size"))
 {
 	setSocketOptions();
 	getPeerInfo();
@@ -23,7 +26,7 @@ ConnectionHandler::ConnectionHandler(int socket)
 	writeWatcher.set(sock, ev::WRITE);
 
 	timeoutWatcher.set<ConnectionHandler, &ConnectionHandler::timeout>(this);
-	timeoutWatcher.set(TIMEOUT, 0);
+	timeoutWatcher.set(Config::getInt("timeout"), 0);
 	timeoutWatcher.start();
 
 	ptr = std::unique_ptr<ConnectionHandler>(this);
@@ -48,8 +51,9 @@ void ConnectionHandler::getPeerInfo()
 
 void ConnectionHandler::readRequest(ev::io& w, int revents)
 {
-	char buffer[BUFFER_SIZE + 1] = {0};
-	size_t size = recv(sock, &buffer, BUFFER_SIZE, 0);
+	char buffer[BUFFER_SIZE];
+	memset(buffer, 0, BUFFER_SIZE);
+	size_t size = recv(sock, buffer, BUFFER_SIZE, 0);
 
 	if (size <= 0) {
 		destroy();

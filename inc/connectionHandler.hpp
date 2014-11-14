@@ -5,10 +5,6 @@
 #include <arpa/inet.h>
 #include <ev++.h>
 
-#define BUFFER_SIZE 512
-#define MAX_REQUEST_SIZE 4096
-#define TIMEOUT 10
-
 class ConnectionHandler
 {
 public:
@@ -27,6 +23,8 @@ private:
 	int sock;
 	sockaddr_in client;
 	std::string request;
+	const int MAX_REQUEST_SIZE;
+	const int BUFFER_SIZE;
 	std::string response;
 	size_t sent;
 

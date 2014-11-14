@@ -1,11 +1,12 @@
 #include <iostream>
 #include "server.hpp"
 #include "parser.hpp"
+#include "config.hpp"
 
 int main()
 {
 	try {
-		Server server(48151);
+		Server server(Config::getInt("port"));
 		Parser::init();
 		server.run();
 	}

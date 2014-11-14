@@ -1,6 +1,7 @@
 #include "requestHandler.hpp"
 #include "response.hpp"
 #include "utility.hpp"
+#include "config.hpp"
 
 torrentMap RequestHandler::torMap;
 
@@ -11,8 +12,7 @@ std::string RequestHandler::handle(std::string str, std::string ip)
 	std::string check = Parser::check(req); // check if we have all we need to process (saves time if not the case
 	if (check != "success")
 		return error(check, gzip);
-	//if ( Config::get("type") == "private" ) { // private tracker
-	if (false) {
+	if ( Config::get("type") == "private" ) { // private tracker
 		if (req.find("passkey") == req.end())
 			return error("passkey not found", gzip);
 	}
