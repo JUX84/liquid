@@ -23,7 +23,7 @@ private:
 	int sock;
 	sockaddr_in client;
 	std::string request;
-	const int MAX_REQUEST_SIZE;
+	const unsigned int MAX_REQUEST_SIZE;
 	const int BUFFER_SIZE;
 	std::string response;
 	size_t sent;
