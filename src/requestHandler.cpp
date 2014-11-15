@@ -73,7 +73,7 @@ std::string RequestHandler::announce(const request& req)
 			 + std::to_string(tor->Leechers()->size())
 			 + "e8:intervali"
 			 + std::to_string(900)
-			 + "e12:min intervali300"
+			 + "e12:min intervali"
 			 + std::to_string(300)
 			 + "e5:peers"
 			 + (peers.empty() ?
