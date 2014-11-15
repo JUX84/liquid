@@ -69,8 +69,6 @@ std::string RequestHandler::announce(const request& req)
 	return response(
 			("d8:completei"
 			 + std::to_string(tor->Seeders()->size())
-			 //+ "e10:downloadedi" // useless?
-			 //+ std::to_string(0)
 			 + "e10:incompletei"
 			 + std::to_string(tor->Leechers()->size())
 			 + "e8:intervali"
