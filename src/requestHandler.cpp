@@ -35,9 +35,9 @@ std::string RequestHandler::announce(const request& req)
 	peerMap *pmap;
 	if (std::stoi(req.at("left")) > 0) {
 		pmap = &torMap.at(req.at("info_hash")).second;
-		pmap->emplace(req.at("ip"), new User());
-		if (!pmap->at(req.at("ip"))->isSet())
-			pmap->at(req.at("ip"))->set(
+		pmap->emplace(req.at("peer_id"), new User());
+		if (!pmap->at(req.at("peer_id"))->isSet())
+			pmap->at(req.at("peer_id"))->set(
 					(Utility::ip_hex_encode(req.at("ip"))
 					 +
 					 Utility::port_hex_encode(req.at("port")))
@@ -45,9 +45,9 @@ std::string RequestHandler::announce(const request& req)
 		pmap = &torMap.at(req.at("info_hash")).first;
 	} else {
 		pmap = &torMap.at(req.at("info_hash")).first;
-		pmap->emplace(req.at("ip"), new User());
-		if (!pmap->at(req.at("ip"))->isSet())
-			pmap->at(req.at("ip"))->set(
+		pmap->emplace(req.at("peer_id"), new User());
+		if (!pmap->at(req.at("peer_id"))->isSet())
+			pmap->at(req.at("peer_id"))->set(
 					(Utility::ip_hex_encode(req.at("ip"))
 					 +
 					 Utility::port_hex_encode(req.at("port")))
@@ -67,8 +67,8 @@ std::string RequestHandler::announce(const request& req)
 	return response(
 			("d8:completei"
 			 + std::to_string(0)
-			 + "e10:downloadedi"
-			 + std::to_string(0)
+			 //+ "e10:downloadedi" // useless?
+			 //+ std::to_string(0)
 			 + "e10:incompletei"
 			 + std::to_string(0)
 			 + "e8:intervali"

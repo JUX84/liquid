@@ -7,7 +7,7 @@ requirements Parser::required;
 
 void Parser::init ()
 {
-	required.emplace("announce", std::forward_list<std::string>{"port","info_hash","left"}); // init a set of required params in a request
+	required.emplace("announce", std::forward_list<std::string>{"port","peer_id","info_hash","left"}); // init a set of required params in a request
 }
 
 std::string Parser::check (const request& req)
