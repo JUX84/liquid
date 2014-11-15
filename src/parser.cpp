@@ -1,4 +1,6 @@
 #include <algorithm>
+#include <iostream>
+#include <stdexcept>
 #include "parser.hpp"
 
 requirements Parser::required;
@@ -10,11 +12,14 @@ void Parser::init ()
 
 std::string Parser::check (const request& req)
 {
-	if (req.find("action") == req.end() || required.find(req.at("action")) == required.end())
+	try {
+		for (auto it : required.at(req.at("action"))) {
+			if (req.find(it) == req.end())
+				return "missing param (" + it + ")";
+		}
+	} catch (const std::exception& e) {
+		std::cerr << "Error in Parser::check -- action not found\n";
 		return "missing action";
-	for (auto it : required.at(req.at("action"))) {
-		if (req.find(it) == req.end())
-			return "missing param (" + it + ")";
 	}
 	return "success";
 }
@@ -41,8 +46,8 @@ request Parser::parse (const std::string& input)
 	}
 	if (input[pos] == '/') // Case 1
 		++pos;
+	int i;
 	if ( input[pos] != '?' ) { // Case 1, 2, 3
-		int i;
 		for (i=0; i < 8; ++i) { // longest action possible is announce
 			if (input[pos+i] == '/' ||
 				input[pos+i] == '?' ||
@@ -58,54 +63,42 @@ request Parser::parse (const std::string& input)
 		return request(); // malformed
 
 	// ocelot-style parsing, should maybe replace with substr later
-	std::string key, value;
-	bool parsing_key = true;
+	std::string key;
 	bool found_data = false;
-	for (; pos < input_length; ++pos) {
-		if (input[pos] == '=') {
-			parsing_key = false;
-		} else if (input[pos] == '&' || input[pos] == ' ') {
-			if (found_data)
-				output.emplace(key, value);
+	for (i=pos; i < input_length; ++i) {
+		if (input[i] == '=') {
+			key = input.substr(pos,i-pos);
+			pos = ++i;
+		} else if (input[i] == '&' || input[i] == ' ') {
+			if (found_data) {
+				output.emplace(key, input.substr(pos, i-pos));
+				pos = ++i;
+			}
 			found_data = false;
-			parsing_key = true;
-			if (input[pos] == ' ')
+			if (input[pos-1] == ' ')
 				break;
 			key.clear();
-			value.clear();
 		} else {
 			found_data = true;
-			if (parsing_key)
-				key.push_back(input[pos]);
-			else
-				value.push_back(input[pos]);
 		}
 	}
 	pos += 10;
-	for (; pos < input_length; ++pos) {
-		if (input[pos] == ':') {
-			if (!parsing_key) {
-				while (input[pos+1] != '\n' && input[pos+1] != '\r')
-					++pos;
-			} else {
-				parsing_key = false;
-				++pos;
-			}
-		} else if (input[pos] == '\n' || input[pos] == '\r') {
+	for (i=pos; i < input_length; ++i) {
+		if (input[i] == ':') {
+			key = input.substr(pos, i-pos);
+			i += 2;
+			pos = i;
+		} else if (input[i] == '\n' || input[i] == '\r') {
 			if (found_data) {
 				std::transform(key.begin(), key.end(), key.begin(), ::tolower);
-				output.emplace(key, value);
+				output.emplace(key, input.substr(pos, i-pos));
+				i += 2;
+				pos = i;
 			}
 			found_data = false;
-			parsing_key = true;
 			key.clear();
-			value.clear();
 		} else {
 			found_data = true;
-			if (parsing_key)
-				key.push_back(input[pos]);
-			else
-				value.push_back(input[pos]);
 		}
 	}
 	return output;

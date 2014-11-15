@@ -1,3 +1,5 @@
+#include <iostream>
+#include <stdexcept>
 #include "requestHandler.hpp"
 #include "response.hpp"
 #include "utility.hpp"
@@ -8,19 +10,23 @@ torrentMap RequestHandler::torMap;
 std::string RequestHandler::handle(std::string str, std::string ip)
 {
 	request req = Parser::parse(str); // parse the request
-	bool gzip = (req.at("accept-encoding").find("gzip") != std::string::npos);
+	try {
+		if (req.at("accept-encoding").find("gzip") != std::string::npos)
+			req.emplace("gzip", "true");
+	} catch (const std::exception& e) {
+		req.emplace("gzip", "false");
+	}
 	std::string check = Parser::check(req); // check if we have all we need to process (saves time if not the case
 	if (check != "success")
-		return error(check, gzip);
+		return error(check, req.at("gzip") == "true");
 	if ( Config::get("type") == "private" ) { // private tracker
 		if (req.find("passkey") == req.end())
-			return error("passkey not found", gzip);
+			return error("passkey not found", req.at("gzip") == "true");
 	}
-	if (req.find("ip") == req.end()) // if the client didn't send an ip address in the params, use the one used to send the request
-		req.emplace("ip", ip);
+	req.emplace("ip", ip);
 	if (req.at("action") == "announce")
 		return announce(req);
-	return error("invalid action", gzip); // not possible, since the request is checked, but, well, who knows :3
+	return error("invalid action", req.at("gzip") == "true"); // not possible, since the request is checked, but, well, who knows :3
 }
 
 std::string RequestHandler::announce(const request& req)
@@ -32,43 +38,51 @@ std::string RequestHandler::announce(const request& req)
 		pmap->emplace(req.at("ip"), new User());
 		if (!pmap->at(req.at("ip"))->isSet())
 			pmap->at(req.at("ip"))->set(
-				(Utility::ip_hex_encode(req.at("ip"))
-				 +
-				 Utility::port_hex_encode(req.at("port")))
-				);
+					(Utility::ip_hex_encode(req.at("ip"))
+					 +
+					 Utility::port_hex_encode(req.at("port")))
+					);
 		pmap = &torMap.at(req.at("info_hash")).first;
 	} else {
 		pmap = &torMap.at(req.at("info_hash")).first;
 		pmap->emplace(req.at("ip"), new User());
 		if (!pmap->at(req.at("ip"))->isSet())
 			pmap->at(req.at("ip"))->set(
-				(Utility::ip_hex_encode(req.at("ip"))
-				 +
-				 Utility::port_hex_encode(req.at("port")))
-				);
+					(Utility::ip_hex_encode(req.at("ip"))
+					 +
+					 Utility::port_hex_encode(req.at("port")))
+					);
 		pmap = &torMap.at(req.at("info_hash")).second;
 	}
 	std::string peers;
-	//int i = std::stoi(req.at("numwant"));
+	int i = 100;
+	try {
+		i = std::stoi(req.at("numwant"));
+	} catch (const std::exception& e) {}
 	for ( auto it : *pmap ) {
-	//	if (i-- == 0)
-	//		break;
+		if (i-- == 0)
+			break;
 		peers.append(it.second->get());
 	}
-	std::string resp;
-	resp += "d8:completei0";
-        resp += "e10:downloadedi0";
-        resp += "e10:incompletei0";
-        resp += "e8:intervali900";
-        resp += "e12:min intervali300";
-        resp += "e5:peers";
-	if(peers.empty()) {
-		resp += "0:";
-	} else {
-		resp += std::to_string(peers.length());
-		resp += ":";
-		resp += peers;
-	}
-	resp += "e";
-	return response(resp, (req.at("accept-encoding").find("gzip") != std::string::npos)); // doesn't look as bad as it is stated on ocelot, needs stresstesting to check
+	return response(
+			("d8:completei"
+			 + std::to_string(0)
+			 + "e10:downloadedi"
+			 + std::to_string(0)
+			 + "e10:incompletei"
+			 + std::to_string(0)
+			 + "e8:intervali"
+			 + std::to_string(900)
+			 + "e12:min intervali300"
+			 + std::to_string(300)
+			 + "e5:peers"
+			 + (peers.empty() ?
+				 "0:"
+				 :
+				 std::to_string(peers.length())
+				 + ":"
+				 + peers)
+			 + "e"),
+			req.at("gzip") == "true"
+		       ); // doesn't look as bad as it is stated on ocelot, needs stresstesting to check
 }
