@@ -71,7 +71,13 @@ request Parser::parse (const std::string& input)
 			pos = ++i;
 		} else if (input[i] == '&' || input[i] == ' ') {
 			if (found_data) {
-				output.emplace(key, input.substr(pos, i-pos));
+				if (key == "info_hash") {
+					std::string hash = input.substr(pos, i-pos);
+					std::transform(hash.begin(), hash.end(), hash.begin(), ::tolower);
+					output.emplace("info_hash", hash);
+				} else {
+					output.emplace(key, input.substr(pos, i-pos));
+				}
 				pos = ++i;
 			}
 			found_data = false;

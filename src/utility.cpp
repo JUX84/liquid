@@ -46,6 +46,6 @@ std::string Utility::ip_hex_encode (const std::string& input)
 
 std::string Utility::port_hex_encode (const std::string& input)
 {
-	uint16_t value = std::stoi(input);
-	return std::to_string((value >> 8)) + std::to_string((value & 0xff));
+	uint16_t value = htons(std::stoi(input));
+	return std::string(reinterpret_cast<const char*>(&value), sizeof(value));
 }
