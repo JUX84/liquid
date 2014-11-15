@@ -61,11 +61,14 @@ std::string RequestHandler::announce(const request& req)
 	try {
 		i = std::stoi(req.at("numwant"));
 	} catch (const std::exception& e) {}
-	for ( auto it : *pmap ) {
-		if (i-- == 0)
-			break;
-		peers.append(it.second->get());
+	auto it = tor->LastSeeder();
+	while (i-- > 0) {
+		if (it == pmap->end())
+			it = pmap->begin();
+		peers.append(it->second->get());
+		it = std::next(it);
 	}
+	tor->LastSeeder(it);
 	return response(
 			("d8:completei"
 			 + std::to_string(tor->Seeders()->size())

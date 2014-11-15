@@ -1,7 +1,7 @@
 #include "user.hpp"
 
 bool User::isSet() {
-	return !hex_ip.empty();
+	return !this->hex_ip.empty();
 }
 
 void User::set(std::string hex_ip) {
