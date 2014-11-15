@@ -5,6 +5,7 @@
 
 int main()
 {
+	std::ios_base::sync_with_stdio(false);
 	try {
 		Server server(Config::getInt("port"));
 		Parser::init();
