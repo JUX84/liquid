@@ -4,6 +4,7 @@
 #include "response.hpp"
 #include "utility.hpp"
 #include "config.hpp"
+#include "torrent.hpp"
 
 torrentMap RequestHandler::torMap;
 
@@ -31,10 +32,11 @@ std::string RequestHandler::handle(std::string str, std::string ip)
 
 std::string RequestHandler::announce(const request& req)
 {
-	torMap.emplace(req.at("info_hash"), std::pair<peerMap, peerMap>());
+	torMap.emplace(req.at("info_hash"), Torrent());
+	Torrent *tor = &torMap.at(req.at("info_hash"));
 	peerMap *pmap;
 	if (std::stoi(req.at("left")) > 0) {
-		pmap = &torMap.at(req.at("info_hash")).second;
+		pmap = tor->Leechers();
 		pmap->emplace(req.at("peer_id"), new User());
 		if (!pmap->at(req.at("peer_id"))->isSet())
 			pmap->at(req.at("peer_id"))->set(
@@ -42,9 +44,9 @@ std::string RequestHandler::announce(const request& req)
 					 +
 					 Utility::port_hex_encode(req.at("port")))
 					);
-		pmap = &torMap.at(req.at("info_hash")).first;
+		pmap = tor->Seeders();
 	} else {
-		pmap = &torMap.at(req.at("info_hash")).first;
+		pmap = tor->Seeders();
 		pmap->emplace(req.at("peer_id"), new User());
 		if (!pmap->at(req.at("peer_id"))->isSet())
 			pmap->at(req.at("peer_id"))->set(
@@ -52,7 +54,7 @@ std::string RequestHandler::announce(const request& req)
 					 +
 					 Utility::port_hex_encode(req.at("port")))
 					);
-		pmap = &torMap.at(req.at("info_hash")).second;
+		pmap = tor->Leechers();
 	}
 	std::string peers;
 	int i = 100;
@@ -66,11 +68,11 @@ std::string RequestHandler::announce(const request& req)
 	}
 	return response(
 			("d8:completei"
-			 + std::to_string(0)
+			 + std::to_string(tor->Seeders()->size())
 			 //+ "e10:downloadedi" // useless?
 			 //+ std::to_string(0)
 			 + "e10:incompletei"
-			 + std::to_string(0)
+			 + std::to_string(tor->Leechers()->size())
 			 + "e8:intervali"
 			 + std::to_string(900)
 			 + "e12:min intervali300"

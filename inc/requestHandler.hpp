@@ -1,11 +1,12 @@
 #pragma once
 
-#include <unordered_map>
 #include "parser.hpp"
-#include "user.hpp"
+#include "torrent.hpp"
+//#include "user.hpp"
 
-typedef std::unordered_map<std::string, User*> peerMap;
-typedef std::map<std::string, std::pair<peerMap, peerMap>> torrentMap;
+//typedef std::unordered_map<std::string, User*> peerMap;
+//typedef std::map<std::string, std::pair<peerMap, peerMap>> torrentMap;
+typedef std::map<std::string, Torrent> torrentMap;
 
 class RequestHandler {
 	private:
