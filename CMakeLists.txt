@@ -1,16 +1,17 @@
 cmake_minimum_required(VERSION 2.6.4)
 
 project(Liquid)
+
 set(CMAKE_MODULE_PATH cmake)
 
 INCLUDE(CheckIncludeFiles)
 INCLUDE(FindPkgConfig)
 INCLUDE(CheckLibraryExists)
 
-FIND_PACKAGE(LibEV REQUIRED)
 FIND_PACKAGE(ZLIB REQUIRED)
-link_directories(${LibEV_LIBRARY_DIRS})
-include_directories(${LibEV_INCLUDE_DIRS})
+FIND_PACKAGE(LibEV REQUIRED)
+link_directories(${LibEV_LIBRARY_DIRS} ${ZLIB_LIBRARY_DIRS})
+include_directories(${LibEV_INCLUDE_DIRS} ${ZLIB_INCLUDE_DIRS})
 
 file(GLOB_RECURSE source_files src/*)
 include_directories(inc)
@@ -20,4 +21,12 @@ add_executable(liquid ${source_files})
 
 target_link_libraries(liquid ev z)
 
-set(CMAKE_CXX_FLAGS "-std=c++14 ${CMAKE_CXX_FLAGS}")
+
+option(USE_CLANG "build with clang" ON)
+
+set(CMAKE_CXX_FLAGS "-std=c++14 -Wall -O2")
+if(USE_CLANG)
+	set(CMAKE_CXX_COMPILER "clang++")
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++")
+	target_link_libraries(liquid c++abi)
+endif(USE_CLANG)
