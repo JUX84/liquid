@@ -12,8 +12,8 @@ class Torrent {
 		peerMap seeders;
 		peerMap leechers;
 	public:
-		void LastSeeder(peerMap::iterator it);
-		peerMap::iterator LastSeeder();
+		peerMap::iterator* LastSeeder();
+		peerMap::iterator* LastLeecher();
 		peerMap* Seeders();
 		peerMap* Leechers();
 };

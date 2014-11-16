@@ -35,6 +35,7 @@ std::string RequestHandler::announce(const request& req)
 	torMap.emplace(req.at("info_hash"), Torrent());
 	Torrent *tor = &torMap.at(req.at("info_hash"));
 	peerMap *pmap;
+	peerMap::iterator *it;
 	if (std::stoi(req.at("left")) > 0) {
 		pmap = tor->Leechers();
 		pmap->emplace(req.at("peer_id"), new User());
@@ -45,6 +46,7 @@ std::string RequestHandler::announce(const request& req)
 					 Utility::port_hex_encode(req.at("port")))
 					);
 		pmap = tor->Seeders();
+		it = tor->LastSeeder();
 	} else {
 		pmap = tor->Seeders();
 		pmap->emplace(req.at("peer_id"), new User());
@@ -55,20 +57,19 @@ std::string RequestHandler::announce(const request& req)
 					 Utility::port_hex_encode(req.at("port")))
 					);
 		pmap = tor->Leechers();
+		it = tor->LastLeecher();
 	}
 	std::string peers;
-	int i = 100;
+	int i = 10;
 	try {
 		i = std::stoi(req.at("numwant"));
 	} catch (const std::exception& e) {}
-	auto it = tor->LastSeeder();
 	while (i-- > 0) {
-		if (it == pmap->end())
-			it = pmap->begin();
-		peers.append(it->second->get());
-		it = std::next(it);
+		if ((*it) == pmap->end())
+			(*it) = pmap->begin();
+		peers.append((*it)->second->get());
+		(*it) = std::next((*it));
 	}
-	tor->LastSeeder(it);
 	return response(
 			("d8:completei"
 			 + std::to_string(tor->Seeders()->size())
