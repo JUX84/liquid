@@ -1,5 +1,6 @@
-#ifndef CONFIG_HPP
-#define CONFIG_HPP
+#pragma once
+
+#include <unordered_map>
 
 class Config
 {
@@ -13,5 +14,3 @@ private:
 
 	static std::unordered_map<std::string, std::pair<std::string, bool>> vars;
 };
-
-#endif

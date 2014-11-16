@@ -1,6 +1,7 @@
 #include <algorithm>
 #include <iostream>
 #include <stdexcept>
+#include "config.hpp"
 #include "parser.hpp"
 
 requirements Parser::required;
@@ -8,6 +9,8 @@ requirements Parser::required;
 void Parser::init ()
 {
 	required.emplace("announce", std::forward_list<std::string>{"port","peer_id","info_hash","left"}); // init a set of required params in a request
+	if (Config::get("type") == "private")
+		required.at("announce").push_front("passkey");
 }
 
 std::string Parser::check (const request& req)

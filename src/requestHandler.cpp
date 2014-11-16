@@ -3,7 +3,6 @@
 #include "requestHandler.hpp"
 #include "response.hpp"
 #include "utility.hpp"
-#include "config.hpp"
 #include "torrent.hpp"
 
 torrentMap RequestHandler::torMap;
@@ -20,10 +19,6 @@ std::string RequestHandler::handle(std::string str, std::string ip)
 	std::string check = Parser::check(req); // check if we have all we need to process (saves time if not the case
 	if (check != "success")
 		return error(check, req.at("gzip") == "true");
-	if ( Config::get("type") == "private" ) { // private tracker
-		if (req.find("passkey") == req.end())
-			return error("passkey not found", req.at("gzip") == "true");
-	}
 	req.emplace("ip", ip);
 	if (req.at("action") == "announce")
 		return announce(req);
@@ -80,12 +75,9 @@ std::string RequestHandler::announce(const request& req)
 			 + "e12:min intervali"
 			 + std::to_string(300)
 			 + "e5:peers"
-			 + (peers.empty() ?
-				 "0:"
-				 :
-				 std::to_string(peers.length())
-				 + ":"
-				 + peers)
+			 + std::to_string(peers.length())
+			 + ":"
+			 + peers
 			 + "e"),
 			req.at("gzip") == "true"
 		       ); // doesn't look as bad as it is stated on ocelot, needs stresstesting to check
