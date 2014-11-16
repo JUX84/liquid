@@ -4,9 +4,9 @@
 
 class User {
 	private:
-		std::string hex_ip;
+		std::string hexIP;
 	public:
-		void set(std::string hex_ip);
-		std::string get();
-		bool isSet();
+		void setHexIP(std::string hexIP);
+		std::string getHexIP();
+		bool isSetHexIP();
 };

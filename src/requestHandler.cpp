@@ -28,32 +28,25 @@ std::string RequestHandler::handle(std::string str, std::string ip)
 
 std::string RequestHandler::announce(const request& req)
 {
-	torMap.emplace(req.at("info_hash"), Torrent());
-	Torrent *tor = &torMap.at(req.at("info_hash"));
-	peerMap *pmap;
-	peerMap::iterator *it;
+	torMap.emplace(req.at("info_hash"), new Torrent());
+	Torrent *tor = torMap.at(req.at("info_hash"));
+	PeerMap *pmap;
 	if (std::stoi(req.at("left")) > 0) {
 		pmap = tor->Leechers();
-		pmap->emplace(req.at("peer_id"), new User());
-		if (!pmap->at(req.at("peer_id"))->isSet())
-			pmap->at(req.at("peer_id"))->set(
+		if (pmap->getPeer(req.at("peer_id")) == nullptr)
+			pmap->addPeer(req.at("peer_id"), 
 					(Utility::ip_hex_encode(req.at("ip"))
 					 +
-					 Utility::port_hex_encode(req.at("port")))
-					);
+					 Utility::port_hex_encode(req.at("port"))));
 		pmap = tor->Seeders();
-		it = tor->LastSeeder();
 	} else {
 		pmap = tor->Seeders();
-		pmap->emplace(req.at("peer_id"), new User());
-		if (!pmap->at(req.at("peer_id"))->isSet())
-			pmap->at(req.at("peer_id"))->set(
+		if (!pmap->getPeer(req.at("peer_id")))
+			pmap->addPeer(req.at("peer_id"), 
 					(Utility::ip_hex_encode(req.at("ip"))
 					 +
-					 Utility::port_hex_encode(req.at("port")))
-					);
+					 Utility::port_hex_encode(req.at("port"))));
 		pmap = tor->Leechers();
-		it = tor->LastLeecher();
 	}
 	std::string peers;
 	unsigned long i = 10;
@@ -61,12 +54,8 @@ std::string RequestHandler::announce(const request& req)
 		i = std::stoi(req.at("numwant"));
 	} catch (const std::exception& e) {}
 	i = std::min(i, pmap->size());
-	while (i-- > 0) {
-		if ((*it) == pmap->end())
-			(*it) = std::begin(*pmap);
-		peers.append((*it)->second->get());
-		(*it) = std::next((*it));
-	}
+	while (i-- > 0)
+		peers.append(pmap->nextPeer()->getHexIP());
 	return response(
 			("d8:completei"
 			 + std::to_string(tor->Seeders()->size())

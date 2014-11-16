@@ -1,17 +1,9 @@
 #include "torrent.hpp"
 
-peerMap* Torrent::Seeders() {
+PeerMap* Torrent::Seeders() {
 	return &this->seeders;
 }
 
-peerMap* Torrent::Leechers() {
+PeerMap* Torrent::Leechers() {
 	return &this->leechers;
-}
-
-peerMap::iterator* Torrent::LastSeeder() {
-	return &this->sit;
-}
-
-peerMap::iterator* Torrent::LastLeecher() {
-	return &this->lit;
 }

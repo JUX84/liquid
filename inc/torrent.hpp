@@ -2,19 +2,13 @@
 
 #include <string>
 #include <unordered_map>
-#include "user.hpp"
-
-typedef std::unordered_map<std::string, User*> peerMap;
+#include "peermap.hpp"
 
 class Torrent {
 	private:
-		peerMap::iterator sit;
-		peerMap::iterator lit;
-		peerMap seeders;
-		peerMap leechers;
+		PeerMap seeders;
+		PeerMap leechers;
 	public:
-		peerMap::iterator* LastSeeder();
-		peerMap::iterator* LastLeecher();
-		peerMap* Seeders();
-		peerMap* Leechers();
+		PeerMap* Seeders();
+		PeerMap* Leechers();
 };

@@ -1,13 +1,13 @@
 #include "user.hpp"
 
-bool User::isSet() {
-	return !this->hex_ip.empty();
+bool User::isSetHexIP() {
+	return !this->hexIP.empty();
 }
 
-void User::set(std::string hex_ip) {
-	this->hex_ip = hex_ip;
+void User::setHexIP(std::string hexIP) {
+	this->hexIP = hexIP;
 }
 
-std::string User::get() {
-	return this->hex_ip;
+std::string User::getHexIP() {
+	return this->hexIP;
 }
