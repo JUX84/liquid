@@ -1,12 +1,13 @@
 #pragma once
 
-#include <forward_list>
+#include <unordered_map>
 #include <string>
+#include "parser.hpp"
 
 class User {
 	private:
-		std::forward_list<std::string> hexIP;
+		std::unordered_map<std::string, std::string> hexIP;
 	public:
-		void addHexIP(std::string hexIP);
-		std::forward_list<std::string>* getHexIP();
+		void addHexIP(const request&);
+		std::unordered_map<std::string, std::string>* getHexIP();
 };

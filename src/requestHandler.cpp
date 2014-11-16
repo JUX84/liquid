@@ -1,11 +1,13 @@
 #include <algorithm>
 #include <iostream>
 #include <stdexcept>
+#include "config.hpp"
 #include "requestHandler.hpp"
 #include "response.hpp"
 #include "torrent.hpp"
 
 torrentMap RequestHandler::torMap;
+userMap RequestHandler::usrMap;
 
 std::string RequestHandler::handle(std::string str, std::string ip)
 {
@@ -19,6 +21,8 @@ std::string RequestHandler::handle(std::string str, std::string ip)
 	std::string check = Parser::check(req); // check if we have all we need to process (saves time if not the case
 	if (check != "success")
 		return error(check, req.at("gzip") == "true");
+	if (Config::get("type") == "private" && getUser(req.at("passkey")) == nullptr)
+		return error("passkey not found", req.at("gzip") == "true");
 	req.emplace("ip", ip);
 	if (req.at("action") == "announce")
 		return announce(req);
@@ -47,7 +51,7 @@ std::string RequestHandler::announce(const request& req)
 	i = std::min(i, pmap->size());
 	while (i-- > 0) {
 		for ( auto it : *pmap->nextPeer()->getHexIP())
-			peers.append(it);
+			peers.append(it.second);
 	}
 	return response(
 			("d8:completei"
@@ -65,4 +69,12 @@ std::string RequestHandler::announce(const request& req)
 			 + "e"),
 			req.at("gzip") == "true"
 		       ); // doesn't look as bad as it is stated on ocelot, needs stresstesting to check
+}
+
+User* RequestHandler::getUser(const std::string& passkey) {
+	try {
+		return usrMap.at(passkey);
+	} catch (const std::exception& e) {
+		return nullptr;
+	}
 }

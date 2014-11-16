@@ -1,5 +1,6 @@
 #include "peermap.hpp"
-#include "utility.hpp"
+#include "config.hpp"
+#include "requestHandler.hpp"
 
 PeerMap::PeerMap () {
 	pMap = peerMap();
@@ -16,17 +17,12 @@ User* PeerMap::getPeer(const std::string& identifier) {
 
 void PeerMap::addPeer(const request& req) {
 	User* u;
-	//if (Config::get("type") == "private")
-	//	u = UserMap::getUser(req.at("passkey"));
-	//else
+	if (Config::get("type") == "private")
+		u = RequestHandler::getUser(req.at("passkey"));
+	else
 		u = new User();
-	if (pMap.find(req.at("peer_id")) == pMap.end()) {
-		u->addHexIP(       
-			(Utility::ip_hex_encode(req.at("ip"))
-		 	+
-		 	Utility::port_hex_encode(req.at("port")))
-			);
-	}
+	if (pMap.find(req.at("peer_id")) == pMap.end())
+		u->addHexIP(req);
 	pMap.emplace(req.at("peer_id"), u);
 }
 
