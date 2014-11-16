@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <iostream>
 #include <stdexcept>
 #include "requestHandler.hpp"
@@ -55,13 +56,14 @@ std::string RequestHandler::announce(const request& req)
 		it = tor->LastLeecher();
 	}
 	std::string peers;
-	int i = 10;
+	unsigned long i = 10;
 	try {
 		i = std::stoi(req.at("numwant"));
 	} catch (const std::exception& e) {}
+	i = std::min(i, pmap->size());
 	while (i-- > 0) {
 		if ((*it) == pmap->end())
-			(*it) = pmap->begin();
+			(*it) = std::begin(*pmap);
 		peers.append((*it)->second->get());
 		(*it) = std::next((*it));
 	}

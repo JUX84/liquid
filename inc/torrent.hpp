@@ -8,7 +8,8 @@ typedef std::unordered_map<std::string, User*> peerMap;
 
 class Torrent {
 	private:
-		peerMap::iterator it;
+		peerMap::iterator sit;
+		peerMap::iterator lit;
 		peerMap seeders;
 		peerMap leechers;
 	public:

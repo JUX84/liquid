@@ -9,9 +9,9 @@ peerMap* Torrent::Leechers() {
 }
 
 peerMap::iterator* Torrent::LastSeeder() {
-	return &this->it;
+	return &this->sit;
 }
 
 peerMap::iterator* Torrent::LastLeecher() {
-	return &this->it;
+	return &this->lit;
 }
