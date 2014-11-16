@@ -21,7 +21,7 @@ void PeerMap::addPeer(const request& req) {
 		u = RequestHandler::getUser(req.at("passkey"));
 	else
 		u = new User();
-	if (pMap.find(req.at("peer_id")) == pMap.end())
+	if (u->getHexIP()->find(req.at("ip")+":"+req.at("port")) == u->getHexIP()->end())
 		u->addHexIP(req);
 	pMap.emplace(req.at("peer_id"), u);
 }
