@@ -41,7 +41,7 @@ std::string RequestHandler::announce(const request& req)
 		pmap = tor->Seeders();
 	} else {
 		pmap = tor->Seeders();
-		if (!pmap->getPeer(req.at("peer_id")))
+		if (pmap->getPeer(req.at("peer_id")) == nullptr)
 			pmap->addPeer(req.at("peer_id"), 
 					(Utility::ip_hex_encode(req.at("ip"))
 					 +

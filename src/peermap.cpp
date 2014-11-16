@@ -20,10 +20,11 @@ void PeerMap::addPeer(const std::string& peerID, std::string hexIP) {
 }
 
 User* PeerMap::nextPeer() {
-	it = std::next(it);
 	if (it == std::end(pMap))
 		it = std::begin(pMap);
-	return it->second;
+	peerMap::iterator tmp = it;
+	it = std::next(it);
+	return tmp->second;
 }
 
 unsigned long PeerMap::size () {
