@@ -45,8 +45,10 @@ std::string RequestHandler::announce(const request& req)
 		i = std::stoi(req.at("numwant"));
 	} catch (const std::exception& e) {}
 	i = std::min(i, pmap->size());
-	while (i-- > 0)
-		peers.append(pmap->nextPeer()->getHexIP());
+	while (i-- > 0) {
+		for ( auto it : *pmap->nextPeer()->getHexIP())
+			peers.append(it);
+	}
 	return response(
 			("d8:completei"
 			 + std::to_string(tor->Seeders()->size())

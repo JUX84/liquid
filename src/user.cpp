@@ -1,13 +1,9 @@
 #include "user.hpp"
 
-bool User::isSetHexIP() {
-	return !this->hexIP.empty();
+void User::addHexIP(std::string hexIP) {
+	this->hexIP.push_front(hexIP);
 }
 
-void User::setHexIP(std::string hexIP) {
-	this->hexIP = hexIP;
-}
-
-std::string User::getHexIP() {
-	return this->hexIP;
+std::forward_list<std::string>* User::getHexIP() {
+	return &this->hexIP;
 }

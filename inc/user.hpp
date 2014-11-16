@@ -1,12 +1,12 @@
 #pragma once
 
+#include <forward_list>
 #include <string>
 
 class User {
 	private:
-		std::string hexIP;
+		std::forward_list<std::string> hexIP;
 	public:
-		void setHexIP(std::string hexIP);
-		std::string getHexIP();
-		bool isSetHexIP();
+		void addHexIP(std::string hexIP);
+		std::forward_list<std::string>* getHexIP();
 };

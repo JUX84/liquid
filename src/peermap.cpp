@@ -15,12 +15,18 @@ User* PeerMap::getPeer(const std::string& identifier) {
 }
 
 void PeerMap::addPeer(const request& req) {
-	User* u = new User();
-	u->setHexIP(       
+	User* u;
+	//if (Config::get("type") == "private")
+	//	u = UserMap::getUser(req.at("passkey"));
+	//else
+		u = new User();
+	if (pMap.find(req.at("peer_id")) == pMap.end()) {
+		u->addHexIP(       
 			(Utility::ip_hex_encode(req.at("ip"))
 		 	+
 		 	Utility::port_hex_encode(req.at("port")))
 			);
+	}
 	pMap.emplace(req.at("peer_id"), u);
 }
 
