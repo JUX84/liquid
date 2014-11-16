@@ -1,6 +1,7 @@
 #pragma once
 
 #include <unordered_map>
+#include "parser.hpp"
 #include "user.hpp"
 
 typedef std::unordered_map<std::string, User*> peerMap;
@@ -12,7 +13,7 @@ class PeerMap {
 	public:
 		PeerMap();
 		User* getPeer(const std::string&);
-		void addPeer(const std::string&, std::string);
+		void addPeer(const request&);
 		User* nextPeer();
 		unsigned long size();
 };

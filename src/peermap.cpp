@@ -1,4 +1,5 @@
 #include "peermap.hpp"
+#include "utility.hpp"
 
 PeerMap::PeerMap () {
 	pMap = peerMap();
@@ -13,10 +14,14 @@ User* PeerMap::getPeer(const std::string& identifier) {
 	}
 }
 
-void PeerMap::addPeer(const std::string& peerID, std::string hexIP) {
+void PeerMap::addPeer(const request& req) {
 	User* u = new User();
-	u->setHexIP(hexIP);
-	pMap.emplace(peerID, u);
+	u->setHexIP(       
+			(Utility::ip_hex_encode(req.at("ip"))
+		 	+
+		 	Utility::port_hex_encode(req.at("port")))
+			);
+	pMap.emplace(req.at("peer_id"), u);
 }
 
 User* PeerMap::nextPeer() {

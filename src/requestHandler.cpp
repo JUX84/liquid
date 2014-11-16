@@ -3,7 +3,6 @@
 #include <stdexcept>
 #include "requestHandler.hpp"
 #include "response.hpp"
-#include "utility.hpp"
 #include "torrent.hpp"
 
 torrentMap RequestHandler::torMap;
@@ -30,22 +29,14 @@ std::string RequestHandler::announce(const request& req)
 {
 	torMap.emplace(req.at("info_hash"), new Torrent());
 	Torrent *tor = torMap.at(req.at("info_hash"));
-	PeerMap *pmap;
+	PeerMap *pmap = nullptr;
 	if (std::stoi(req.at("left")) > 0) {
-		pmap = tor->Leechers();
-		if (pmap->getPeer(req.at("peer_id")) == nullptr)
-			pmap->addPeer(req.at("peer_id"), 
-					(Utility::ip_hex_encode(req.at("ip"))
-					 +
-					 Utility::port_hex_encode(req.at("port"))));
+		if (tor->Leechers()->getPeer(req.at("peer_id")) == nullptr)
+			tor->Leechers()->addPeer(req);
 		pmap = tor->Seeders();
 	} else {
-		pmap = tor->Seeders();
-		if (pmap->getPeer(req.at("peer_id")) == nullptr)
-			pmap->addPeer(req.at("peer_id"), 
-					(Utility::ip_hex_encode(req.at("ip"))
-					 +
-					 Utility::port_hex_encode(req.at("port"))));
+		if (tor->Seeders()->getPeer(req.at("peer_id")) == nullptr)
+			tor->Seeders()->addPeer(req);
 		pmap = tor->Leechers();
 	}
 	std::string peers;
