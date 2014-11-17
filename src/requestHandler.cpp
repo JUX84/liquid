@@ -32,7 +32,7 @@ std::string RequestHandler::handle(std::string str, std::string ip)
 std::string RequestHandler::announce(const request& req)
 {
 	torMap.emplace(req.at("info_hash"), new Torrent());
-	Torrent *tor = torMap.at(req.at("info_hash"));
+	Torrent *tor = &torMap.at(req.at("info_hash"));
 	PeerMap *pmap = nullptr;
 	if (std::stoi(req.at("left")) > 0) {
 		if (tor->Leechers()->getPeer(req.at("peer_id")) == nullptr)
@@ -73,7 +73,7 @@ std::string RequestHandler::announce(const request& req)
 
 User* RequestHandler::getUser(const std::string& passkey) {
 	try {
-		return usrMap.at(passkey);
+		return &usrMap.at(passkey);
 	} catch (const std::exception& e) {
 		return nullptr;
 	}

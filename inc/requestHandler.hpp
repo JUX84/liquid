@@ -3,8 +3,8 @@
 #include "parser.hpp"
 #include "torrent.hpp"
 
-typedef std::map<std::string, Torrent*> torrentMap;
-typedef std::map<std::string, User*> userMap;
+typedef std::map<std::string, Torrent> torrentMap;
+typedef std::map<std::string, User> userMap;
 
 class RequestHandler {
 	private:

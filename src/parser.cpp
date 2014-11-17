@@ -8,7 +8,7 @@ requirements Parser::required;
 
 void Parser::init ()
 {
-	required.emplace("announce", std::forward_list<std::string>{"port","peer_id","info_hash","left"}); // init a set of required params in a request
+	required.emplace("announce", std::forward_list<std::string>{"port","peer_id","info_hash","left","compact"}); // init a set of required params in a request
 	if (Config::get("type") == "private")
 		required.at("announce").push_front("passkey");
 }
@@ -100,7 +100,8 @@ request Parser::parse (const std::string& input)
 		} else if (input[i] == '\n' || input[i] == '\r') {
 			if (found_data) {
 				std::transform(key.begin(), key.end(), key.begin(), ::tolower);
-				output.emplace(key, input.substr(pos, i-pos));
+				if (key != "host")
+					output.emplace(key, input.substr(pos, i-pos));
 				i += 2;
 				pos = i;
 			}
