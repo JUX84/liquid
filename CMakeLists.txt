@@ -13,6 +13,9 @@ FIND_PACKAGE(LibEV REQUIRED)
 link_directories(${LibEV_LIBRARY_DIRS} ${ZLIB_LIBRARY_DIRS})
 include_directories(${LibEV_INCLUDE_DIRS} ${ZLIB_INCLUDE_DIRS})
 
+include_directories("/usr/include/mysql/")
+link_directories("/usr/lib/x86_64-linux-gnu") #debian
+
 file(GLOB_RECURSE source_files src/*)
 include_directories(inc)
 
@@ -20,6 +23,7 @@ set(EXECUTABLE_OUTPUT_PATH bin)
 add_executable(liquid ${source_files})
 
 target_link_libraries(liquid ev z)
+target_link_libraries(liquid mysqlclient)
 
 
 option(USE_CLANG "build with clang" ON)
