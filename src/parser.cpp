@@ -16,7 +16,7 @@ void Parser::init ()
 std::string Parser::check (const request& req)
 {
 	try {
-		for (auto it : required.at(req.at("action"))) {
+		for (auto& it : required.at(req.at("action"))) {
 			if (req.find(it) == req.end())
 				return "missing param (" + it + ")";
 		}
