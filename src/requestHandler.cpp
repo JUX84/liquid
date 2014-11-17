@@ -31,7 +31,7 @@ std::string RequestHandler::handle(std::string str, std::string ip)
 
 std::string RequestHandler::announce(const request& req)
 {
-	torMap.emplace(req.at("info_hash"), new Torrent());
+	torMap.emplace(req.at("info_hash"), Torrent());
 	Torrent *tor = &torMap.at(req.at("info_hash"));
 	PeerMap *pmap = nullptr;
 	if (std::stoi(req.at("left")) > 0) {
