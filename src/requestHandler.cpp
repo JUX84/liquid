@@ -12,18 +12,18 @@ userMap RequestHandler::usrMap;
 std::string RequestHandler::handle(std::string str, std::string ip)
 {
 	request req = Parser::parse(str); // parse the request
-	try {
+	try { // check if the client accepts gzip
 		if (req.at("accept-encoding").find("gzip") != std::string::npos)
 			req.emplace("gzip", "true");
-	} catch (const std::exception& e) {
-		req.emplace("gzip", "false");
-	}
+	} catch (const std::exception& e) {}
+	req.emplace("gzip", "false");
+	req.erase("accept-encoding"); // not used anymore
 	std::string check = Parser::check(req); // check if we have all we need to process (saves time if not the case
-	if (check != "success")
+	if (check != "success") // missing params
 		return error(check, req.at("gzip") == "true");
 	if (Config::get("type") == "private" && getUser(req.at("passkey")) == nullptr)
 		return error("passkey not found", req.at("gzip") == "true");
-	req.emplace("ip", ip);
+	req.emplace("ip", ip); // if an IP wasn't provided in the params
 	if (req.at("action") == "announce")
 		return announce(req);
 	return error("invalid action", req.at("gzip") == "true"); // not possible, since the request is checked, but, well, who knows :3
