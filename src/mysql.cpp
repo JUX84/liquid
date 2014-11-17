@@ -1,10 +1,11 @@
+#include <iostream>
 #include "config.hpp"
 #include "mysql.hpp"
 
 void MySQL::Connect() {
 	mysql = mysql_init(nullptr);
-	if (!mysql_real_connect(mysql, Config::get("DB_Host"), Config::get("DB_User"), Config::get("DB_Password"), "users", Config::get("DB_Port"), Config::get("DB_Socket"), 0))
-		std::cerr << "Couldn't connect to database" << std::endl;
+	if (!mysql_real_connect(mysql, Config::get("DB_Host").c_str(), Config::get("DB_User").c_str(), Config::get("DB_Password").c_str(), "users", Config::getInt("DB_Port"), Config::get("DB_Socket").c_str(), 0))
+		std::cerr << "Couldn't connect to database" << '\n';
 }
 
 void MySQL::Disconnect() {
@@ -17,7 +18,7 @@ void MySQL::LoadUsers(userMap& usrMap) {
 
 	std::string query = "SELECT passkey FROM users";
 	if (mysql_real_query(mysql, query.c_str(), query.size()))
-		return 1;
+		return;
 	result = mysql_use_result(mysql);
 	while((row = mysql_fetch_row(result))) {
 		usrMap.emplace(row[0], User());

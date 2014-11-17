@@ -10,6 +10,6 @@ class MySQL : public Database {
 		MYSQL_ROW row;
 public:
 	virtual void Connect();
-	virtual void Disconnect()
+	virtual void Disconnect();
 	virtual void LoadUsers(userMap&);
 };
