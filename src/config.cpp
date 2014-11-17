@@ -2,7 +2,6 @@
 #include <fstream>
 #include <unordered_map>
 #include <string>
-#include <algorithm>
 #include <iterator>
 #include <utility>
 #include <stdexcept>
@@ -71,7 +70,7 @@ void Config::load(const std::string& file)
 
 		std::string name = trim(line, start, equalSign - 1);
 		if (vars.find(name) == vars.end()) {
-			std::cerr << name + ": name not valid\n";
+			std::cerr << std::to_string(lineNumber) << ": " << name + ": name not valid\n";
 			continue;
 		}
 		std::string value = trim(line, equalSign + 1, line.size() - 1);
