@@ -18,8 +18,8 @@ void Parser::init ()
 std::string Parser::check (const Request& req)
 {
 	try {
-		for (auto& it : required.at(req.first.at("action"))) {
-			if (req.first.find(it) == req.first.end())
+		for (auto& it : required.at(req.at("action"))) {
+			if (req.find(it) == req.end())
 				return "missing param (" + it + ")";
 		}
 	} catch (const std::exception& e) {
@@ -29,12 +29,12 @@ std::string Parser::check (const Request& req)
 	return "success";
 }
 
-Request Parser::parse (const std::string& input)
+std::pair<Request, std::forward_list<std::string>> Parser::parse (const std::string& input)
 {
 	int input_length = input.length();
 	if (input_length < 60)
-		return Request(); // too short
-	Request output; // first = params, second = headers
+		return std::make_pair(Request(), std::forward_list<std::string>()); // too short
+	Request output;
 	int pos = 5; // skip 'GET /'
 	/*
 	Handles those types of request:
@@ -46,7 +46,7 @@ Request Parser::parse (const std::string& input)
 	if ( input[pos] != '?' &&
 			(input.substr(pos,32).find('/') == std::string::npos) &&
 			(input.substr(pos,32).find('?') == std::string::npos)) { // Case 1, 2
-		output.first.emplace("passkey", input.substr(pos,32)); // Ocelot stated that substr 'exploded'. use for loop if necessary
+		output.emplace("passkey", input.substr(pos,32)); // Ocelot stated that substr 'exploded'. use for loop if necessary
 		pos += 32;
 	}
 	if (input[pos] == '/') // Case 1
@@ -59,14 +59,15 @@ Request Parser::parse (const std::string& input)
 				input[pos+i] == '/')
 				break;
 		}
-		output.first.emplace("action", input.substr(pos,i));
+		output.emplace("action", input.substr(pos,i));
 		pos += i;
 	}
 	if (input[pos] == '?') // Case 1,2,3,4
 		++pos;
 	else
-		return Request(); // malformed
+		return std::make_pair(Request(), std::forward_list<std::string>()); // malformed
 
+	std::forward_list<std::string> infoHashes;
 	// ocelot-style parsing, should maybe replace with substr later
 	std::string key;
 	bool found_data = false;
@@ -79,9 +80,9 @@ Request Parser::parse (const std::string& input)
 				if (key == "info_hash") {
 					std::string hash = input.substr(pos, i-pos);
 					hash = Utility::hex_to_bin(hash);
-					output.second.push_front(hash);
+					infoHashes.push_front(hash);
 				} else {
-					output.first.emplace(key, input.substr(pos, i-pos));
+					output.emplace(key, input.substr(pos, i-pos));
 				}
 				pos = ++i;
 			}
@@ -103,7 +104,7 @@ Request Parser::parse (const std::string& input)
 			if (found_data) {
 				std::transform(key.begin(), key.end(), key.begin(), ::tolower);
 				if (key != "host")
-					output.first.emplace(key, input.substr(pos, i-pos));
+					output.emplace(key, input.substr(pos, i-pos));
 				i += 2;
 				pos = i;
 			}
@@ -113,5 +114,5 @@ Request Parser::parse (const std::string& input)
 			found_data = true;
 		}
 	}
-	return output;
+	return std::make_pair(output, infoHashes);
 }

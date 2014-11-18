@@ -5,7 +5,7 @@
 #include <forward_list>
 #include <string>
 
-typedef std::pair<std::map<std::string, std::string>, std::forward_list<std::string>> Request;
+typedef std::map<std::string, std::string> Request;
 typedef std::unordered_map<std::string, std::forward_list<std::string>> Requirements;
 
 class Parser {
@@ -13,6 +13,6 @@ class Parser {
 		static Requirements required;
 	public:
 		static void init ();
-		static Request parse (const std::string&);
+		static std::pair<Request, std::forward_list<std::string>> parse (const std::string&);
 		static std::string check (const Request&);
 };

@@ -2,10 +2,10 @@
 #include "utility.hpp"
 
 void User::addHexIP(const Request& req) {
-	this->hexIP.emplace(req.first.at("ip")+":"+req.first.at("port"),
-			Utility::ip_hex_encode(req.first.at("ip"))
+	this->hexIP.emplace(req.at("ip")+":"+req.at("port"),
+			Utility::ip_hex_encode(req.at("ip"))
 			+
-			Utility::port_hex_encode(req.first.at("port"))
+			Utility::port_hex_encode(req.at("port"))
 			);
 }
 
