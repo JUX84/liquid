@@ -5,9 +5,11 @@
 #include "requestHandler.hpp"
 #include "response.hpp"
 #include "torrent.hpp"
+#include "mysql.hpp"
 
 torrentMap RequestHandler::torMap;
 userMap RequestHandler::usrMap;
+Database* RequestHandler::db;
 
 std::string RequestHandler::handle(std::string str, std::string ip)
 {
@@ -77,4 +79,9 @@ User* RequestHandler::getUser(const std::string& passkey) {
 	} catch (const std::exception& e) {
 		return nullptr;
 	}
+}
+
+void RequestHandler::init() {
+	db = new MySQL();
+	db->LoadUsers(usrMap);
 }

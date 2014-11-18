@@ -9,7 +9,7 @@ class MySQL : public Database {
 		MYSQL_RES *result;
 		MYSQL_ROW row;
 public:
-	virtual void Connect();
-	virtual void Disconnect();
-	virtual void LoadUsers(userMap&);
+	void Connect(std::string);
+	void Disconnect();
+	void LoadUsers(userMap&);
 };

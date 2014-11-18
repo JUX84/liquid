@@ -13,8 +13,9 @@ FIND_PACKAGE(LibEV REQUIRED)
 link_directories(${LibEV_LIBRARY_DIRS} ${ZLIB_LIBRARY_DIRS})
 include_directories(${LibEV_INCLUDE_DIRS} ${ZLIB_INCLUDE_DIRS})
 
-include_directories("/usr/include/mysql/")
+include_directories("/usr/{local/,}include/mariadb/")
 link_directories("/usr/lib/x86_64-linux-gnu") #debian
+link_directories("/usr/local/lib/mariadb") #debian
 
 file(GLOB_RECURSE source_files src/*)
 include_directories(inc)
