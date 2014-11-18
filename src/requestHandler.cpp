@@ -28,7 +28,7 @@ std::string RequestHandler::handle(std::string str, std::string ip)
 	req.first.emplace("ip", ip); // if an IP wasn't provided in the params
 	if (req.first.at("action") == "announce")
 		return announce(req);
-	else if (req.at("action") == "scrape")
+	else if (req.first.at("action") == "scrape")
 		return scrape(req);
 	return error("invalid action", req.first.at("gzip") == "true"); // not possible, since the request is checked, but, well, who knows :3
 }
@@ -71,18 +71,13 @@ std::string RequestHandler::announce(const request& req)
 			 + ":"
 			 + peers
 			 + "e"),
-<<<<<<< HEAD
-			req.at("gzip") == "true"
+			req.first.at("gzip") == "true"
 			); // doesn't look as bad as it is stated on ocelot, needs stresstesting to check
 }
 
-std::string RequestHandler::scrape(const request& req, const std::forward_list<std:string>& infoHashes)
+std::string RequestHandler::scrape(const request& req)
 {
 	std::string response("d5files:");
-=======
-			req.first.at("gzip") == "true"
-		       ); // doesn't look as bad as it is stated on ocelot, needs stresstesting to check
->>>>>>> e283424e2c7a8c2b1a0157dad42e95f8fbd0086c
 }
 
 User* RequestHandler::getUser(const std::string& passkey) {
