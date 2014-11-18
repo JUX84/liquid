@@ -66,6 +66,8 @@ std::string Utility::hex_to_bin(const std::string& input)
 					c = (c - '0') << i;
 				else if (c >= 'a' && c <= 'f')
 					c = (c - 'a' + 10) << i;
+				else if (c >= 'A' && c <= 'F')
+					c = (c - 'A' + 10) << i;
 				else
 					return "";
 
