@@ -2,9 +2,9 @@
 
 #include <unordered_map>
 #include "parser.hpp"
-#include "user.hpp"
+#include "peer.hpp"
 
-typedef std::unordered_map<std::string, User*> PeerMap;
+typedef std::unordered_map<std::string, Peer> PeerMap;
 
 class Peers {
 	private:
@@ -12,9 +12,9 @@ class Peers {
 		PeerMap pMap;
 	public:
 		Peers();
-		User* getPeer(const std::string&);
+		Peer* getPeer(const std::string&);
 		void addPeer(const Request&);
 		void removePeer(const Request&);
-		User* nextPeer();
+		Peer* nextPeer();
 		unsigned long size();
 };

@@ -7,9 +7,9 @@ Peers::Peers () {
 	it = std::begin(pMap);
 }
 
-User* Peers::getPeer(const std::string& identifier) {
+Peer* Peers::getPeer(const std::string& identifier) {
 	try {
-		return pMap.at(identifier);
+		return &pMap.at(identifier);
 	} catch (const std::exception& e) {
 		return nullptr;
 	}
@@ -23,19 +23,19 @@ void Peers::addPeer(const Request& req) {
 		u = new User();
 	if (u->getHexIP()->find(req.at("ip")+":"+req.at("port")) == u->getHexIP()->end())
 		u->addHexIP(req);
-	pMap.emplace(req.at("peer_id"), u);
+	pMap.emplace(req.at("peer_id"), Peer(u));
 }
 
 void Peers::removePeer(const Request& req) {
 	pMap.erase(req.at("peer_id"));
 }
 
-User* Peers::nextPeer() {
+Peer* Peers::nextPeer() {
 	if (it == std::end(pMap))
 		it = std::begin(pMap);
 	PeerMap::iterator tmp = it;
 	it = std::next(it);
-	return tmp->second;
+	return &tmp->second;
 }
 
 unsigned long Peers::size () {

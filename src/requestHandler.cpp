@@ -24,6 +24,8 @@ std::string RequestHandler::handle(std::string str, std::string ip)
 	} catch (const std::exception& e) {}
 	req.erase("accept-encoding"); // not used anymore
 	std::string check = Parser::check(req); // check if we have all we need to process (saves time if not the case
+	if (infoHashes.begin() == infoHashes.end())
+		return error("missing info_hash", gzip);
 	if (check != "success") // missing params
 		return error(check, gzip);
 	if (Config::get("type") == "private" && getUser(req.at("passkey")) == nullptr)
@@ -70,7 +72,7 @@ std::string RequestHandler::announce(const Request& req, const std::string& info
 		i = std::min(i, peers->size());
 	}
 	while (i-- > 0) {
-		for ( auto it : *peers->nextPeer()->getHexIP())
+		for ( auto it : *peers->nextPeer()->getUser()->getHexIP())
 			peerlist.append(it.second);
 	}
 	return response(
