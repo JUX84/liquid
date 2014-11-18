@@ -84,4 +84,5 @@ User* RequestHandler::getUser(const std::string& passkey) {
 void RequestHandler::init() {
 	db = new MySQL();
 	db->LoadUsers(usrMap);
+	db->LoadTorrents(torMap);
 }
