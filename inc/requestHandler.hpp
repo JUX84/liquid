@@ -9,6 +9,7 @@ class RequestHandler {
 		static userMap usrMap;
 		static Database *db;
 		static std::string announce(const request&);
+		static std::string scrape(const request&);
 	public:
 		static void init();
 		static std::string handle(std::string, std::string);
