@@ -5,7 +5,8 @@
 #include <forward_list>
 #include <string>
 
-typedef std::map<std::string, std::string> request;
+typedef std::map<std::string, std::string> infos;
+typedef std::pair<infos, std::forward_list<std::string>> request;
 typedef std::unordered_map<std::string, std::forward_list<std::string>> requirements;
 
 class Parser {

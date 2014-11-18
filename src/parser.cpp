@@ -8,7 +8,7 @@ requirements Parser::required;
 
 void Parser::init ()
 {
-	required.emplace("announce", std::forward_list<std::string>{"port","peer_id","info_hash","left","compact"}); // init a set of required params in a request
+	required.emplace("announce", std::forward_list<std::string>{"port","peer_id","left","compact"}); // init a set of required params in a request
 	if (Config::get("type") == "private")
 		required.at("announce").push_front("passkey");
 
@@ -18,8 +18,8 @@ void Parser::init ()
 std::string Parser::check (const request& req)
 {
 	try {
-		for (auto& it : required.at(req.at("action"))) {
-			if (req.find(it) == req.end())
+		for (auto& it : required.at(req.first.at("action"))) {
+			if (req.first.find(it) == req.first.end())
 				return "missing param (" + it + ")";
 		}
 	} catch (const std::exception& e) {
@@ -46,7 +46,7 @@ request Parser::parse (const std::string& input)
 	if ( input[pos] != '?' &&
 			(input.substr(pos,32).find('/') == std::string::npos) &&
 			(input.substr(pos,32).find('?') == std::string::npos)) { // Case 1, 2
-		output.emplace("passkey", input.substr(pos,32)); // Ocelot stated that substr 'exploded'. use for loop if necessary
+		output.first.emplace("passkey", input.substr(pos,32)); // Ocelot stated that substr 'exploded'. use for loop if necessary
 		pos += 32;
 	}
 	if (input[pos] == '/') // Case 1
@@ -59,7 +59,7 @@ request Parser::parse (const std::string& input)
 				input[pos+i] == '/')
 				break;
 		}
-		output.emplace("action", input.substr(pos,i));
+		output.first.emplace("action", input.substr(pos,i));
 		pos += i;
 	}
 	if (input[pos] == '?') // Case 1,2,3,4
@@ -79,9 +79,9 @@ request Parser::parse (const std::string& input)
 				if (key == "info_hash") {
 					std::string hash = input.substr(pos, i-pos);
 					std::transform(hash.begin(), hash.end(), hash.begin(), ::tolower);
-					output.emplace("info_hash", hash);
+					output.second.push_front(hash);
 				} else {
-					output.emplace(key, input.substr(pos, i-pos));
+					output.first.emplace(key, input.substr(pos, i-pos));
 				}
 				pos = ++i;
 			}
@@ -103,7 +103,7 @@ request Parser::parse (const std::string& input)
 			if (found_data) {
 				std::transform(key.begin(), key.end(), key.begin(), ::tolower);
 				if (key != "host")
-					output.emplace(key, input.substr(pos, i-pos));
+					output.first.emplace(key, input.substr(pos, i-pos));
 				i += 2;
 				pos = i;
 			}

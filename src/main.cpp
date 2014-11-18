@@ -2,6 +2,7 @@
 #include "server.hpp"
 #include "parser.hpp"
 #include "config.hpp"
+#include "requestHandler.hpp"
 
 int main()
 {
@@ -9,6 +10,7 @@ int main()
 	try {
 		Server server(Config::getInt("port"));
 		Parser::init();
+		RequestHandler::init();
 		server.run();
 	}
 	catch (const std::exception& e) {
