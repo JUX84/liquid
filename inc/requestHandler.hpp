@@ -5,10 +5,10 @@
 
 class RequestHandler {
 	private:
-		static torrentMap torMap;
-		static userMap usrMap;
+		static TorrentMap torMap;
+		static UserMap usrMap;
 		static Database *db;
-		static std::string announce(const request&);
+		static std::string announce(const Request&);
 		static std::string scrape(const std::forward_list<std::string>&, bool);
 	public:
 		static void init();

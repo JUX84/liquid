@@ -5,15 +5,14 @@
 #include <forward_list>
 #include <string>
 
-typedef std::map<std::string, std::string> infos;
-typedef std::pair<infos, std::forward_list<std::string>> request;
-typedef std::unordered_map<std::string, std::forward_list<std::string>> requirements;
+typedef std::pair<std::map<std::string, std::string>, std::forward_list<std::string>> Request;
+typedef std::unordered_map<std::string, std::forward_list<std::string>> Requirements;
 
 class Parser {
 	private:
-		static requirements required;
+		static Requirements required;
 	public:
 		static void init ();
-		static request parse (const std::string& input);
-		static std::string check (const request& input);
+		static Request parse (const std::string&);
+		static std::string check (const Request&);
 };

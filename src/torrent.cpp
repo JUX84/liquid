@@ -1,9 +1,9 @@
 #include "torrent.hpp"
 
-PeerMap* Torrent::Seeders() {
+Peers* Torrent::Seeders() {
 	return &this->seeders;
 }
 
-PeerMap* Torrent::Leechers() {
+Peers* Torrent::Leechers() {
 	return &this->leechers;
 }

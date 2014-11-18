@@ -1,7 +1,7 @@
 #include "user.hpp"
 #include "utility.hpp"
 
-void User::addHexIP(const request& req) {
+void User::addHexIP(const Request& req) {
 	this->hexIP.emplace(req.first.at("ip")+":"+req.first.at("port"),
 			Utility::ip_hex_encode(req.first.at("ip"))
 			+
