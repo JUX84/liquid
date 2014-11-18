@@ -35,8 +35,14 @@ std::string RequestHandler::handle(std::string str, std::string ip)
 
 std::string RequestHandler::announce(const request& req)
 {
-	torMap.emplace(req.second.front(), Torrent());
-	Torrent *tor = &torMap.at(req.second.front());
+	if (Config::get("type") != "private")
+		torMap.emplace(req.second.front(), Torrent());
+	Torrent *tor = nullptr;
+	try {
+		tor = &torMap.at(req.second.front());
+	} catch (const std::exception& e) {
+		return error("unregistered torrent", req.first.at("gzip") == "true");
+	}
 	PeerMap *pmap = nullptr;
 	if (std::stoi(req.first.at("left")) > 0) {
 		if (tor->Leechers()->getPeer(req.first.at("peer_id")) == nullptr)

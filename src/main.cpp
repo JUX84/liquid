@@ -11,7 +11,8 @@ int main()
 		//Config::load("liquid.conf");
 		Server server(Config::getInt("port"));
 		Parser::init();
-		RequestHandler::init();
+		if (Config::get("type") == "private")
+			RequestHandler::init();
 		server.run();
 	}
 	catch (const std::exception& e) {
