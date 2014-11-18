@@ -4,9 +4,9 @@
 #include "user.hpp"
 #include "torrent.hpp"
 
-void MySQL::Connect(std::string table) {
+void MySQL::Connect() {
 	mysql = mysql_init(nullptr);
-	if (mysql_real_connect(mysql, Config::get("DB_Host").c_str(), Config::get("DB_User").c_str(), Config::get("DB_Password").c_str(), table.c_str(), Config::getInt("DB_Port"), nullptr, 0) == nullptr)
+	if (mysql_real_connect(mysql, Config::get("DB_Host").c_str(), Config::get("DB_User").c_str(), Config::get("DB_Password").c_str(), Config::get("DB_DBName").c_str(), Config::getInt("DB_Port"), nullptr, 0) == nullptr)
 		std::cerr << "Couldn't connect to database" << '\n';
 }
 
@@ -15,8 +15,8 @@ void MySQL::Disconnect() {
 	mysql_close(mysql);
 }
 
-void MySQL::LoadUsers(userMap& usrMap) {
-	Connect("users");
+void MySQL::LoadUsers(UserMap& usrMap) {
+	Connect();
 
 	std::string query = "SELECT passkey, nick FROM users";
 	if (mysql_real_query(mysql, query.c_str(), query.size()))
@@ -29,8 +29,8 @@ void MySQL::LoadUsers(userMap& usrMap) {
 	Disconnect();
 }
 
-void MySQL::LoadTorrents(torrentMap& torMap) {
-	Connect("users");
+void MySQL::LoadTorrents(TorrentMap& torMap) {
+	Connect();
 
 	std::string query = "SELECT info_hash, name FROM torrents";
 	if (mysql_real_query(mysql, query.c_str(), query.size()))

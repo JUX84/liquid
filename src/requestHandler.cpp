@@ -8,13 +8,13 @@
 #include "utility.hpp"
 #include "mysql.hpp"
 
-torrentMap RequestHandler::torMap;
-userMap RequestHandler::usrMap;
+TorrentMap RequestHandler::torMap;
+UserMap RequestHandler::usrMap;
 Database* RequestHandler::db;
 
 std::string RequestHandler::handle(std::string str, std::string ip)
 {
-	request req = Parser::parse(str); // parse the request
+	Request req = Parser::parse(str); // parse the request
 	try { // check if the client accepts gzip
 		if (req.first.at("accept-encoding").find("gzip") != std::string::npos)
 			req.first.emplace("gzip", "true");
@@ -34,7 +34,7 @@ std::string RequestHandler::handle(std::string str, std::string ip)
 	return error("invalid action", req.first.at("gzip") == "true"); // not possible, since the request is checked, but, well, who knows :3
 }
 
-std::string RequestHandler::announce(const request& req)
+std::string RequestHandler::announce(const Request& req)
 {
 	if (Config::get("type") != "private")
 		torMap.emplace(req.second.front(), Torrent());
@@ -44,32 +44,32 @@ std::string RequestHandler::announce(const request& req)
 	} catch (const std::exception& e) {
 		return error("unregistered torrent", req.first.at("gzip") == "true");
 	}
-	PeerMap *pmap = nullptr;
+	Peers *peers = nullptr;
 	if (req.first.at("left") != "0") {
 		if (tor->Leechers()->getPeer(req.first.at("peer_id")) == nullptr)
 			tor->Leechers()->addPeer(req);
 		else if (req.first.at("event") == "stopped")
 			tor->Leechers()->removePeer(req);
-		pmap = tor->Seeders();
+		peers = tor->Seeders();
 	} else {
 		if (tor->Seeders()->getPeer(req.first.at("peer_id")) == nullptr)
 			tor->Seeders()->addPeer(req);
 		else if (req.first.at("event") == "stopped")
 			tor->Leechers()->removePeer(req);
-		pmap = tor->Leechers();
+		peers = tor->Leechers();
 	}
-	std::string peers;
+	std::string peerlist;
 	unsigned long i = 0;
 	if (req.first.at("event") != "stopped") {
 		i = 10;
 		try {
 			i = std::stoi(req.first.at("numwant"));
 		} catch (const std::exception& e) {}
-		i = std::min(i, pmap->size());
+		i = std::min(i, peers->size());
 	}
 	while (i-- > 0) {
-		for ( auto it : *pmap->nextPeer()->getHexIP())
-			peers.append(it.second);
+		for ( auto it : *peers->nextPeer()->getHexIP())
+			peerlist.append(it.second);
 	}
 	return response(
 			("d8:completei"
@@ -81,9 +81,9 @@ std::string RequestHandler::announce(const request& req)
 			 + "e12:min intervali"
 			 + std::to_string(300)
 			 + "e5:peers"
-			 + std::to_string(peers.length())
+			 + std::to_string(peerlist.length())
 			 + ":"
-			 + peers
+			 + peerlist
 			 + "e"),
 			req.first.at("gzip") == "true"
 			); // doesn't look as bad as it is stated on ocelot, needs stresstesting to check
@@ -94,7 +94,7 @@ std::string RequestHandler::scrape(const std::forward_list<std::string>& infoHas
 	std::string resp("d5:filesd");
 
 	for (const auto& infoHash : infoHashes) {
-		const torrentMap::iterator it = torMap.find(infoHash);
+		const TorrentMap::iterator it = torMap.find(infoHash);
 		if (it != torMap.end()) {
 			resp += std::to_string(infoHash.length())
 				+ ":"

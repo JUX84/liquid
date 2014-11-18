@@ -5,7 +5,7 @@
 #include "parser.hpp"
 #include "utility.hpp"
 
-requirements Parser::required;
+Requirements Parser::required;
 
 void Parser::init ()
 {
@@ -15,7 +15,7 @@ void Parser::init ()
 	required.emplace("scrape", std::forward_list<std::string>());
 }
 
-std::string Parser::check (const request& req)
+std::string Parser::check (const Request& req)
 {
 	try {
 		for (auto& it : required.at(req.first.at("action"))) {
@@ -29,12 +29,12 @@ std::string Parser::check (const request& req)
 	return "success";
 }
 
-request Parser::parse (const std::string& input)
+Request Parser::parse (const std::string& input)
 {
 	int input_length = input.length();
 	if (input_length < 60)
-		return request(); // too short
-	request output; // first = params, second = headers
+		return Request(); // too short
+	Request output; // first = params, second = headers
 	int pos = 5; // skip 'GET /'
 	/*
 	Handles those types of request:
@@ -65,7 +65,7 @@ request Parser::parse (const std::string& input)
 	if (input[pos] == '?') // Case 1,2,3,4
 		++pos;
 	else
-		return request(); // malformed
+		return Request(); // malformed
 
 	// ocelot-style parsing, should maybe replace with substr later
 	std::string key;

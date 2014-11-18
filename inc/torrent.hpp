@@ -2,13 +2,13 @@
 
 #include <string>
 #include <unordered_map>
-#include "peermap.hpp"
+#include "peers.hpp"
 
 class Torrent {
 	private:
-		PeerMap seeders;
-		PeerMap leechers;
+		Peers seeders;
+		Peers leechers;
 	public:
-		PeerMap* Seeders();
-		PeerMap* Leechers();
+		Peers* Seeders();
+		Peers* Leechers();
 };

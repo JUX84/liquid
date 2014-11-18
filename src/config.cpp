@@ -17,6 +17,7 @@ std::unordered_map<std::string, std::pair<std::string, bool>> Config::vars = {
 	{ "DB_Host",			{ "127.0.0.1", false } },
 	{ "DB_User",			{ "jux", false } },
 	{ "DB_Password",		{ "jux", false } },
+	{ "DB_DBName",			{ "_liquid", false } },
 	{ "DB_Port",			{ "3306", true } },
 };
 

@@ -5,13 +5,11 @@
 
 class Server
 {
-public:
-	Server(uint16_t port);
-
-	void run();
-	void acceptClient(ev::io& w, int revents);
-
-private:
-	int sock;
-	ev::io watcher;
+	public:
+		Server(uint16_t);
+		void run();
+		void acceptClient(ev::io&, int);
+	private:
+		int sock;
+		ev::io watcher;
 };
