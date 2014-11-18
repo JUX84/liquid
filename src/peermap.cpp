@@ -26,6 +26,10 @@ void PeerMap::addPeer(const request& req) {
 	pMap.emplace(req.first.at("peer_id"), u);
 }
 
+void PeerMap::removePeer(const request& req) {
+	pMap.erase(req.first.at("peer_id"));
+}
+
 User* PeerMap::nextPeer() {
 	if (it == std::end(pMap))
 		it = std::begin(pMap);

@@ -14,6 +14,7 @@ class PeerMap {
 		PeerMap();
 		User* getPeer(const std::string&);
 		void addPeer(const request&);
+		void removePeer(const request&);
 		User* nextPeer();
 		unsigned long size();
 };
