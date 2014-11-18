@@ -9,7 +9,7 @@
 
 std::unordered_map<std::string, std::pair<std::string, bool>> Config::vars = {
 //	{ "name",			{ "default value", is_integer} }
-	{ "type",			{ "private", false } },
+	{ "type",			{ "public", false } },
 	{ "port",			{ "48151", true } },
 	{ "timeout",			{ "10", true } },
 	{ "read_buffer_size",		{ "512", true } },

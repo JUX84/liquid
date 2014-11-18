@@ -5,6 +5,7 @@
 #include "requestHandler.hpp"
 #include "response.hpp"
 #include "torrent.hpp"
+#include "utility.hpp"
 #include "mysql.hpp"
 
 torrentMap RequestHandler::torMap;
@@ -29,7 +30,7 @@ std::string RequestHandler::handle(std::string str, std::string ip)
 	if (req.first.at("action") == "announce")
 		return announce(req);
 	else if (req.first.at("action") == "scrape")
-		return scrape(req);
+		return scrape(req.second);
 	return error("invalid action", req.first.at("gzip") == "true"); // not possible, since the request is checked, but, well, who knows :3
 }
 
@@ -75,9 +76,22 @@ std::string RequestHandler::announce(const request& req)
 			); // doesn't look as bad as it is stated on ocelot, needs stresstesting to check
 }
 
-std::string RequestHandler::scrape(const request& req)
+std::string RequestHandler::scrape(const std::forward_list<std::string>& infoHashes)
 {
-	std::string response("d5files:");
+	std::string response("d5:files");
+
+	for (const auto& infoHash : infoHashes) {
+		const torrentMap::iterator it = torMap.find(infoHash);
+		if (it != torMap.end()) {
+			response += "d20:" + infoHash
+				+ "d8:completei" + std::to_string(it->second.Seeders()->size()) + 'e'
+				+ "10:downloadedi0e"
+				+ "10:incompletei" + std::to_string(it->second.Leechers()->size()) + "eee";
+		}
+	}
+	response += "e";
+
+	return response;
 }
 
 User* RequestHandler::getUser(const std::string& passkey) {

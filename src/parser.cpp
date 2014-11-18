@@ -3,6 +3,7 @@
 #include <stdexcept>
 #include "config.hpp"
 #include "parser.hpp"
+#include "utility.hpp"
 
 requirements Parser::required;
 
@@ -78,7 +79,7 @@ request Parser::parse (const std::string& input)
 			if (found_data) {
 				if (key == "info_hash") {
 					std::string hash = input.substr(pos, i-pos);
-					std::transform(hash.begin(), hash.end(), hash.begin(), ::tolower);
+					hash = Utility::hex_to_bin(hash);
 					output.second.push_front(hash);
 				} else {
 					output.first.emplace(key, input.substr(pos, i-pos));

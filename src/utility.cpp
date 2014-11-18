@@ -49,3 +49,39 @@ std::string Utility::port_hex_encode (const std::string& input)
 	uint16_t value = htons(std::stoi(input));
 	return std::string(reinterpret_cast<const char*>(&value), sizeof(value));
 }
+
+#include <cstdio>
+
+std::string Utility::hex_to_bin(const std::string& input)
+{
+	std::string output;
+	size_t pos;
+	size_t size = input.size();
+	for (pos = 0; pos < size; pos++) {
+		char v = 0;
+		if (input[pos] == '%' && size - pos >= 2) {
+			for (int i = 4; i >= 0; i -= 4) {
+				++pos;
+				char c = input[pos];
+
+				if (isdigit(c))
+					c = (c - '0') << i;
+				else if (c >= 'a' && c <= 'f')
+					c = (c - 'a' + 10) << i;
+				else
+					return "";
+
+				v += c;
+			}
+		}
+		else {
+			v = input[pos];
+		}
+
+		printf("%x\n", (unsigned char)v);
+
+		output.push_back(v);
+	}
+
+	return output;
+}

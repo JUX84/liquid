@@ -48,7 +48,7 @@ void ConnectionHandler::getPeerInfo()
 	if (getpeername(sock, reinterpret_cast<sockaddr*>(&client), &addrLen) == -1)
 		throw std::system_error(errno, std::system_category());
 }
-
+#include <iostream>
 void ConnectionHandler::readRequest(ev::io& w, int revents)
 {
 	char buffer[BUFFER_SIZE];
@@ -71,7 +71,9 @@ void ConnectionHandler::readRequest(ev::io& w, int revents)
 			response = "request too long";
 		}
 		else {
+			std::cout << request << '\n';
 			response = RequestHandler::handle(request, getClientIp());
+			std::cout << response << '\n';
 		}
 
 		writeWatcher.start();
