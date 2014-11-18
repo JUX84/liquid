@@ -15,40 +15,40 @@ std::string RequestHandler::handle(std::string str, std::string ip)
 {
 	request req = Parser::parse(str); // parse the request
 	try { // check if the client accepts gzip
-		if (req.at("accept-encoding").find("gzip") != std::string::npos)
-			req.emplace("gzip", "true");
+		if (req.first.at("accept-encoding").find("gzip") != std::string::npos)
+			req.first.emplace("gzip", "true");
 	} catch (const std::exception& e) {}
-	req.emplace("gzip", "false");
-	req.erase("accept-encoding"); // not used anymore
+	req.first.emplace("gzip", "false");
+	req.first.erase("accept-encoding"); // not used anymore
 	std::string check = Parser::check(req); // check if we have all we need to process (saves time if not the case
 	if (check != "success") // missing params
-		return error(check, req.at("gzip") == "true");
-	if (Config::get("type") == "private" && getUser(req.at("passkey")) == nullptr)
-		return error("passkey not found", req.at("gzip") == "true");
-	req.emplace("ip", ip); // if an IP wasn't provided in the params
-	if (req.at("action") == "announce")
+		return error(check, req.first.at("gzip") == "true");
+	if (Config::get("type") == "private" && getUser(req.first.at("passkey")) == nullptr)
+		return error("passkey not found", req.first.at("gzip") == "true");
+	req.first.emplace("ip", ip); // if an IP wasn't provided in the params
+	if (req.first.at("action") == "announce")
 		return announce(req);
-	return error("invalid action", req.at("gzip") == "true"); // not possible, since the request is checked, but, well, who knows :3
+	return error("invalid action", req.first.at("gzip") == "true"); // not possible, since the request is checked, but, well, who knows :3
 }
 
 std::string RequestHandler::announce(const request& req)
 {
-	torMap.emplace(req.at("info_hash"), Torrent());
-	Torrent *tor = &torMap.at(req.at("info_hash"));
+	torMap.emplace(req.second.front(), Torrent());
+	Torrent *tor = &torMap.at(req.second.front());
 	PeerMap *pmap = nullptr;
-	if (std::stoi(req.at("left")) > 0) {
-		if (tor->Leechers()->getPeer(req.at("peer_id")) == nullptr)
+	if (std::stoi(req.first.at("left")) > 0) {
+		if (tor->Leechers()->getPeer(req.first.at("peer_id")) == nullptr)
 			tor->Leechers()->addPeer(req);
 		pmap = tor->Seeders();
 	} else {
-		if (tor->Seeders()->getPeer(req.at("peer_id")) == nullptr)
+		if (tor->Seeders()->getPeer(req.first.at("peer_id")) == nullptr)
 			tor->Seeders()->addPeer(req);
 		pmap = tor->Leechers();
 	}
 	std::string peers;
 	unsigned long i = 10;
 	try {
-		i = std::stoi(req.at("numwant"));
+		i = std::stoi(req.first.at("numwant"));
 	} catch (const std::exception& e) {}
 	i = std::min(i, pmap->size());
 	while (i-- > 0) {
@@ -69,7 +69,7 @@ std::string RequestHandler::announce(const request& req)
 			 + ":"
 			 + peers
 			 + "e"),
-			req.at("gzip") == "true"
+			req.first.at("gzip") == "true"
 		       ); // doesn't look as bad as it is stated on ocelot, needs stresstesting to check
 }
 
