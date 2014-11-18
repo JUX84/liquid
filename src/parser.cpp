@@ -12,8 +12,7 @@ void Parser::init ()
 	required.emplace("announce", std::forward_list<std::string>{"port","peer_id","left","compact"}); // init a set of required params in a request
 	if (Config::get("type") == "private")
 		required.at("announce").push_front("passkey");
-
-	required.emplace("scrape", std::forward_list<std::string>{"info_hash"});
+	required.emplace("scrape", std::forward_list<std::string>());
 }
 
 std::string Parser::check (const request& req)

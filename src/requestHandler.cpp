@@ -30,7 +30,7 @@ std::string RequestHandler::handle(std::string str, std::string ip)
 	if (req.first.at("action") == "announce")
 		return announce(req);
 	else if (req.first.at("action") == "scrape")
-		return scrape(req.second);
+		return scrape(req.second, req.first.at("gzip") == "true");
 	return error("invalid action", req.first.at("gzip") == "true"); // not possible, since the request is checked, but, well, who knows :3
 }
 
@@ -89,22 +89,26 @@ std::string RequestHandler::announce(const request& req)
 			); // doesn't look as bad as it is stated on ocelot, needs stresstesting to check
 }
 
-std::string RequestHandler::scrape(const std::forward_list<std::string>& infoHashes)
+std::string RequestHandler::scrape(const std::forward_list<std::string>& infoHashes, bool gzip)
 {
-	std::string response("d5:files");
+	std::string resp("d5:filesd");
 
 	for (const auto& infoHash : infoHashes) {
 		const torrentMap::iterator it = torMap.find(infoHash);
 		if (it != torMap.end()) {
-			response += "d20:" + infoHash
-				+ "d8:completei" + std::to_string(it->second.Seeders()->size()) + 'e'
-				+ "10:downloadedi0e"
-				+ "10:incompletei" + std::to_string(it->second.Leechers()->size()) + "eee";
+			resp += std::to_string(infoHash.length())
+				+ ":"
+				+ infoHash
+				+ "d8:completei"
+				+ std::to_string(it->second.Seeders()->size())
+				+ "e10:downloadedi0e10:incompletei"
+				+ std::to_string(it->second.Leechers()->size())
+				+ "ee";
 		}
 	}
-	response += "e";
+	resp += "ee";
 
-	return response;
+	return response(resp, gzip);
 }
 
 User* RequestHandler::getUser(const std::string& passkey) {

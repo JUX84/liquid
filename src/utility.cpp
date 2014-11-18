@@ -78,8 +78,6 @@ std::string Utility::hex_to_bin(const std::string& input)
 			v = input[pos];
 		}
 
-		printf("%x\n", (unsigned char)v);
-
 		output.push_back(v);
 	}
 
