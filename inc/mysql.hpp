@@ -12,4 +12,5 @@ public:
 	void Connect(std::string);
 	void Disconnect();
 	void LoadUsers(userMap&);
+	void LoadTorrents(torrentMap&);
 };

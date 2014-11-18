@@ -1,10 +1,7 @@
 #pragma once
 
 #include "parser.hpp"
-#include "torrent.hpp"
 #include "db.hpp"
-
-typedef std::map<std::string, Torrent> torrentMap;
 
 class RequestHandler {
 	private:

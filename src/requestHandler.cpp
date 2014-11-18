@@ -36,24 +36,37 @@ std::string RequestHandler::handle(std::string str, std::string ip)
 
 std::string RequestHandler::announce(const request& req)
 {
-	torMap.emplace(req.second.front(), Torrent());
-	Torrent *tor = &torMap.at(req.second.front());
+	if (Config::get("type") != "private")
+		torMap.emplace(req.second.front(), Torrent());
+	Torrent *tor = nullptr;
+	try {
+		tor = &torMap.at(req.second.front());
+	} catch (const std::exception& e) {
+		return error("unregistered torrent", req.first.at("gzip") == "true");
+	}
 	PeerMap *pmap = nullptr;
-	if (std::stoi(req.first.at("left")) > 0) {
+	if (req.first.at("left") != "0") {
 		if (tor->Leechers()->getPeer(req.first.at("peer_id")) == nullptr)
 			tor->Leechers()->addPeer(req);
+		else if (req.first.at("event") == "stopped")
+			tor->Leechers()->removePeer(req);
 		pmap = tor->Seeders();
 	} else {
 		if (tor->Seeders()->getPeer(req.first.at("peer_id")) == nullptr)
 			tor->Seeders()->addPeer(req);
+		else if (req.first.at("event") == "stopped")
+			tor->Leechers()->removePeer(req);
 		pmap = tor->Leechers();
 	}
 	std::string peers;
-	unsigned long i = 10;
-	try {
-		i = std::stoi(req.first.at("numwant"));
-	} catch (const std::exception& e) {}
-	i = std::min(i, pmap->size());
+	unsigned long i = 0;
+	if (req.first.at("event") != "stopped") {
+		i = 10;
+		try {
+			i = std::stoi(req.first.at("numwant"));
+		} catch (const std::exception& e) {}
+		i = std::min(i, pmap->size());
+	}
 	while (i-- > 0) {
 		for ( auto it : *pmap->nextPeer()->getHexIP())
 			peers.append(it.second);
@@ -105,4 +118,5 @@ User* RequestHandler::getUser(const std::string& passkey) {
 void RequestHandler::init() {
 	db = new MySQL();
 	db->LoadUsers(usrMap);
+	db->LoadTorrents(torMap);
 }

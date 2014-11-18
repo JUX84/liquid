@@ -55,7 +55,7 @@ void Config::load(const std::string& file)
 	};
 
 	if (!f)
-		throw std::runtime_error("Cannot open " + file);
+		throw std::runtime_error("Couldn't open " + file + ". Aborted.");
 
 	while (!f.eof()) {
 		std::getline(f, line);

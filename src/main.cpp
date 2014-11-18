@@ -8,9 +8,11 @@ int main()
 {
 	std::ios_base::sync_with_stdio(false);
 	try {
+		//Config::load("liquid.conf");
 		Server server(Config::getInt("port"));
 		Parser::init();
-		RequestHandler::init();
+		if (Config::get("type") == "private")
+			RequestHandler::init();
 		server.run();
 	}
 	catch (const std::exception& e) {
