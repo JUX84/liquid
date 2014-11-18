@@ -71,9 +71,7 @@ void ConnectionHandler::readRequest(ev::io& w, int revents)
 			response = "request too long";
 		}
 		else {
-			std::cout << request << '\n';
 			response = RequestHandler::handle(request, getClientIp());
-			std::cout << response << '\n';
 		}
 
 		writeWatcher.start();
