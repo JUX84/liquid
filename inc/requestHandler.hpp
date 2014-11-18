@@ -11,6 +11,7 @@ class RequestHandler {
 		static torrentMap torMap;
 		static userMap usrMap;
 		static std::string announce(const request&);
+		static std::string scrape(const request&);
 	public:
 		static std::string handle(std::string, std::string);
 		static User* getUser(const std::string&);
