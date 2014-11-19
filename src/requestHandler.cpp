@@ -20,9 +20,8 @@ std::string RequestHandler::handle(std::string str, std::string ip)
 	bool gzip = false;
 	try { // check if the client accepts gzip
 		if (req->at("accept-encoding").find("gzip") != std::string::npos)
-			gzip = true;;
+			gzip = true;
 	} catch (const std::exception& e) {}
-	req->erase("accept-encoding"); // not used anymore
 	std::string check = Parser::check(*req); // check if we have all we need to process (saves time if not the case
 	if (infoHashes->begin() == infoHashes->end())
 		return error("missing info_hash", gzip);
