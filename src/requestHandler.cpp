@@ -15,34 +15,34 @@ Database* RequestHandler::db;
 std::string RequestHandler::handle(std::string str, std::string ip)
 {
 	std::pair<Request, std::forward_list<std::string>> infos = Parser::parse(str); // parse the request
-	Request req = infos.first;
-	std::forward_list<std::string> infoHashes = infos.second;
+	Request* req = &infos.first;
+	std::forward_list<std::string>* infoHashes = &infos.second;
 	bool gzip = false;
 	try { // check if the client accepts gzip
-		if (req.at("accept-encoding").find("gzip") != std::string::npos)
+		if (req->at("accept-encoding").find("gzip") != std::string::npos)
 			gzip = true;;
 	} catch (const std::exception& e) {}
-	req.erase("accept-encoding"); // not used anymore
-	std::string check = Parser::check(req); // check if we have all we need to process (saves time if not the case
-	if (infoHashes.begin() == infoHashes.end())
+	req->erase("accept-encoding"); // not used anymore
+	std::string check = Parser::check(*req); // check if we have all we need to process (saves time if not the case
+	if (infoHashes->begin() == infoHashes->end())
 		return error("missing info_hash", gzip);
 	if (check != "success") // missing params
 		return error(check, gzip);
-	if (Config::get("type") == "private" && getUser(req.at("passkey")) == nullptr)
+	if (Config::get("type") == "private" && getUser(req->at("passkey")) == nullptr)
 		return error("passkey not found", gzip);
 	try {
-		req.at("ip") = Utility::ip_hex_encode(req.at("ip")) + Utility::port_hex_encode(req.at("port"));
+		req->at("ip") = Utility::ip_hex_encode(req->at("ip")) + Utility::port_hex_encode(req->at("port"));
 	} catch (const std::exception& e) {
-		req.emplace("ip", ip + Utility::port_hex_encode(req.at("port")));
+		req->emplace("ip", ip + Utility::port_hex_encode(req->at("port")));
 	}
-	if (req.at("action") == "announce")
-		return announce(req, infoHashes.front(), gzip);
-	else if (req.at("action") == "scrape")
+	if (req->at("action") == "announce")
+		return announce(req, infoHashes->front(), gzip);
+	else if (req->at("action") == "scrape")
 		return scrape(infoHashes, gzip);
 	return error("invalid action", gzip); // not possible, since the request is checked, but, well, who knows :3
 }
 
-std::string RequestHandler::announce(const Request& req, const std::string& infoHash, const bool& gzip)
+std::string RequestHandler::announce(const Request* req, const std::string& infoHash, const bool& gzip)
 {
 	if (Config::get("type") != "private")
 		torMap.emplace(infoHash, Torrent());
@@ -53,25 +53,25 @@ std::string RequestHandler::announce(const Request& req, const std::string& info
 		return error("unregistered torrent", gzip);
 	}
 	Peers *peers = nullptr;
-	if (req.at("left") != "0") {
-		if (tor->Leechers()->getPeer(req.at("peer_id")) == nullptr)
-			tor->Leechers()->addPeer(req);
-		else if (req.at("event") == "stopped")
-			tor->Leechers()->removePeer(req);
+	if (req->at("left") != "0") {
+		if (tor->Leechers()->getPeer(req->at("peer_id")) == nullptr)
+			tor->Leechers()->addPeer(*req);
+		else if (req->at("event") == "stopped")
+			tor->Leechers()->removePeer(*req);
 		peers = tor->Seeders();
 	} else {
-		if (tor->Seeders()->getPeer(req.at("peer_id")) == nullptr)
-			tor->Seeders()->addPeer(req);
-		else if (req.at("event") == "stopped")
-			tor->Leechers()->removePeer(req);
+		if (tor->Seeders()->getPeer(req->at("peer_id")) == nullptr)
+			tor->Seeders()->addPeer(*req);
+		else if (req->at("event") == "stopped")
+			tor->Leechers()->removePeer(*req);
 		peers = tor->Leechers();
 	}
 	std::string peerlist;
 	unsigned long i = 0;
-	if (req.at("event") != "stopped") {
+	if (req->at("event") != "stopped") {
 		i = 10;
 		try {
-			i = std::stoi(req.at("numwant"));
+			i = std::stoi(req->at("numwant"));
 		} catch (const std::exception& e) {}
 		i = std::min(i, peers->size());
 	}
@@ -96,11 +96,11 @@ std::string RequestHandler::announce(const Request& req, const std::string& info
 		       ); // doesn't look as bad as it is stated on ocelot, needs stresstesting to check
 }
 
-std::string RequestHandler::scrape(const std::forward_list<std::string>& infoHashes, const bool& gzip)
+std::string RequestHandler::scrape(const std::forward_list<std::string>* infoHashes, const bool& gzip)
 {
 	std::string resp("d5:filesd");
 
-	for (const auto& infoHash : infoHashes) {
+	for (const auto& infoHash : *infoHashes) {
 		const TorrentMap::iterator it = torMap.find(infoHash);
 		if (it != torMap.end()) {
 			resp += std::to_string(infoHash.length())
