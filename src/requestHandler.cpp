@@ -90,7 +90,7 @@ std::string RequestHandler::announce(const Request& req, const std::string& info
 			 + peerlist
 			 + "e"),
 			gzip
-			); // doesn't look as bad as it is stated on ocelot, needs stresstesting to check
+		       ); // doesn't look as bad as it is stated on ocelot, needs stresstesting to check
 }
 
 std::string RequestHandler::scrape(const std::forward_list<std::string>& infoHashes, const bool& gzip)
