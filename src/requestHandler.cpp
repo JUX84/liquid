@@ -29,7 +29,7 @@ std::string RequestHandler::handle(std::string str, std::string ip)
 	if (check != "success") // missing params
 		return error(check, gzip);
 	if (Config::get("type") == "private" && getUser(req.at("passkey")) == nullptr)
-		return error("passkey not found", req.at("gzip") == "true");
+		return error("passkey not found", gzip);
 	req.emplace("ip", ip); // if an IP wasn't provided in the params
 	if (req.at("action") == "announce")
 		return announce(req, infoHashes.front(), gzip);
