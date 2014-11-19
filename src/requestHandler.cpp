@@ -30,7 +30,11 @@ std::string RequestHandler::handle(std::string str, std::string ip)
 		return error(check, gzip);
 	if (Config::get("type") == "private" && getUser(req.at("passkey")) == nullptr)
 		return error("passkey not found", gzip);
-	req.emplace("ip", ip); // if an IP wasn't provided in the params
+	try {
+		req.at("ip") = Utility::ip_hex_encode(req.at("ip")) + Utility::port_hex_encode(req.at("port"));
+	} catch (const std::exception& e) {
+		req.emplace("ip", ip + Utility::port_hex_encode(req.at("port")));
+	}
 	if (req.at("action") == "announce")
 		return announce(req, infoHashes.front(), gzip);
 	else if (req.at("action") == "scrape")
@@ -72,8 +76,7 @@ std::string RequestHandler::announce(const Request& req, const std::string& info
 		i = std::min(i, peers->size());
 	}
 	while (i-- > 0) {
-		for ( auto it : *peers->nextPeer()->getUser()->getHexIP())
-			peerlist.append(it.second);
+		peerlist.append(*peers->nextPeer()->getHexIP());
 	}
 	return response(
 			("d8:completei"

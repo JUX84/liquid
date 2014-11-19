@@ -5,9 +5,11 @@
 class Peer {
 	private:
 		User* user;
-		unsigned long downloaded;
-		unsigned long uploaded;
+		//unsigned long downloaded;
+		//unsigned long uploaded;
+		std::string hexIP;
 	public:
-		Peer (User*);
+		Peer (std::string, User*);
 		User* getUser();
+		std::string* getHexIP();
 };
