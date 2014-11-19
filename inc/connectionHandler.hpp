@@ -18,7 +18,6 @@ private:
 	void setSocketOptions() const;
 	void getPeerInfo();
 	void destroy();
-	std::string getClientIp() const;
 
 	int sock;
 	sockaddr_in client;

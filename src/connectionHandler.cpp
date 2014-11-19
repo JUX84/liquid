@@ -71,7 +71,8 @@ void ConnectionHandler::readRequest(ev::io& w, int revents)
 			response = "request too long";
 		}
 		else {
-			response = RequestHandler::handle(request, getClientIp());
+			 std::string binIp(reinterpret_cast<const char*>(&(client.sin_addr.s_addr)), sizeof(client.sin_addr.s_addr));
+			response = RequestHandler::handle(request, binIp);
 		}
 
 		writeWatcher.start();
@@ -112,12 +113,4 @@ void ConnectionHandler::destroy()
 
 	/* delete this; */
 	ptr.reset();
-}
-
-std::string ConnectionHandler::getClientIp() const
-{
-	char ip[INET_ADDRSTRLEN] = {0};
-	inet_ntop(AF_INET, &(client.sin_addr.s_addr), ip, INET_ADDRSTRLEN);
-
-	return std::string(ip);
 }
