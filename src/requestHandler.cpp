@@ -80,7 +80,7 @@ std::string RequestHandler::announce(const Request* req, const std::string& info
 		i = std::min(i, peers->size());
 	}
 	while (i-- > 0) {
-		peerlist.append(*peers->nextPeer()->getHexIP());
+		peerlist.append(*peers->nextPeer()->HexIP());
 	}
 	return response(
 			("d8:completei"

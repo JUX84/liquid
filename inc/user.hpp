@@ -1,3 +1,7 @@
 #pragma once
 
-class User {};
+class User {
+	private:
+		//unsigned long uploaded;
+		//unsigned long downloaded;
+};

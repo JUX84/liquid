@@ -42,3 +42,18 @@ void MySQL::LoadTorrents(TorrentMap& torMap) {
 
 	Disconnect();
 }
+
+void MySQL::Record (std::string request) {
+	requests.push_front(request);
+}
+
+void MySQL::Flush() {
+	Connect();
+
+	for(const auto &it : requests) {
+		if (mysql_real_query(mysql, it.c_str(), it.size()))
+			return;
+	}
+
+	Disconnect();
+}
