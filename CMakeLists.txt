@@ -27,7 +27,6 @@ add_executable(liquid ${source_files})
 target_link_libraries(liquid ev z)
 target_link_libraries(liquid mysqlclient)
 
-
 option(USE_CLANG "build with clang" ON)
 
 set(CMAKE_CXX_FLAGS "-std=c++14 -Wall -O2")

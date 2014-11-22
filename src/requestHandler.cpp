@@ -61,8 +61,13 @@ std::string RequestHandler::announce(const Request* req, const std::string& info
 	} else {
 		if (tor->Seeders()->getPeer(req->at("peer_id")) == nullptr)
 			tor->Seeders()->addPeer(*req);
-		else if (req->at("event") == "stopped")
+		else if (req->at("event") == "stopped" || req->at("event") == "completed") {
 			tor->Leechers()->removePeer(*req);
+			if (req->at("event") == "completed") {
+				tor->Downloadedpp();
+				tor->Seeders()->addPeer(*req);
+			}
+		}
 		peers = tor->Leechers();
 	}
 	std::string peerlist;
@@ -82,6 +87,8 @@ std::string RequestHandler::announce(const Request* req, const std::string& info
 			 + std::to_string(tor->Seeders()->size())
 			 + "e10:incompletei"
 			 + std::to_string(tor->Leechers()->size())
+			 + "e10:downloadedi"
+			 + std::to_string(tor->Downloaded())
 			 + "e8:intervali"
 			 + std::to_string(900)
 			 + "e12:min intervali"
@@ -107,8 +114,10 @@ std::string RequestHandler::scrape(const std::forward_list<std::string>* infoHas
 				+ infoHash
 				+ "d8:completei"
 				+ std::to_string(it->second.Seeders()->size())
-				+ "e10:downloadedi0e10:incompletei"
+				+ "e10:incompletei"
 				+ std::to_string(it->second.Leechers()->size())
+				+ "e10:downloadedi"
+				+ std::to_string(it->second.Downloaded())
 				+ "ee";
 		}
 	}

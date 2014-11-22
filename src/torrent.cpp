@@ -7,3 +7,11 @@ Peers* Torrent::Seeders() {
 Peers* Torrent::Leechers() {
 	return &this->leechers;
 }
+
+unsigned int Torrent::Downloaded() {
+	return downloaded;
+}
+
+void Torrent::Downloadedpp() {
+	++downloaded;
+}
