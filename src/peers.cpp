@@ -15,11 +15,11 @@ Peer* Peers::getPeer(const std::string& identifier) {
 	}
 }
 
-void Peers::addPeer(const Request& req) {
+void Peers::addPeer(const Request& req, unsigned int fid) {
 	User* u = nullptr;
 	if (Config::get("type") == "private")
 		u = RequestHandler::getUser(req.at("passkey"));
-	pMap.emplace(req.at("peer_id"), Peer(req.at("ip"), u));
+	pMap.emplace(req.at("peer_id"), Peer(req.at("ip"), u, req.at("left") == "0", fid, req.at("user-agent")));
 }
 
 void Peers::removePeer(const Request& req) {

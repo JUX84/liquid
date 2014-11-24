@@ -5,7 +5,7 @@
 #include "user.hpp"
 #include "torrent.hpp"
 
-typedef std::map<std::string, User> UserMap;
+typedef std::map<std::string, User*> UserMap;
 typedef std::map<std::string, Torrent> TorrentMap;
 
 class Database {

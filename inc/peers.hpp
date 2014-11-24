@@ -13,7 +13,7 @@ class Peers {
 	public:
 		Peers();
 		Peer* getPeer(const std::string&);
-		void addPeer(const Request&);
+		void addPeer(const Request&, unsigned int);
 		void removePeer(const Request&);
 		Peer* nextPeer();
 		unsigned long size();

@@ -6,9 +6,13 @@ class Peer {
 	private:
 		User* user;
 		unsigned long stats;
+		bool seeding;
 		std::string hexIP;
+		unsigned int fid;
+		std::string client;
+		unsigned int lastUpdate;
 	public:
-		Peer (std::string, User*);
+		Peer (std::string, User*, bool, unsigned int, std::string);
 		User* User();
 		std::string* HexIP();
 		void UpdateStats(unsigned long stats);

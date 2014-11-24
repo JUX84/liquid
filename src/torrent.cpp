@@ -1,5 +1,14 @@
 #include "torrent.hpp"
 
+Torrent::Torrent (unsigned int id) {
+	this->id = id;
+	this->downloaded = 0;
+}
+
+unsigned int Torrent::GetID () {
+	return this->id;
+}
+
 Peers* Torrent::Seeders() {
 	return &this->seeders;
 }

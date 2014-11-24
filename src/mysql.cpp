@@ -18,12 +18,12 @@ void MySQL::Disconnect() {
 void MySQL::LoadUsers(UserMap& usrMap) {
 	Connect();
 
-	std::string query = "SELECT passkey, nick FROM users";
+	std::string query = "SELECT passkey, id, nick FROM users";
 	if (mysql_real_query(mysql, query.c_str(), query.size()))
 		return;
 	result = mysql_use_result(mysql);
 	while((row = mysql_fetch_row(result)))
-		usrMap.emplace(row[0], User());
+		usrMap.emplace(row[0], new User(std::stoul(row[1])));
 	std::cout << "Loaded " << mysql_num_rows(result) << " users\n";
 
 	Disconnect();
@@ -32,12 +32,12 @@ void MySQL::LoadUsers(UserMap& usrMap) {
 void MySQL::LoadTorrents(TorrentMap& torMap) {
 	Connect();
 
-	std::string query = "SELECT info_hash, name FROM torrents";
+	std::string query = "SELECT info_hash, id, name FROM torrents";
 	if (mysql_real_query(mysql, query.c_str(), query.size()))
 		return;
 	result = mysql_use_result(mysql);
 	while((row = mysql_fetch_row(result)))
-		torMap.emplace(row[0], Torrent());
+		torMap.emplace(row[0], Torrent(std::stoul(row[1])));
 	std::cout << "Loaded " << mysql_num_rows(result) << " torrents\n";
 
 	Disconnect();

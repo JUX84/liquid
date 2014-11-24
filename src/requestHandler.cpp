@@ -44,7 +44,7 @@ std::string RequestHandler::handle(std::string str, std::string ip)
 std::string RequestHandler::announce(const Request* req, const std::string& infoHash, const bool& gzip)
 {
 	if (Config::get("type") != "private")
-		torMap.emplace(infoHash, Torrent());
+		torMap.emplace(infoHash, Torrent(0));
 	Torrent *tor = nullptr;
 	try {
 		tor = &torMap.at(infoHash);
@@ -54,18 +54,18 @@ std::string RequestHandler::announce(const Request* req, const std::string& info
 	Peers *peers = nullptr;
 	if (req->at("left") != "0") {
 		if (tor->Leechers()->getPeer(req->at("peer_id")) == nullptr)
-			tor->Leechers()->addPeer(*req);
+			tor->Leechers()->addPeer(*req, tor->GetID());
 		else if (req->at("event") == "stopped")
 			tor->Leechers()->removePeer(*req);
 		peers = tor->Seeders();
 	} else {
 		if (tor->Seeders()->getPeer(req->at("peer_id")) == nullptr)
-			tor->Seeders()->addPeer(*req);
+			tor->Seeders()->addPeer(*req, tor->GetID());
 		else if (req->at("event") == "stopped" || req->at("event") == "completed") {
 			tor->Leechers()->removePeer(*req);
 			if (req->at("event") == "completed") {
 				tor->Downloadedpp();
-				tor->Seeders()->addPeer(*req);
+				tor->Seeders()->addPeer(*req, tor->GetID());
 			}
 		}
 		peers = tor->Leechers();
@@ -128,7 +128,7 @@ std::string RequestHandler::scrape(const std::forward_list<std::string>* infoHas
 
 User* RequestHandler::getUser(const std::string& passkey) {
 	try {
-		return &usrMap.at(passkey);
+		return usrMap.at(passkey);
 	} catch (const std::exception& e) {
 		return nullptr;
 	}
