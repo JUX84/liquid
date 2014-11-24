@@ -13,14 +13,32 @@ void Parser::init ()
 	if (Config::get("type") == "private")
 		required.at("announce").push_front("passkey");
 	required.emplace("scrape", std::forward_list<std::string>());
+
+	required.emplace("update", std::forward_list<std::string>{"type"});
+	required.emplace("change_passkey", std::forward_list<std::string>{"oldpasskey", "newpasskey"});
 }
 
 std::string Parser::check (const Request& req)
 {
 	try {
-		for (const auto& it : required.at(req.at("action"))) {
+		const std::string& action = req.at("action");
+		for (const auto& it : required.at(action)) {
 			if (req.find(it) == req.end())
 				return "missing param (" + it + ")";
+		}
+
+		if (action == "update") {
+			const std::string& type = req.at("type");
+			try {
+				for (const auto& it : required.at(type)) {
+					if (req.find(it) == req.end())
+						return "missing param (" + it + ")";
+				}
+			}
+			catch (const std::exception& e) {
+				std::cerr << "Error in Parser::check -- type for update not found\n";
+				return "missing update type";
+			}
 		}
 	} catch (const std::exception& e) {
 		std::cerr << "Error in Parser::check -- action not found\n";

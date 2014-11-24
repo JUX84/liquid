@@ -23,7 +23,7 @@ void MySQL::LoadUsers(UserMap& usrMap) {
 		return;
 	result = mysql_use_result(mysql);
 	while((row = mysql_fetch_row(result)))
-		usrMap.emplace(row[0], User());
+		usrMap.emplace(row[0], new User());
 	std::cout << "Loaded " << mysql_num_rows(result) << " users\n";
 
 	Disconnect();

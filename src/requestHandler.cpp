@@ -126,9 +126,35 @@ std::string RequestHandler::scrape(const std::forward_list<std::string>* infoHas
 	return response(resp, gzip);
 }
 
+std::string RequestHandler::update(const Request* req)
+{
+	std::string resp;
+	const std::string& type = req->at("type");
+
+	if (type == "change_passkey")
+		resp = change_passkey(req);
+
+	return resp;
+}
+
+std::string RequestHandler::change_passkey(const Request* req)
+{
+	try {
+		const std::string& old = req->at("oldpasskey");
+		User* user = usrMap.at(old);
+		usrMap.erase(old);
+		usrMap.emplace(req->at("newpasskey"), user);
+
+		return "succes";
+	}
+	catch (const std::exception& e) {
+		return "failure";
+	}
+}
+
 User* RequestHandler::getUser(const std::string& passkey) {
 	try {
-		return &usrMap.at(passkey);
+		return usrMap.at(passkey);
 	} catch (const std::exception& e) {
 		return nullptr;
 	}
