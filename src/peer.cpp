@@ -16,19 +16,19 @@ User* Peer::User() {
 	return this->user;
 }
 
-std::string* Peer::HexIP() {
+std::string* Peer::getHexIP() {
 	return &this->hexIP;
 }
 
-void Peer::UpdateStats (unsigned long stats) {
+void Peer::updateStats (unsigned long stats) {
 	this->stats += stats;
 }
 
-void Peer::ResetStats() {
+void Peer::resetStats() {
 	this->stats = 0;
 }
 
-std::string Peer::Record() {
+std::string Peer::record() {
 	unsigned int downloaded,uploaded;
 	if (seeding) {
 		uploaded = stats;
@@ -44,10 +44,11 @@ std::string Peer::Record() {
 	unsigned int seedtime = now - lastUpdate;
 	lastUpdate = now;
 	return "INSERT INTO liquid(uid,downloaded,uploaded,seedtime,client,fid) VALUES ('"
-						+ std::to_string(*user->GetID()) + "', " +
+						+ std::to_string(*user->getID()) + "', " +
 					"'" + std::to_string(downloaded) + "', " +
 					"'" + std::to_string(uploaded) + "', " +
 					"'" + std::to_string(seedtime) + "', " +
 					"'" + client + "', " +
-					"'" + std::to_string(fid) + "') ";
+					"'" + std::to_string(fid) + "') ON DUPLICATE downloaded = downloaded + VALUES(downloaded), uploaded = uploaded + VALUES(uploaded), seedtime = seedtime + VALUES(seedtime)";
+	user->updateStats(downloaded,uploaded);
 }

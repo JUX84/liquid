@@ -12,9 +12,9 @@ class Torrent {
 		unsigned int id;
 	public:
 		Torrent(unsigned int);
-		Peers* Seeders();
-		Peers* Leechers();
-		unsigned int Downloaded();
-		void Downloadedpp();
-		unsigned int GetID();
+		Peers* getSeeders();
+		Peers* getLeechers();
+		unsigned int getDownloaded();
+		void downloadedpp();
+		unsigned int getID();
 };

@@ -19,4 +19,5 @@ class RequestHandler {
 		static void init();
 		static std::string handle(std::string, std::string);
 		static User* getUser(const std::string&);
+		static void stop();
 };

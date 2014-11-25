@@ -5,22 +5,22 @@ Torrent::Torrent (unsigned int id) {
 	this->downloaded = 0;
 }
 
-unsigned int Torrent::GetID () {
+unsigned int Torrent::getID () {
 	return this->id;
 }
 
-Peers* Torrent::Seeders() {
+Peers* Torrent::getSeeders() {
 	return &this->seeders;
 }
 
-Peers* Torrent::Leechers() {
+Peers* Torrent::getLeechers() {
 	return &this->leechers;
 }
 
-unsigned int Torrent::Downloaded() {
+unsigned int Torrent::getDownloaded() {
 	return downloaded;
 }
 
-void Torrent::Downloadedpp() {
+void Torrent::downloadedpp() {
 	++downloaded;
 }

@@ -8,6 +8,7 @@
 
 void handler(int sig)
 {
+	RequestHandler::stop();
 }
 
 int main()
