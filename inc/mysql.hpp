@@ -9,10 +9,10 @@ class MySQL : public Database {
 		MYSQL_RES *result;
 		MYSQL_ROW row;
 	public:
-		void Connect();
-		void Disconnect();
-		void LoadUsers(UserMap&);
-		void LoadTorrents(TorrentMap&);
-		void Record(std::string);
-		void Flush();
+		void connect();
+		void disconnect();
+		void loadUsers(UserMap&);
+		void loadTorrents(TorrentMap&);
+		void record(std::string);
+		void flush();
 };

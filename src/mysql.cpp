@@ -4,19 +4,19 @@
 #include "user.hpp"
 #include "torrent.hpp"
 
-void MySQL::Connect() {
+void MySQL::connect() {
 	mysql = mysql_init(nullptr);
 	if (mysql_real_connect(mysql, Config::get("DB_Host").c_str(), Config::get("DB_User").c_str(), Config::get("DB_Password").c_str(), Config::get("DB_DBName").c_str(), Config::getInt("DB_Port"), nullptr, 0) == nullptr)
 		std::cerr << "Couldn't connect to database" << '\n';
 }
 
-void MySQL::Disconnect() {
+void MySQL::disconnect() {
 	mysql_free_result(result);
 	mysql_close(mysql);
 }
 
-void MySQL::LoadUsers(UserMap& usrMap) {
-	Connect();
+void MySQL::loadUsers(UserMap& usrMap) {
+	connect();
 
 	std::string query = "SELECT passkey, id, nick FROM users";
 	if (mysql_real_query(mysql, query.c_str(), query.size()))
@@ -26,11 +26,11 @@ void MySQL::LoadUsers(UserMap& usrMap) {
 		usrMap.emplace(row[0], new User(std::stoul(row[1])));
 	std::cout << "Loaded " << mysql_num_rows(result) << " users\n";
 
-	Disconnect();
+	disconnect();
 }
 
-void MySQL::LoadTorrents(TorrentMap& torMap) {
-	Connect();
+void MySQL::loadTorrents(TorrentMap& torMap) {
+	connect();
 
 	std::string query = "SELECT info_hash, id, name FROM torrents";
 	if (mysql_real_query(mysql, query.c_str(), query.size()))
@@ -40,20 +40,20 @@ void MySQL::LoadTorrents(TorrentMap& torMap) {
 		torMap.emplace(row[0], Torrent(std::stoul(row[1])));
 	std::cout << "Loaded " << mysql_num_rows(result) << " torrents\n";
 
-	Disconnect();
+	disconnect();
 }
 
-void MySQL::Record (std::string request) {
+void MySQL::record (std::string request) {
 	requests.push_front(request);
 }
 
-void MySQL::Flush() {
-	Connect();
+void MySQL::flush() {
+	connect();
 
 	for(const auto &it : requests) {
 		if (mysql_real_query(mysql, it.c_str(), it.size()))
 			return;
 	}
 
-	Disconnect();
+	disconnect();
 }

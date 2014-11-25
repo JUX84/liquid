@@ -14,8 +14,8 @@ class Peer {
 	public:
 		Peer (std::string, User*, bool, unsigned int, std::string);
 		User* User();
-		std::string* HexIP();
-		void UpdateStats(unsigned long stats);
-		void ResetStats();
-		std::string Record();
+		std::string* getHexIP();
+		void updateStats(unsigned long stats);
+		void resetStats();
+		std::string record();
 };

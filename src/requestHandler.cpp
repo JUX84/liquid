@@ -53,22 +53,22 @@ std::string RequestHandler::announce(const Request* req, const std::string& info
 	}
 	Peers *peers = nullptr;
 	if (req->at("left") != "0") {
-		if (tor->Leechers()->getPeer(req->at("peer_id")) == nullptr)
-			tor->Leechers()->addPeer(*req, tor->GetID());
+		if (tor->getLeechers()->getPeer(req->at("peer_id")) == nullptr)
+			tor->getLeechers()->addPeer(*req, tor->getID());
 		else if (req->at("event") == "stopped")
-			tor->Leechers()->removePeer(*req);
-		peers = tor->Seeders();
+			tor->getLeechers()->removePeer(*req);
+		peers = tor->getSeeders();
 	} else {
-		if (tor->Seeders()->getPeer(req->at("peer_id")) == nullptr)
-			tor->Seeders()->addPeer(*req, tor->GetID());
+		if (tor->getSeeders()->getPeer(req->at("peer_id")) == nullptr)
+			tor->getSeeders()->addPeer(*req, tor->getID());
 		else if (req->at("event") == "stopped" || req->at("event") == "completed") {
-			tor->Leechers()->removePeer(*req);
+			tor->getLeechers()->removePeer(*req);
 			if (req->at("event") == "completed") {
-				tor->Downloadedpp();
-				tor->Seeders()->addPeer(*req, tor->GetID());
+				tor->downloadedpp();
+				tor->getSeeders()->addPeer(*req, tor->getID());
 			}
 		}
-		peers = tor->Leechers();
+		peers = tor->getLeechers();
 	}
 	std::string peerlist;
 	unsigned long i = 0;
@@ -80,15 +80,15 @@ std::string RequestHandler::announce(const Request* req, const std::string& info
 		i = std::min(i, peers->size());
 	}
 	while (i-- > 0) {
-		peerlist.append(*peers->nextPeer()->HexIP());
+		peerlist.append(*peers->nextPeer()->getHexIP());
 	}
 	return response(
 			("d8:completei"
-			 + std::to_string(tor->Seeders()->size())
+			 + std::to_string(tor->getSeeders()->size())
 			 + "e10:incompletei"
-			 + std::to_string(tor->Leechers()->size())
+			 + std::to_string(tor->getLeechers()->size())
 			 + "e10:downloadedi"
-			 + std::to_string(tor->Downloaded())
+			 + std::to_string(tor->getDownloaded())
 			 + "e8:intervali"
 			 + std::to_string(900)
 			 + "e12:min intervali"
@@ -113,11 +113,11 @@ std::string RequestHandler::scrape(const std::forward_list<std::string>* infoHas
 				+ ":"
 				+ infoHash
 				+ "d8:completei"
-				+ std::to_string(it->second.Seeders()->size())
+				+ std::to_string(it->second.getSeeders()->size())
 				+ "e10:incompletei"
-				+ std::to_string(it->second.Leechers()->size())
+				+ std::to_string(it->second.getLeechers()->size())
 				+ "e10:downloadedi"
-				+ std::to_string(it->second.Downloaded())
+				+ std::to_string(it->second.getDownloaded())
 				+ "ee";
 		}
 	}
@@ -162,6 +162,6 @@ User* RequestHandler::getUser(const std::string& passkey) {
 
 void RequestHandler::init() {
 	db = new MySQL();
-	db->LoadUsers(usrMap);
-	db->LoadTorrents(torMap);
+	db->loadUsers(usrMap);
+	db->loadTorrents(torMap);
 }
