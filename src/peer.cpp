@@ -29,19 +29,19 @@ void Peer::resetStats() {
 }
 
 std::string Peer::record() {
-	unsigned int downloaded,uploaded;
+	unsigned int downloaded,uploaded,seedtime = 0;
+	auto time_point = std::chrono::system_clock::now();
+	auto duration = time_point.time_since_epoch();
+	auto now = std::chrono::duration_cast<std::chrono::seconds>(duration).count();
 	if (seeding) {
 		uploaded = stats;
 		downloaded = 0;
+		seedtime = now - lastUpdate;
 	} else {
 		downloaded = stats;
 		uploaded = 0;
 	}
 	stats = 0;
-	auto time_point = std::chrono::system_clock::now();
-	auto duration = time_point.time_since_epoch();
-	auto now = std::chrono::duration_cast<std::chrono::seconds>(duration).count();
-	unsigned int seedtime = now - lastUpdate;
 	lastUpdate = now;
 	return "INSERT INTO liquid(uid,downloaded,uploaded,seedtime,client,fid) VALUES ('"
 						+ std::to_string(*user->getID()) + "', " +
