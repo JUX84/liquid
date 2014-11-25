@@ -162,6 +162,7 @@ User* RequestHandler::getUser(const std::string& passkey) {
 
 void RequestHandler::init() {
 	db = new MySQL();
+	db->connect();
 	db->loadUsers(usrMap);
 	db->loadTorrents(torMap);
 }
@@ -169,4 +170,5 @@ void RequestHandler::init() {
 void RequestHandler::stop() {
 	// TODO record every changes before flushing
 	db->flush();
+	db->disconnect();
 }
