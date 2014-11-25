@@ -132,12 +132,18 @@ std::string RequestHandler::update(const Request* req)
 	const std::string& type = req->at("type");
 
 	if (type == "change_passkey")
-		resp = change_passkey(req);
+		resp = changePasskey(req);
+	else if (type == "add_torrent")
+		resp = addTorrent(req);
+	else if (type == "delete_torrent")
+		resp = deleteTorrent(req);
+	else if (type == "add_user")
+		resp = addUser(req);
 
 	return resp;
 }
 
-std::string RequestHandler::change_passkey(const Request* req)
+std::string RequestHandler::changePasskey(const Request* req)
 {
 	try {
 		const std::string& old = req->at("oldpasskey");
@@ -145,7 +151,36 @@ std::string RequestHandler::change_passkey(const Request* req)
 		usrMap.erase(old);
 		usrMap.emplace(req->at("newpasskey"), user);
 
-		return "succes";
+		return "success";
+	}
+	catch (const std::exception& e) {
+		return "failure";
+	}
+}
+
+std::string RequestHandler::addTorrent(const Request* req)
+{
+	try {
+		return (torMap.emplace(req->at("info_hash"), std::stoul(req->at("id"))).second) ? "success" : "failure";
+	}
+	catch (const std::exception& e) {
+		return "failure";
+	}
+}
+
+std::string RequestHandler::deleteTorrent(const Request* req)
+{
+	const auto it = torMap.find(req->at("info_hash"));
+	if (it != torMap.end())
+		torMap.erase(it);
+
+	return "success";
+}
+
+std::string RequestHandler::addUser(const Request* req)
+{
+	try {
+		return (torMap.emplace(req->at("passkey"), std::stoul(req->at("id"))).second) ? "success" : "failure";
 	}
 	catch (const std::exception& e) {
 		return "failure";
