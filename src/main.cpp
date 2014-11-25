@@ -1,12 +1,21 @@
 #include <iostream>
+#include <cstdlib>
+#include <signal.h>
 #include "server.hpp"
 #include "parser.hpp"
 #include "config.hpp"
 #include "requestHandler.hpp"
 
+void handler(int sig)
+{
+}
+
 int main()
 {
 	std::ios_base::sync_with_stdio(false);
+	signal(SIGINT, handler);
+	signal(SIGTERM, handler);
+
 	try {
 		//Config::load("liquid.conf");
 		Server server(Config::getInt("port"));
