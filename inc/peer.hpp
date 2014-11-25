@@ -17,5 +17,6 @@ class Peer {
 		std::string* getHexIP();
 		void updateStats(unsigned long stats);
 		void resetStats();
-		std::string record();
+		std::string record(const unsigned int&, const std::string&);
+		static std::string remove(const std::string&, const unsigned int&);
 };

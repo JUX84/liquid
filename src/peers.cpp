@@ -7,9 +7,9 @@ Peers::Peers () {
 	it = std::begin(pMap);
 }
 
-Peer* Peers::getPeer(const std::string& identifier) {
+Peer* Peers::getPeer(const std::string& peerID) {
 	try {
-		return &pMap.at(identifier);
+		return &pMap.at(peerID);
 	} catch (const std::exception& e) {
 		return nullptr;
 	}

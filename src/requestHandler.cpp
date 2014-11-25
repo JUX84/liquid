@@ -53,20 +53,30 @@ std::string RequestHandler::announce(const Request* req, const std::string& info
 	}
 	Peers *peers = nullptr;
 	if (req->at("left") != "0") {
-		if (tor->getLeechers()->getPeer(req->at("peer_id")) == nullptr)
+		if (req->at("event") == "stopped") {
+			if (tor->getLeechers()->getPeer(req->at("peer_id")) != nullptr) {
+				db->record(tor->getLeechers()->getPeer(req->at("peer_id"))->record(std::stoul(req->at("left")), req->at("peer_id")));
+				db->record(Peer::remove(req->at("peer_id"), tor->getID()));
+				tor->getLeechers()->removePeer(*req);
+			}
+		} else if (tor->getLeechers()->getPeer(req->at("peer_id")) == nullptr) {
 			tor->getLeechers()->addPeer(*req, tor->getID());
-		else if (req->at("event") == "stopped")
-			tor->getLeechers()->removePeer(*req);
+		}
 		peers = tor->getSeeders();
 	} else {
-		if (tor->getSeeders()->getPeer(req->at("peer_id")) == nullptr)
-			tor->getSeeders()->addPeer(*req, tor->getID());
-		else if (req->at("event") == "stopped" || req->at("event") == "completed") {
-			tor->getLeechers()->removePeer(*req);
-			if (req->at("event") == "completed") {
-				tor->downloadedpp();
-				tor->getSeeders()->addPeer(*req, tor->getID());
+		if (req->at("event") == "stopped" || req->at("event") == "completed") {
+			if (tor->getSeeders()->getPeer(req->at("peer_id")) != nullptr) {
+				if (req->at("event") == "completed") {
+					tor->downloadedpp();
+					tor->getSeeders()->addPeer(*req, tor->getID());
+					tor->getLeechers()->removePeer(*req);
+				} else {
+					db->record(tor->getSeeders()->getPeer(req->at("peer_id"))->record(std::stoul(req->at("left")), req->at("peer_id")));
+					db->record(Peer::remove(req->at("peer_id"), tor->getID()));
+				}
 			}
+		} else if (tor->getSeeders()->getPeer(req->at("peer_id")) == nullptr) {
+			tor->getSeeders()->addPeer(*req, tor->getID());
 		}
 		peers = tor->getLeechers();
 	}
@@ -99,7 +109,7 @@ std::string RequestHandler::announce(const Request* req, const std::string& info
 			 + peerlist
 			 + "e"),
 			gzip
-			); // doesn't look as bad as it is stated on ocelot, needs stresstesting to check
+		       ); // doesn't look as bad as it is stated on ocelot, needs stresstesting to check
 }
 
 std::string RequestHandler::scrape(const std::forward_list<std::string>* infoHashes, const bool& gzip)

@@ -28,7 +28,7 @@ void Peer::resetStats() {
 	this->stats = 0;
 }
 
-std::string Peer::record() {
+std::string Peer::record(const unsigned int& left, const std::string& peerID) {
 	unsigned int downloaded,uploaded,seedtime = 0;
 	auto time_point = std::chrono::system_clock::now();
 	auto duration = time_point.time_since_epoch();
@@ -43,12 +43,21 @@ std::string Peer::record() {
 	}
 	stats = 0;
 	lastUpdate = now;
-	return "INSERT INTO liquid(uid,downloaded,uploaded,seedtime,client,fid) VALUES ('"
+	return "INSERT INTO xbt_files_users(uid,downloaded,uploaded,remaining,seedtime,useragent,peerid,fid) VALUES ('"
 						+ std::to_string(*user->getID()) + "', " +
 					"'" + std::to_string(downloaded) + "', " +
 					"'" + std::to_string(uploaded) + "', " +
+					"'" + std::to_string(left) + "', " +
 					"'" + std::to_string(seedtime) + "', " +
 					"'" + client + "', " +
+					"'" + peerID + "', " +
 					"'" + std::to_string(fid) + "') ON DUPLICATE downloaded = downloaded + VALUES(downloaded), uploaded = uploaded + VALUES(uploaded), seedtime = seedtime + VALUES(seedtime)";
 	user->updateStats(downloaded,uploaded);
+}
+
+std::string Peer::remove(const std::string& peerID, const unsigned int& fid) {
+	return "DELETE FROM xbt_files_users WHERE peer_id LIKE '"
+		+ peerID
+		+ "' AND fid = "
+		+ std::to_string(fid);
 }
