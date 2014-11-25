@@ -165,3 +165,8 @@ void RequestHandler::init() {
 	db->loadUsers(usrMap);
 	db->loadTorrents(torMap);
 }
+
+void RequestHandler::stop() {
+	// TODO record every changes before flushing
+	db->flush();
+}
