@@ -16,6 +16,6 @@ class Database {
 		virtual void disconnect() {};
 		virtual void loadUsers(UserMap&) {};
 		virtual void loadTorrents(TorrentMap&) {};
-		virtual void record(std::string);
-		virtual void flush();
+		virtual void record(std::string) {};
+		virtual void flush() {};
 };
