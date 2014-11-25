@@ -180,7 +180,7 @@ std::string RequestHandler::deleteTorrent(const Request* req)
 std::string RequestHandler::addUser(const Request* req)
 {
 	try {
-		return (torMap.emplace(req->at("passkey"), std::stoul(req->at("id"))).second) ? "success" : "failure";
+		return (usrMap.emplace(req->at("passkey"), new User(std::stoul(req->at("id")))).second) ? "success" : "failure";
 	}
 	catch (const std::exception& e) {
 		return "failure";
