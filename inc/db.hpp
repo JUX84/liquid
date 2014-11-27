@@ -12,10 +12,10 @@ class Database {
 	protected:
 		std::forward_list<std::string> requests;
 	public:
-		virtual void connect() {};
-		virtual void disconnect() {};
-		virtual void loadUsers(UserMap&) {};
-		virtual void loadTorrents(TorrentMap&) {};
-		virtual void record(std::string) {};
-		virtual void flush() {};
+		virtual void connect() = 0;
+		virtual void disconnect() = 0;
+		virtual void loadUsers(UserMap&) = 0;
+		virtual void loadTorrents(TorrentMap&) = 0;
+		virtual void record(std::string) = 0;
+		virtual void flush() = 0;
 };
