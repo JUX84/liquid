@@ -61,6 +61,8 @@ std::string RequestHandler::announce(const Request* req, const std::string& info
 			}
 		} else if (tor->getLeechers()->getPeer(req->at("peer_id")) == nullptr) {
 			tor->getLeechers()->addPeer(*req, tor->getID());
+		} else {
+			tor->getLeechers()->getPeer(req->at("peer_id"))->updateStats(std::stoul(req->at("downloaded"))/(1-(tor->getFree()/100)));
 		}
 		peers = tor->getSeeders();
 	} else {
@@ -77,6 +79,8 @@ std::string RequestHandler::announce(const Request* req, const std::string& info
 			}
 		} else if (tor->getSeeders()->getPeer(req->at("peer_id")) == nullptr) {
 			tor->getSeeders()->addPeer(*req, tor->getID());
+		} else {
+			tor->getLeechers()->getPeer(req->at("peer_id"))->updateStats(std::stoul(req->at("downloaded"))/(1-(tor->getFree()/100)));
 		}
 		peers = tor->getLeechers();
 	}

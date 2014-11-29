@@ -10,6 +10,7 @@ class Torrent {
 		Peers leechers;
 		unsigned int downloaded;
 		unsigned int id;
+		unsigned char free;
 	public:
 		Torrent(unsigned int);
 		Peers* getSeeders();
@@ -17,4 +18,6 @@ class Torrent {
 		unsigned int getDownloaded();
 		void downloadedpp();
 		unsigned int getID();
+		unsigned char getFree();
+		void setFree(unsigned char);
 };

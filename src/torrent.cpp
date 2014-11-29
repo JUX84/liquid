@@ -3,6 +3,7 @@
 Torrent::Torrent (unsigned int id) {
 	this->id = id;
 	this->downloaded = 0;
+	this->free = 0;
 }
 
 unsigned int Torrent::getID () {
@@ -18,9 +19,17 @@ Peers* Torrent::getLeechers() {
 }
 
 unsigned int Torrent::getDownloaded() {
-	return downloaded;
+	return this->downloaded;
 }
 
 void Torrent::downloadedpp() {
-	++downloaded;
+	++this->downloaded;
+}
+
+unsigned char Torrent::getFree() {
+	return this->free;
+}
+
+void Torrent::setFree(unsigned char free) {
+	this->free = free;
 }
