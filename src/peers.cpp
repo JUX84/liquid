@@ -20,9 +20,12 @@ void Peers::addPeer(const Request& req, unsigned int fid) {
 	if (Config::get("type") == "private")
 		u = RequestHandler::getUser(req.at("passkey"));
 	pMap.emplace(req.at("peer_id"), Peer(req.at("ip"), u, req.at("left") == "0", fid, req.at("user-agent")));
+	if (Config::get("type") == "private")
+		u->addPeer(&pMap.at(req.at("peer_id")));
 }
 
 void Peers::removePeer(const Request& req) {
+	// TODO clean users peers
 	pMap.erase(req.at("peer_id"));
 }
 
