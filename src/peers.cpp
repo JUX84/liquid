@@ -20,8 +20,6 @@ void Peers::addPeer(const Request& req, unsigned int fid) {
 	if (Config::get("type") == "private")
 		u = RequestHandler::getUser(req.at("passkey"));
 	pMap.emplace(req.at("peer_id"), Peer(req.at("ip"), u, req.at("left") == "0", fid, req.at("user-agent")));
-	if (Config::get("type") == "private")
-		u->addPeer(&pMap.at(req.at("peer_id")));
 }
 
 void Peers::removePeer(const Request& req) {
@@ -30,11 +28,19 @@ void Peers::removePeer(const Request& req) {
 }
 
 Peer* Peers::nextPeer() {
-	if (it == std::end(pMap))
-		it = std::begin(pMap);
-	PeerMap::iterator tmp = it;
-	it = std::next(it);
-	return &tmp->second;
+	while (pMap.size() > 0) {
+		if (it == std::end(pMap)) {
+			it = std::begin(pMap);
+			continue;
+		} else if (it->timedOut()) {
+			pMap.erase(it);
+			continue;
+		}
+		PeerMap::iterator tmp = it;
+		it = std::next(it);
+		return &tmp->second;
+	}
+	return nullptr;
 }
 
 unsigned long Peers::size () {

@@ -19,4 +19,5 @@ class Peer {
 		void resetStats();
 		std::string record(const unsigned int&, const std::string&);
 		static std::string remove(const std::string&, const unsigned int&);
+		bool timedOut();
 };

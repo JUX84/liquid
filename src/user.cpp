@@ -22,7 +22,3 @@ std::string User::record() {
 		+ std::to_string(id);
 	downloaded = uploaded = 0;
 }
-
-void User::addPeer(Peer* p) {
-	peers.push_front(p);
-}

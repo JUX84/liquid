@@ -94,7 +94,9 @@ std::string RequestHandler::announce(const Request* req, const std::string& info
 		i = std::min(i, peers->size());
 	}
 	while (i-- > 0) {
-		peerlist.append(*peers->nextPeer()->getHexIP());
+		Peer* p = peers->nextPeer();
+		if (p != nullptr)
+			peerlist.append(*p->getHexIP());
 	}
 	return response(
 			("d8:completei"

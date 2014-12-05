@@ -61,3 +61,7 @@ std::string Peer::remove(const std::string& peerID, const unsigned int& fid) {
 		+ "' AND fid = "
 		+ std::to_string(fid);
 }
+
+bool Peer::timedOut() {
+	return false;
+}
