@@ -1,4 +1,5 @@
 #include <chrono>
+#include "config.hpp"
 #include "peers.hpp"
 
 Peer::Peer(std::string hexIP, class User* u, bool seeding, unsigned int fid, std::string client) {
@@ -66,5 +67,5 @@ std::string Peer::remove(const std::string& peerID, const unsigned int& fid) {
 }
 
 bool Peer::timedOut(const long long &now) {
-	return false;
+	return (now - lastUpdate > Config::getInt("timeout"));
 }
