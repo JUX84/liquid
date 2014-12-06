@@ -10,14 +10,15 @@ class Peer {
 		std::string hexIP;
 		unsigned int fid;
 		std::string client;
-		unsigned int lastUpdate;
+		long long seedtime;
+		long long lastUpdate;
 	public:
 		Peer (std::string, User*, bool, unsigned int, std::string);
 		User* User();
 		std::string* getHexIP();
-		void updateStats(unsigned long stats);
+		void updateStats(unsigned long stats, const long long&);
 		void resetStats();
 		std::string record(const unsigned int&, const std::string&);
 		static std::string remove(const std::string&, const unsigned int&);
-		bool timedOut();
+		bool timedOut(const long long& now);
 };

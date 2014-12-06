@@ -27,12 +27,12 @@ void Peers::removePeer(const Request& req) {
 	pMap.erase(req.at("peer_id"));
 }
 
-Peer* Peers::nextPeer() {
+Peer* Peers::nextPeer(const long long &now) {
 	while (pMap.size() > 0) {
 		if (it == std::end(pMap)) {
 			it = std::begin(pMap);
 			continue;
-		} else if (it->second.timedOut()) {
+		} else if (it->second.timedOut(now)) {
 			pMap.erase(it);
 			continue;
 		}

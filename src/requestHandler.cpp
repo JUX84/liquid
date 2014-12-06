@@ -1,6 +1,7 @@
 #include <algorithm>
 #include <iostream>
 #include <stdexcept>
+#include <chrono>
 #include "config.hpp"
 #include "requestHandler.hpp"
 #include "response.hpp"
@@ -51,6 +52,9 @@ std::string RequestHandler::announce(const Request* req, const std::string& info
 	} catch (const std::exception& e) {
 		return error("unregistered torrent", gzip);
 	}
+	auto time_point = std::chrono::system_clock::now();
+	auto duration = time_point.time_since_epoch();
+	long long now = std::chrono::duration_cast<std::chrono::seconds>(duration).count();
 	Peers *peers = nullptr;
 	if (req->at("left") != "0") {
 		if (req->at("event") == "stopped") {
@@ -62,7 +66,7 @@ std::string RequestHandler::announce(const Request* req, const std::string& info
 		} else if (tor->getLeechers()->getPeer(req->at("peer_id")) == nullptr) {
 			tor->getLeechers()->addPeer(*req, tor->getID());
 		} else {
-			tor->getLeechers()->getPeer(req->at("peer_id"))->updateStats(std::stoul(req->at("downloaded"))/(1-(tor->getFree()/100)));
+			tor->getLeechers()->getPeer(req->at("peer_id"))->updateStats(std::stoul(req->at("downloaded"))/(1-(tor->getFree()/100)), now);
 		}
 		peers = tor->getSeeders();
 	} else {
@@ -80,7 +84,7 @@ std::string RequestHandler::announce(const Request* req, const std::string& info
 		} else if (tor->getSeeders()->getPeer(req->at("peer_id")) == nullptr) {
 			tor->getSeeders()->addPeer(*req, tor->getID());
 		} else {
-			tor->getLeechers()->getPeer(req->at("peer_id"))->updateStats(std::stoul(req->at("downloaded"))/(1-(tor->getFree()/100)));
+			tor->getLeechers()->getPeer(req->at("peer_id"))->updateStats(std::stoul(req->at("downloaded"))/(1-(tor->getFree()/100)), now);
 		}
 		peers = tor->getLeechers();
 	}
@@ -94,7 +98,7 @@ std::string RequestHandler::announce(const Request* req, const std::string& info
 		i = std::min(i, peers->size());
 	}
 	while (i-- > 0) {
-		Peer* p = peers->nextPeer();
+		Peer* p = peers->nextPeer(now);
 		if (p != nullptr)
 			peerlist.append(*p->getHexIP());
 	}

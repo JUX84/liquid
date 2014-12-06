@@ -10,6 +10,7 @@ Peer::Peer(std::string hexIP, class User* u, bool seeding, unsigned int fid, std
 	auto time_point = std::chrono::system_clock::now();
 	auto duration = time_point.time_since_epoch();
 	lastUpdate = std::chrono::duration_cast<std::chrono::seconds>(duration).count();
+	seedtime = 0;
 }
 
 User* Peer::User() {
@@ -20,8 +21,10 @@ std::string* Peer::getHexIP() {
 	return &this->hexIP;
 }
 
-void Peer::updateStats (unsigned long stats) {
+void Peer::updateStats (unsigned long stats, const long long &now) {
 	this->stats += stats;
+	seedtime += now - lastUpdate;
+	lastUpdate = now;
 }
 
 void Peer::resetStats() {
@@ -29,7 +32,7 @@ void Peer::resetStats() {
 }
 
 std::string Peer::record(const unsigned int& left, const std::string& peerID) {
-	unsigned int downloaded,uploaded,seedtime = 0;
+	unsigned int downloaded,uploaded = 0;
 	auto time_point = std::chrono::system_clock::now();
 	auto duration = time_point.time_since_epoch();
 	auto now = std::chrono::duration_cast<std::chrono::seconds>(duration).count();
@@ -62,6 +65,6 @@ std::string Peer::remove(const std::string& peerID, const unsigned int& fid) {
 		+ std::to_string(fid);
 }
 
-bool Peer::timedOut() {
+bool Peer::timedOut(const long long &now) {
 	return false;
 }
