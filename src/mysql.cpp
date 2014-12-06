@@ -30,8 +30,11 @@ void MySQL::loadTorrents(TorrentMap& torMap) {
 	if (mysql_real_query(mysql, query.c_str(), query.size()))
 		return;
 	result = mysql_use_result(mysql);
+	auto time_point = std::chrono::system_clock::now(); 
+	auto duration = time_point.time_since_epoch();
+	long long now = std::chrono::duration_cast<std::chrono::seconds>(duration).count();
 	while((row = mysql_fetch_row(result)))
-		torMap.emplace(row[0], Torrent(std::stoul(row[1])));
+		torMap.emplace(row[0], Torrent(std::stoul(row[1]), now));
 	std::cout << "Loaded " << mysql_num_rows(result) << " torrents\n";
 }
 

@@ -11,8 +11,9 @@ class Torrent {
 		unsigned int downloaded;
 		unsigned int id;
 		unsigned char free;
+		long long lastUpdate;
 	public:
-		Torrent(unsigned int);
+		Torrent(unsigned int, const long long&);
 		Peers* getSeeders();
 		Peers* getLeechers();
 		unsigned int getDownloaded();
@@ -20,4 +21,6 @@ class Torrent {
 		unsigned int getID();
 		unsigned char getFree();
 		void setFree(unsigned char);
+		void setLastUpdate(const long long&);
+		long long* getLastUpdate();
 };

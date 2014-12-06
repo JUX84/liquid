@@ -44,47 +44,47 @@ std::string RequestHandler::handle(std::string str, std::string ip)
 
 std::string RequestHandler::announce(const Request* req, const std::string& infoHash, const bool& gzip)
 {
+	auto time_point = std::chrono::system_clock::now();
+	auto duration = time_point.time_since_epoch();
+	long long now = std::chrono::duration_cast<std::chrono::seconds>(duration).count();
 	if (Config::get("type") != "private")
-		torMap.emplace(infoHash, Torrent(0));
+		torMap.emplace(infoHash, Torrent(0, now));
 	Torrent *tor = nullptr;
 	try {
 		tor = &torMap.at(infoHash);
 	} catch (const std::exception& e) {
 		return error("unregistered torrent", gzip);
 	}
-	auto time_point = std::chrono::system_clock::now();
-	auto duration = time_point.time_since_epoch();
-	long long now = std::chrono::duration_cast<std::chrono::seconds>(duration).count();
 	Peers *peers = nullptr;
 	if (req->at("left") != "0") {
 		if (req->at("event") == "stopped") {
-			if (tor->getLeechers()->getPeer(req->at("peer_id")) != nullptr) {
-				db->record(tor->getLeechers()->getPeer(req->at("peer_id"))->record(std::stoul(req->at("left")), req->at("peer_id")));
+			if (tor->getLeechers()->getPeer(req->at("peer_id"), now) != nullptr) {
+				db->record(tor->getLeechers()->getPeer(req->at("peer_id"), now)->record(std::stoul(req->at("left")), req->at("peer_id")));
 				db->record(Peer::remove(req->at("peer_id"), tor->getID()));
 				tor->getLeechers()->removePeer(*req);
 			}
-		} else if (tor->getLeechers()->getPeer(req->at("peer_id")) == nullptr) {
-			tor->getLeechers()->addPeer(*req, tor->getID());
+		} else if (tor->getLeechers()->getPeer(req->at("peer_id"), now) == nullptr) {
+			tor->getLeechers()->addPeer(*req, tor->getID(), now);
 		} else {
-			tor->getLeechers()->getPeer(req->at("peer_id"))->updateStats(std::stoul(req->at("downloaded"))/(1-(tor->getFree()/100)), now);
+			tor->getLeechers()->getPeer(req->at("peer_id"), now)->updateStats(std::stoul(req->at("downloaded"))/(1-(tor->getFree()/100)), now);
 		}
 		peers = tor->getSeeders();
 	} else {
 		if (req->at("event") == "stopped" || req->at("event") == "completed") {
-			if (tor->getSeeders()->getPeer(req->at("peer_id")) != nullptr) {
+			if (tor->getSeeders()->getPeer(req->at("peer_id"), now) != nullptr) {
 				if (req->at("event") == "completed") {
 					tor->downloadedpp();
-					tor->getSeeders()->addPeer(*req, tor->getID());
+					tor->getSeeders()->addPeer(*req, tor->getID(), now);
 					tor->getLeechers()->removePeer(*req);
 				} else {
-					db->record(tor->getSeeders()->getPeer(req->at("peer_id"))->record(std::stoul(req->at("left")), req->at("peer_id")));
+					db->record(tor->getSeeders()->getPeer(req->at("peer_id"), now)->record(std::stoul(req->at("left")), req->at("peer_id")));
 					db->record(Peer::remove(req->at("peer_id"), tor->getID()));
 				}
 			}
-		} else if (tor->getSeeders()->getPeer(req->at("peer_id")) == nullptr) {
-			tor->getSeeders()->addPeer(*req, tor->getID());
+		} else if (tor->getSeeders()->getPeer(req->at("peer_id"), now) == nullptr) {
+			tor->getSeeders()->addPeer(*req, tor->getID(), now);
 		} else {
-			tor->getLeechers()->getPeer(req->at("peer_id"))->updateStats(std::stoul(req->at("downloaded"))/(1-(tor->getFree()/100)), now);
+			tor->getLeechers()->getPeer(req->at("peer_id"), now)->updateStats(std::stoul(req->at("downloaded"))/(1-(tor->getFree()/100)), now);
 		}
 		peers = tor->getLeechers();
 	}
@@ -185,7 +185,10 @@ std::string RequestHandler::changePasskey(const Request* req)
 std::string RequestHandler::addTorrent(const Request* req)
 {
 	try {
-		auto t = torMap.emplace(req->at("info_hash"), std::stoul(req->at("id")));
+		auto time_point = std::chrono::system_clock::now();
+		auto duration = time_point.time_since_epoch();
+		long long now = std::chrono::duration_cast<std::chrono::seconds>(duration).count();
+		auto t = torMap.emplace(req->at("info_hash"), Torrent(std::stoul(req->at("id")), now));
 		if (!t.second)
 			return "failure";
 

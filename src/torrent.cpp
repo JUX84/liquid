@@ -1,9 +1,10 @@
 #include "torrent.hpp"
 
-Torrent::Torrent (unsigned int id) {
+Torrent::Torrent (unsigned int id, const long long& now) {
 	this->id = id;
 	this->downloaded = 0;
 	this->free = 0;
+	this->lastUpdate = now;
 }
 
 unsigned int Torrent::getID () {
@@ -32,4 +33,12 @@ unsigned char Torrent::getFree() {
 
 void Torrent::setFree(unsigned char free) {
 	this->free = free;
+}
+
+void Torrent::setLastUpdate(const long long &now) {
+	lastUpdate = now;
+}
+
+long long* Torrent::getLastUpdate() {
+	return &this->lastUpdate;
 }

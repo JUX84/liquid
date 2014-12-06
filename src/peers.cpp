@@ -1,13 +1,18 @@
+#include <chrono>
 #include "peers.hpp"
 #include "config.hpp"
 #include "requestHandler.hpp"
 
-Peers::Peers () {
+Peers::Peers() {
 	pMap = PeerMap();
 	it = std::begin(pMap);
+	auto time_point = std::chrono::system_clock::now();
+	auto duration = time_point.time_since_epoch();
+	lastUpdate = std::chrono::duration_cast<std::chrono::seconds>(duration).count();
 }
 
-Peer* Peers::getPeer(const std::string& peerID) {
+Peer* Peers::getPeer(const std::string& peerID, const long long& now) {
+	lastUpdate = now;
 	try {
 		return &pMap.at(peerID);
 	} catch (const std::exception& e) {
@@ -15,11 +20,12 @@ Peer* Peers::getPeer(const std::string& peerID) {
 	}
 }
 
-void Peers::addPeer(const Request& req, unsigned int fid) {
+void Peers::addPeer(const Request& req, unsigned int fid, const long long& now) {
 	User* u = nullptr;
 	if (Config::get("type") == "private")
 		u = RequestHandler::getUser(req.at("passkey"));
 	pMap.emplace(req.at("peer_id"), Peer(req.at("ip"), u, req.at("left") == "0", fid, req.at("user-agent")));
+	lastUpdate = now;
 }
 
 void Peers::removePeer(const Request& req) {
