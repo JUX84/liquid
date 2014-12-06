@@ -115,7 +115,7 @@ std::string RequestHandler::announce(const Request* req, const std::string& info
 			 + peerlist
 			 + "e"),
 			gzip
-		       ); // doesn't look as bad as it is stated on ocelot, needs stresstesting to check
+			); // doesn't look as bad as it is stated on ocelot, needs stresstesting to check
 }
 
 std::string RequestHandler::scrape(const std::forward_list<std::string>* infoHashes, const bool& gzip)
@@ -153,8 +153,12 @@ std::string RequestHandler::update(const Request* req)
 		resp = addTorrent(req);
 	else if (type == "delete_torrent")
 		resp = deleteTorrent(req);
+	else if (type == "update_torrent")
+		resp = updateTorrent(req);
 	else if (type == "add_user")
 		resp = addUser(req);
+	else if (type == "remove_user")
+		resp = removeUser(req);
 
 	return resp;
 }
@@ -177,7 +181,19 @@ std::string RequestHandler::changePasskey(const Request* req)
 std::string RequestHandler::addTorrent(const Request* req)
 {
 	try {
-		return (torMap.emplace(req->at("info_hash"), std::stoul(req->at("id"))).second) ? "success" : "failure";
+		auto t = torMap.emplace(req->at("info_hash"), std::stoul(req->at("id")));
+		if (!t.second)
+			return "failure";
+
+		try {
+			if (req->at("freetorrent") == "1")
+				t.first->second.setFree(1);
+			else
+				t.first->second.setFree(0);
+		}
+		catch (const std::exception& e) {}
+
+		return "success";
 	}
 	catch (const std::exception& e) {
 		return "failure";
@@ -193,6 +209,21 @@ std::string RequestHandler::deleteTorrent(const Request* req)
 	return "success";
 }
 
+std::string RequestHandler::updateTorrent(const Request* req)
+{
+	auto it = torMap.find(req->at("info_hash"));
+	if (it != torMap.end()) {
+		if (req->at("freetorrent") == "1")
+			it->second.setFree(1);
+		else
+			it->second.setFree(0);
+
+		return "success";
+	}
+
+	return "failure";
+}
+
 std::string RequestHandler::addUser(const Request* req)
 {
 	try {
@@ -201,6 +232,11 @@ std::string RequestHandler::addUser(const Request* req)
 	catch (const std::exception& e) {
 		return "failure";
 	}
+}
+
+std::string RequestHandler::removeUser(const Request* req)
+{
+	return "failure";
 }
 
 User* RequestHandler::getUser(const std::string& passkey) {

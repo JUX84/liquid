@@ -14,7 +14,9 @@ class RequestHandler {
 		static std::string changePasskey(const Request*);
 		static std::string addTorrent(const Request*);
 		static std::string deleteTorrent(const Request*);
+		static std::string updateTorrent(const Request*);
 		static std::string addUser(const Request*);
+		static std::string removeUser(const Request*);
 	public:
 		static void init();
 		static std::string handle(std::string, std::string);
