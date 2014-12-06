@@ -48,7 +48,7 @@ std::string RequestHandler::announce(const Request* req, const std::string& info
 	auto duration = time_point.time_since_epoch();
 	long long now = std::chrono::duration_cast<std::chrono::seconds>(duration).count();
 	if (Config::get("type") != "private")
-		torMap.emplace(infoHash, 0);
+		torMap.emplace(infoHash, Torrent(0));
 	Torrent *tor = nullptr;
 	try {
 		tor = &torMap.at(infoHash);
@@ -185,7 +185,7 @@ std::string RequestHandler::changePasskey(const Request* req)
 std::string RequestHandler::addTorrent(const Request* req)
 {
 	try {
-		auto t = torMap.emplace(req->at("info_hash"), std::stoul(req->at("id")));
+		auto t = torMap.emplace(req->at("info_hash"), Torrent(std::stoul(req->at("id"))));
 		if (!t.second)
 			return "failure";
 
