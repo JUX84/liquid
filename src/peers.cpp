@@ -32,7 +32,7 @@ Peer* Peers::nextPeer() {
 		if (it == std::end(pMap)) {
 			it = std::begin(pMap);
 			continue;
-		} else if (it->timedOut()) {
+		} else if (it->second.timedOut()) {
 			pMap.erase(it);
 			continue;
 		}
