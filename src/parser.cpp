@@ -20,6 +20,7 @@ void Parser::init ()
 	required.emplace("delete_torrent", std::forward_list<std::string>{"info_hash"});
 	required.emplace("update_torrent", std::forward_list<std::string>{"info_hash", "freetorrent"});
 	required.emplace("add_user", std::forward_list<std::string>{"passkey", "id"});
+	required.emplace("remove_user", std::forward_list<std::string>{"passkey"});
 }
 
 std::string Parser::check (const Request& req)

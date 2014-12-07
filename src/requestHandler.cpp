@@ -240,7 +240,7 @@ std::string RequestHandler::addUser(const Request* req)
 
 std::string RequestHandler::removeUser(const Request* req)
 {
-	return "failure";
+	return (usrMap.erase(req->at("passkey")) == 1) ? "success" : "failure";
 }
 
 User* RequestHandler::getUser(const std::string& passkey) {
