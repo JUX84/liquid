@@ -12,4 +12,5 @@ class Server
 	private:
 		int sock;
 		ev::io watcher;
+		ev::timer timer;
 };

@@ -1,5 +1,6 @@
 #pragma once
 
+#include <ev++.h>
 #include "parser.hpp"
 #include "db.hpp"
 
@@ -22,4 +23,5 @@ class RequestHandler {
 		static std::string handle(std::string, std::string);
 		static User* getUser(const std::string&);
 		static void stop();
+		static void clearTorrentPeers(ev::timer&, int);
 };

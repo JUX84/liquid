@@ -8,9 +8,11 @@
 #include <netinet/in.h> // sockaddr_in
 #include "server.hpp"
 #include "connectionHandler.hpp"
+#include "requestHandler.hpp"
+#include "config.hpp"
 
 Server::Server(uint16_t port)
-	: watcher(EV_DEFAULT)
+	: watcher(EV_DEFAULT), timer(EV_DEFAULT)
 {
 	int opt = 1;
 	sockaddr_in address;
@@ -36,6 +38,10 @@ Server::Server(uint16_t port)
 
 	watcher.set<Server, &Server::acceptClient>(this);
 	watcher.start(sock, ev::READ);
+
+	timer.set<&RequestHandler::clearTorrentPeers>();
+	timer.set(Config::getInt("clear_peers_interval"), Config::getInt("clear_peers_interval"));
+	timer.start();
 }
 
 void Server::run()
