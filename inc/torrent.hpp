@@ -20,6 +20,4 @@ class Torrent {
 		unsigned int getID();
 		unsigned char getFree();
 		void setFree(unsigned char);
-		void setLastUpdate(const long long&);
-		long long* getLastUpdate();
 };
