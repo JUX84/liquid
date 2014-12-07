@@ -1,8 +1,10 @@
 #include <chrono>
+#include <iostream>
 #include "config.hpp"
 #include "peers.hpp"
 
 Peer::Peer(std::string hexIP, class User* u, bool seeding, unsigned int fid, std::string client) {
+	std::cout << "Creating peer on torrent " << std::to_string(fid) << " using client " << client << " (" << hexIP << ")\n";
 	this->hexIP = hexIP;
 	this->user = u;
 	this->seeding = seeding;
@@ -23,6 +25,7 @@ std::string* Peer::getHexIP() {
 }
 
 void Peer::updateStats (unsigned long stats, const long long &now) {
+	std::cout << "Updating stats (" << std::to_string(this->stats) << " -> " << std::to_string(stats) << ") on a user from torrent " << std::to_string(fid) << " (" << hexIP << ")\n";
 	this->stats += stats;
 	seedtime += now - lastUpdate;
 	lastUpdate = now;
@@ -33,6 +36,7 @@ void Peer::resetStats() {
 }
 
 std::string Peer::record(const unsigned int& left, const std::string& peerID) {
+	std::cout << "Recording stats of peer " << peerID << " (left: " << left << ")\n";
 	unsigned int downloaded,uploaded = 0;
 	auto time_point = std::chrono::system_clock::now();
 	auto duration = time_point.time_since_epoch();
@@ -60,6 +64,7 @@ std::string Peer::record(const unsigned int& left, const std::string& peerID) {
 }
 
 std::string Peer::remove(const std::string& peerID, const unsigned int& fid) {
+	std::cout << "Removing peer " << peerID << " from torrent " << std::to_string(fid) << '\n';
 	return "DELETE FROM xbt_files_users WHERE peer_id LIKE '"
 		+ peerID
 		+ "' AND fid = "
@@ -67,5 +72,6 @@ std::string Peer::remove(const std::string& peerID, const unsigned int& fid) {
 }
 
 bool Peer::timedOut(const long long &now) {
+	std::cout << "A PEER TIMED OUT\n";
 	return (now - lastUpdate > Config::getInt("timeout"));
 }

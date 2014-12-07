@@ -1,6 +1,8 @@
+#include <iostream>
 #include "torrent.hpp"
 
 Torrent::Torrent (unsigned int id) {
+	std::cout << "Creating torrent " << std::to_string(id) << '\n';
 	this->id = id;
 	this->downloaded = 0;
 	this->free = 0;
