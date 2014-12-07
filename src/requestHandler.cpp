@@ -266,7 +266,7 @@ void RequestHandler::stop() {
 
 void RequestHandler::clearTorrentPeers(ev::timer& timer, int revents)
 {
-	for (auto t : torMap) {
+	for (auto& t : torMap) {
 		Peers* s = t.second.getSeeders();
 		Peers* l = t.second.getLeechers();
 		s->timedOut();
