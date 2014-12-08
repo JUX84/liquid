@@ -10,8 +10,7 @@ Peer::Peer(std::string hexIP, class User* u, bool seeding, unsigned int fid, std
 	this->seeding = seeding;
 	this->fid = fid;
 	this->client = client;
-	auto time_point = std::chrono::system_clock::now();
-	auto duration = time_point.time_since_epoch();
+	auto duration = std::chrono::system_clock::now().time_since_epoch();
 	lastUpdate = std::chrono::duration_cast<std::chrono::seconds>(duration).count();
 	seedtime = 0;
 }
@@ -38,8 +37,7 @@ void Peer::resetStats() {
 std::string Peer::record(const unsigned int& left, const std::string& peerID) {
 	std::cout << "Recording stats of peer " << peerID << " (left: " << left << ")\n";
 	unsigned int downloaded,uploaded = 0;
-	auto time_point = std::chrono::system_clock::now();
-	auto duration = time_point.time_since_epoch();
+	auto duration = std::chrono::system_clock::now().time_since_epoch();
 	auto now = std::chrono::duration_cast<std::chrono::seconds>(duration).count();
 	if (seeding) {
 		uploaded = stats;

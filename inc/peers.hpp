@@ -18,5 +18,5 @@ class Peers {
 		void removePeer(const Request&);
 		Peer* nextPeer(const long long&);
 		unsigned long size();
-		void timedOut();
+		void timedOut(const long long&);
 };

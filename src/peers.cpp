@@ -53,18 +53,13 @@ unsigned long Peers::size () {
 	return pMap.size();
 }
 
-void Peers::timedOut()
+void Peers::timedOut(const long long& now)
 {
-	auto duration = std::chrono::system_clock::now().time_since_epoch();
-	long long now = std::chrono::duration_cast<std::chrono::seconds>(duration).count();
-
 	auto it = pMap.begin();
 	while (it != pMap.end()) {
-		if (it->second.timedOut(now)) {
+		if (it->second.timedOut(now))
 			pMap.erase(it++);
-		}
-		else {
+		else
 			++it;
-		}
 	}
 }

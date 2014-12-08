@@ -44,8 +44,7 @@ std::string RequestHandler::handle(std::string str, std::string ip)
 
 std::string RequestHandler::announce(const Request* req, const std::string& infoHash, const bool& gzip)
 {
-	auto time_point = std::chrono::system_clock::now();
-	auto duration = time_point.time_since_epoch();
+	auto duration = std::chrono::system_clock::now().time_since_epoch();
 	long long now = std::chrono::duration_cast<std::chrono::seconds>(duration).count();
 	if (Config::get("type") != "private")
 		torMap.emplace(infoHash, Torrent(0));
@@ -266,10 +265,10 @@ void RequestHandler::stop() {
 
 void RequestHandler::clearTorrentPeers(ev::timer& timer, int revents)
 {
+	auto duration = std::chrono::system_clock::now().time_since_epoch();
+	long long now = std::chrono::duration_cast<std::chrono::seconds>(duration).count();
 	for (auto& t : torMap) {
-		Peers* s = t.second.getSeeders();
-		Peers* l = t.second.getLeechers();
-		s->timedOut();
-		l->timedOut();
+		t.second.getSeeders()->timedOut(now);
+		t.second.getLeechers()->timedOut(now);
 	}
 }
