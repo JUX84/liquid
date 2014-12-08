@@ -3,6 +3,7 @@
 #include "mysql.hpp"
 #include "user.hpp"
 #include "torrent.hpp"
+#include "utility.hpp"
 
 void MySQL::connect() {
 	mysql = mysql_init(nullptr);
@@ -40,6 +41,23 @@ void MySQL::loadTorrents(TorrentMap& torMap) {
 		std::cout << "Loaded torrent " << row[2] << " (" << row[1] << ") with info_hash: " << row[0] << '\n';
 	}
 	std::cout << "Loaded " << mysql_num_rows(result) << " torrents\n";
+}
+
+void MySQL::loadBannedIps(std::forward_list<std::string> &banned_ips) {
+	std::string query = "SELECT FromIP, ToIP FROM ip_bans";
+	if (mysql_real_query(mysql, query.c_str(), query.size()))
+		return;
+	result = mysql_use_result(mysql);
+	while((row = mysql_fetch_row(result))) {
+		unsigned int from = std::stoul(row[0]);
+		unsigned int to = std::stoul(row[1]);
+
+		while (from != to)
+			banned_ips.push_front(Utility::long2ip(from++));
+		banned_ips.push_front(Utility::long2ip(from));
+		std::cout << "Loaded banned ip (" << row[0] << " to " << row[1] << ")" << '\n';
+	}
+	std::cout << "Loaded " << mysql_num_rows(result) << " banned ips\n";
 }
 
 void MySQL::record (std::string request) {
