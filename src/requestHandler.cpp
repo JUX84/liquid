@@ -69,7 +69,7 @@ std::string RequestHandler::announce(const Request* req, const std::string& info
 		} else if (req->at("event") == "started") {
 			if (peer == nullptr)
 				tor->getLeechers()->addPeer(*req, tor->getID(), now);
-		} else if (peer != nullptr) {
+		} else {
 			peer->updateStats(std::stoul(req->at("downloaded"))/(1-(tor->getFree()/100)), now);
 		}
 		peers = tor->getSeeders();
@@ -89,8 +89,8 @@ std::string RequestHandler::announce(const Request* req, const std::string& info
 		} else if (req->at("event") == "started") {
 			if (peer == nullptr)
 				tor->getSeeders()->addPeer(*req, tor->getID(), now);
-		} else if (peer != nullptr) {
-			tor->getLeechers()->getPeer(req->at("peer_id"), now)->updateStats(std::stoul(req->at("downloaded"))/(1-(tor->getFree()/100)), now);
+		} else {
+			tor->getSeeders()->getPeer(req->at("peer_id"), now)->updateStats(std::stoul(req->at("downloaded"))/(1-(tor->getFree()/100)), now);
 		}
 		peers = tor->getLeechers();
 	}
