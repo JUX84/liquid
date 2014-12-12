@@ -57,33 +57,38 @@ std::string RequestHandler::announce(const Request* req, const std::string& info
 		return error("unregistered torrent", gzip);
 	}
 	Peers *peers = nullptr;
+	Peer *peer = nullptr;
 	if (req->at("left") != "0") {
+		peer = tor->getLeechers()->getPeer(req->at("peer_id"), now);
 		if (req->at("event") == "stopped") {
-			if (tor->getLeechers()->getPeer(req->at("peer_id"), now) != nullptr) {
-				db->record(tor->getLeechers()->getPeer(req->at("peer_id"), now)->record(std::stoul(req->at("left")), req->at("peer_id")));
+			if (peer != nullptr) {
+				db->record(peer->record(std::stoul(req->at("left")), req->at("peer_id")));
 				db->record(Peer::remove(req->at("peer_id"), tor->getID()));
 				tor->getLeechers()->removePeer(*req);
 			}
-		} else if (tor->getLeechers()->getPeer(req->at("peer_id"), now) == nullptr) {
-			tor->getLeechers()->addPeer(*req, tor->getID(), now);
+		} else if (req->at("event") == "started") {
+			if (peer == nullptr)
+				tor->getLeechers()->addPeer(*req, tor->getID(), now);
 		} else {
-			tor->getLeechers()->getPeer(req->at("peer_id"), now)->updateStats(std::stoul(req->at("downloaded"))/(1-(tor->getFree()/100)), now);
+			peer->updateStats(std::stoul(req->at("downloaded"))/(1-(tor->getFree()/100)), now);
 		}
 		peers = tor->getSeeders();
 	} else {
+		peer = tor->getSeeders()->getPeer(req->at("peer_id"), now);
 		if (req->at("event") == "stopped" || req->at("event") == "completed") {
-			if (tor->getSeeders()->getPeer(req->at("peer_id"), now) != nullptr) {
+			if (peer != nullptr) {
 				if (req->at("event") == "completed") {
 					tor->downloadedpp();
 					tor->getSeeders()->addPeer(*req, tor->getID(), now);
 					tor->getLeechers()->removePeer(*req);
 				} else {
-					db->record(tor->getSeeders()->getPeer(req->at("peer_id"), now)->record(std::stoul(req->at("left")), req->at("peer_id")));
+					db->record(peer->record(std::stoul(req->at("left")), req->at("peer_id")));
 					db->record(Peer::remove(req->at("peer_id"), tor->getID()));
 				}
 			}
-		} else if (tor->getSeeders()->getPeer(req->at("peer_id"), now) == nullptr) {
-			tor->getSeeders()->addPeer(*req, tor->getID(), now);
+		} else if (req->at("event") == "started") {
+			if (peer == nullptr)
+				tor->getSeeders()->addPeer(*req, tor->getID(), now);
 		} else {
 			tor->getLeechers()->getPeer(req->at("peer_id"), now)->updateStats(std::stoul(req->at("downloaded"))/(1-(tor->getFree()/100)), now);
 		}
