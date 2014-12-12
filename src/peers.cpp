@@ -1,9 +1,11 @@
 #include <chrono>
+#include <iostream>
 #include "peers.hpp"
 #include "config.hpp"
 #include "requestHandler.hpp"
 
 Peers::Peers() {
+	std::cout << "creating peermap\n";
 	pMap = PeerMap();
 	it = std::begin(pMap);
 	auto time_point = std::chrono::system_clock::now();
@@ -12,6 +14,7 @@ Peers::Peers() {
 }
 
 Peer* Peers::getPeer(const std::string& peerID, const long long& now) {
+	std::cout << "getting peer\n";
 	lastUpdate = now;
 	try {
 		return &pMap.at(peerID);
@@ -21,6 +24,7 @@ Peer* Peers::getPeer(const std::string& peerID, const long long& now) {
 }
 
 void Peers::addPeer(const Request& req, unsigned int fid, const long long& now) {
+	std::cout << "adding peer\n";
 	User* u = nullptr;
 	if (Config::get("type") == "private")
 		u = RequestHandler::getUser(req.at("passkey"));
@@ -29,11 +33,12 @@ void Peers::addPeer(const Request& req, unsigned int fid, const long long& now) 
 }
 
 void Peers::removePeer(const Request& req) {
-	// TODO clean users peers
+	std::cout << "removing peer\n";
 	pMap.erase(req.at("peer_id"));
 }
 
 Peer* Peers::nextPeer(const long long &now) {
+	std::cout << "getting next peer\n";
 	while (pMap.size() > 0) {
 		if (it == std::end(pMap)) {
 			it = std::begin(pMap);
@@ -55,6 +60,7 @@ unsigned long Peers::size () {
 
 void Peers::timedOut(const long long& now)
 {
+	std::cout << "checking timeouts\n";
 	auto it = pMap.begin();
 	while (it != pMap.end()) {
 		if (it->second.timedOut(now))
