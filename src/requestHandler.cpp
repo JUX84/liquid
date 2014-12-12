@@ -35,8 +35,10 @@ std::string RequestHandler::handle(std::string str, std::string ip)
 	} catch (const std::exception& e) {
 		req->emplace("ip", ip + Utility::port_hex_encode(req->at("port")));
 	}
-	if (req->at("action") == "announce")
+	if (req->at("action") == "announce") {
+		req->emplace("event", "updating");
 		return announce(req, infoHashes->front(), gzip);
+	}
 	else if (req->at("action") == "scrape")
 		return scrape(infoHashes, gzip);
 	return error("invalid action", gzip); // not possible, since the request is checked, but, well, who knows :3
