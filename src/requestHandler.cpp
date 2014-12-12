@@ -35,6 +35,8 @@ std::string RequestHandler::handle(std::string str, std::string ip)
 	} catch (const std::exception& e) {
 		req->emplace("ip", ip + Utility::port_hex_encode(req->at("port")));
 	}
+	if (req->at("action") == "announce" && req->find("event") == req->end())
+		req->at("action") = "scrape";
 	if (req->at("action") == "announce")
 		return announce(req, infoHashes->front(), gzip);
 	else if (req->at("action") == "scrape")
