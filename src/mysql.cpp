@@ -9,8 +9,12 @@ void MySQL::connect() {
 	mysql = mysql_init(nullptr);
 	if (mysql_real_connect(mysql, Config::get("DB_Host").c_str(), Config::get("DB_User").c_str(), Config::get("DB_Password").c_str(), Config::get("DB_DBName").c_str(), Config::getInt("DB_Port"), nullptr, 0) == nullptr)
 		std::cerr << "Couldn't connect to database" << '\n';
-	else
+	else {
 		std::cout << "Succesfully connected to database\n";
+		std::string query = "TRUNCATE xbt_files_users;";
+		if (mysql_real_query(mysql, query.c_str(), query.size()))
+			return;
+	}
 }
 
 void MySQL::disconnect() {

@@ -26,7 +26,7 @@ std::string* Peer::getHexIP() {
 
 void Peer::updateStats (unsigned long stats, const long long &now) {
 	std::cout << "Updating stats (" << std::to_string(this->stats) << " -> " << std::to_string(stats) << ") on a user from torrent " << std::to_string(fid) << " (" << hexIP << ")\n";
-	this->stats += stats;
+	this->stats = stats;
 	seedtime += now - lastUpdate;
 	lastUpdate = now;
 }
@@ -50,7 +50,7 @@ std::string Peer::record(const unsigned int& left) {
 	}
 	stats = 0;
 	lastUpdate = now;
-	return "INSERT INTO xbt_files_users(uid,downloaded,uploaded,remaining,seedtime,useragent,peerid,fid) VALUES ('"
+	std::string output = "INSERT INTO xbt_files_users(uid,downloaded,uploaded,remaining,seedtime,useragent,peerid,fid) VALUES ('"
 						+ std::to_string(*user->getID()) + "', " +
 					"'" + std::to_string(downloaded) + "', " +
 					"'" + std::to_string(uploaded) + "', " +
@@ -58,8 +58,10 @@ std::string Peer::record(const unsigned int& left) {
 					"'" + std::to_string(seedtime) + "', " +
 					"'" + client + "', " +
 					"'" + peerID + "', " +
-					"'" + std::to_string(fid) + "') ON DUPLICATE KEY UPDATE downloaded = downloaded + VALUES(downloaded), uploaded = uploaded + VALUES(uploaded), seedtime = seedtime + VALUES(seedtime)";
+					"'" + std::to_string(fid) + "') ON DUPLICATE KEY UPDATE downloaded = VALUES(downloaded), uploaded = VALUES(uploaded), seedtime = seedtime + VALUES(seedtime)";
+	seedtime = 0;
 	user->updateStats(downloaded,uploaded);
+	return output;
 }
 
 std::string Peer::remove() {
