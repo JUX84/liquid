@@ -57,7 +57,7 @@ std::string Peer::record(const unsigned int& left, const std::string& peerID) {
 					"'" + std::to_string(seedtime) + "', " +
 					"'" + client + "', " +
 					"'" + peerID + "', " +
-					"'" + std::to_string(fid) + "') ON DUPLICATE downloaded = downloaded + VALUES(downloaded), uploaded = uploaded + VALUES(uploaded), seedtime = seedtime + VALUES(seedtime)";
+					"'" + std::to_string(fid) + "') ON DUPLICATE KEY UPDATE downloaded = downloaded + VALUES(downloaded), uploaded = uploaded + VALUES(uploaded), seedtime = seedtime + VALUES(seedtime)";
 	user->updateStats(downloaded,uploaded);
 }
 
