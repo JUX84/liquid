@@ -266,8 +266,10 @@ void RequestHandler::init() {
 
 void RequestHandler::stop() {
 	// TODO record every changes before flushing
-	db->flush();
-	db->disconnect();
+	if (Config::get("type") == "private") {
+		db->flush();
+		db->disconnect();
+	}
 }
 
 void RequestHandler::clearTorrentPeers(ev::timer& timer, int revents)
@@ -277,5 +279,7 @@ void RequestHandler::clearTorrentPeers(ev::timer& timer, int revents)
 	for (auto& t : torMap) {
 		t.second.getSeeders()->timedOut(now);
 		t.second.getLeechers()->timedOut(now);
+		//if(Config::get("type") == "public" && t.second.getSeeders()->size() == 0 && t.second.getLeechers()->size() == 0)
+		// TODO: remove torrent from tormap
 	}
 }
