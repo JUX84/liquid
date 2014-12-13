@@ -71,6 +71,7 @@ std::string RequestHandler::announce(const Request* req, const std::string& info
 				tor->getLeechers()->addPeer(*req, tor->getID(), now);
 		} else if (peer != nullptr) {
 			peer->updateStats(std::stoul(req->at("downloaded"))/(1-(tor->getFree()/100)), now);
+			db->record(peer->record(std::stoul(req->at("left")), req->at("peer_id")));
 		}
 		peers = tor->getSeeders();
 	} else {
@@ -90,7 +91,8 @@ std::string RequestHandler::announce(const Request* req, const std::string& info
 			if (peer == nullptr)
 				tor->getSeeders()->addPeer(*req, tor->getID(), now);
 		} else if (peer != nullptr) {
-			tor->getSeeders()->getPeer(req->at("peer_id"), now)->updateStats(std::stoul(req->at("downloaded"))/(1-(tor->getFree()/100)), now);
+			peer->updateStats(std::stoul(req->at("downloaded"))/(1-(tor->getFree()/100)), now);
+			db->record(peer->record(std::stoul(req->at("left")), req->at("peer_id")));
 		}
 		peers = tor->getLeechers();
 	}

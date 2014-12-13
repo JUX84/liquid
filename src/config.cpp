@@ -9,16 +9,16 @@
 
 std::unordered_map<std::string, std::pair<std::string, bool>> Config::vars = {
 //	{ "name",				{ "default value", is_integer} }
-	{ "type",				{ "public", false } },
+	{ "type",				{ "private", false } },
 	{ "port",				{ "48151", true } },
 	{ "timeout",				{ "600", true } },
-	{ "clear_peers_interval",	{ "300", true } },
+	{ "clear_peers_interval",		{ "300", true } },
 	{ "read_buffer_size",			{ "512", true } },
 	{ "max_request_size",			{ "4096", true } },
 	{ "DB_Host",				{ "127.0.0.1", false } },
 	{ "DB_User",				{ "jux", false } },
 	{ "DB_Password",			{ "jux", false } },
-	{ "DB_DBName",				{ "_liquid", false } },
+	{ "DB_DBName",				{ "onche", false } },
 	{ "DB_Port",				{ "3306", true } },
 };
 
