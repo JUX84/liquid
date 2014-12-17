@@ -278,10 +278,13 @@ void RequestHandler::clearTorrentPeers(ev::timer& timer, int revents)
 {
 	auto duration = std::chrono::system_clock::now().time_since_epoch();
 	long long now = std::chrono::duration_cast<std::chrono::seconds>(duration).count();
-	for (auto& t : torMap) {
-		t.second.getSeeders()->timedOut(now);
-		t.second.getLeechers()->timedOut(now);
-		//if(Config::get("type") == "public" && t.second.getSeeders()->size() == 0 && t.second.getLeechers()->size() == 0)
-		// TODO: remove torrent from tormap
+	auto t = torMap.begin();
+	while (t != torMap.end()) {
+		t->second.getSeeders()->timedOut(now);
+		t->second.getLeechers()->timedOut(now);
+		if(Config::get("type") == "public" && t->second.getSeeders()->size() == 0 && t->second.getLeechers()->size() == 0)
+			torMap.erase(t++);
+		else
+			++t;
 	}
 }
