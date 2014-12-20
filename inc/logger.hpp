@@ -27,4 +27,5 @@ class Logger
 
 	private:
 		static Level minLevel;
+		static const std::string levelNames[];
 };
