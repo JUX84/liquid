@@ -2,10 +2,12 @@
 
 #ifdef ENABLE_LOG
 
+#define LOG_INIT(level) Logger::init(level)
 #define LOG(level, message) Logger::write(level, message)
 
 #else
 
+#define LOG_INIT(level)
 #define LOG(level, message)
 
 #endif
