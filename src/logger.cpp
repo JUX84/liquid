@@ -14,12 +14,8 @@ void Logger::init(Logger::Level minLevel)
 	Logger::minLevel = minLevel;
 }
 
-void Logger::write(Logger::Level level, const std::string& message)
+void Logger::write(Logger::Level level, const char* file, int line, const std::string& message)
 {
-	if (level >= minLevel) {
-		if (level == Level::ERROR)
-			std::cerr << levelNames[level] << ": " << message << '\n';
-		else
-			std::cout << levelNames[level] << ": " << message << '\n';
-	}
+	if (level >= minLevel)
+			std::cout << file << ':' << line << ": " << levelNames[level] << ": " << message << '\n';
 }

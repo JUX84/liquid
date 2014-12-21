@@ -3,7 +3,7 @@
 #ifdef ENABLE_LOG
 
 #define LOG_INIT(level) Logger::init(level)
-#define LOG(level, message) Logger::write(level, message)
+#define LOG(level, message) Logger::write(level, __FILENAME__, __LINE__, message)
 
 #else
 
@@ -19,13 +19,13 @@ class Logger
 	public:
 		enum Level
 		{
-			INFO,
-			WARNING,
-			ERROR
+			INFO = 0,
+			WARNING = 1,
+			ERROR = 2
 		};
 
 		static void init(Level);
-		static void write(Level, const std::string&);
+		static void write(Level, const char*, int, const std::string&);
 
 	private:
 		static Level minLevel;
