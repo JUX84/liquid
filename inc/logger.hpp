@@ -3,12 +3,16 @@
 #ifdef ENABLE_LOG
 
 #define LOG_INIT(level) Logger::init(level)
-#define LOG(level, message) Logger::write(level, __FILENAME__, __LINE__, message)
+#define LOG_INFO(message) Logger::write(Logger::Level::INFO, __FILENAME__, __LINE__, message)
+#define LOG_WARNING(message) Logger::write(Logger::Level::WARNING, __FILENAME__, __LINE__, message)
+#define LOG_ERROR(message) Logger::write(Logger::Level::ERROR, __FILENAME__, __LINE__, message)
 
 #else
 
 #define LOG_INIT(level)
-#define LOG(level, message)
+#define LOG_INFO(message)
+#define LOG_WARNING(message)
+#define LOG_ERROR(message)
 
 #endif
 
