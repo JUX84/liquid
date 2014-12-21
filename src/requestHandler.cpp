@@ -83,14 +83,12 @@ std::string RequestHandler::announce(const Request* req, const std::string& info
 		peer = tor->getSeeders()->getPeer(req->at("peer_id"), now);
 		if (req->at("event") == "stopped" || req->at("event") == "completed") {
 			if (peer != nullptr) {
-				if (req->at("event") == "completed") {
-					tor->downloadedpp();
-					tor->getSeeders()->addPeer(*req, tor->getID(), now);
-					tor->getLeechers()->removePeer(*req);
-				} else {
-					db->record(peer->record(std::stoul(req->at("left"))));
-					db->record(peer->remove());
-				}
+				db->record(peer->record(std::stoul(req->at("left"))));
+				db->record(peer->remove());
+			} else if (req->at("event") == "completed") {
+				tor->downloadedpp();
+				tor->getSeeders()->addPeer(*req, tor->getID(), now);
+				tor->getLeechers()->removePeer(*req);
 			}
 		} else if (req->at("event") == "started") {
 			if (peer == nullptr)
