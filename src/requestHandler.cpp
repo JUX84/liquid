@@ -41,6 +41,8 @@ std::string RequestHandler::handle(std::string str, std::string ip)
 	}
 	else if (req->at("action") == "scrape")
 		return scrape(infoHashes, gzip);
+	else if (req->at("action") == "update")
+		return update(req, infoHashes->front());
 	return error("invalid action", gzip); // not possible, since the request is checked, but, well, who knows :3
 }
 
@@ -70,6 +72,9 @@ std::string RequestHandler::announce(const Request* req, const std::string& info
 			if (peer == nullptr)
 				tor->getLeechers()->addPeer(*req, tor->getID(), now);
 		} else if (peer != nullptr) {
+			int free = tor->getFree();
+			if (peer->User()->hasToken(infoHash))
+				free = 100;
 			peer->updateStats(std::stoul(req->at("downloaded"))*(1-(tor->getFree()/100)), now);
 			db->record(peer->record(std::stoul(req->at("left"))));
 		}
@@ -154,12 +159,12 @@ std::string RequestHandler::scrape(const std::forward_list<std::string>* infoHas
 	return response(resp, gzip);
 }
 
-std::string RequestHandler::update(const Request* req)
+std::string RequestHandler::update(const Request* req, const std::string& infoHash)
 {
 	std::string resp;
 	const std::string& type = req->at("type");
 
-	if (type == "change_passkey")
+	if (type == "update_user")
 		resp = changePasskey(req);
 	else if (type == "add_torrent")
 		resp = addTorrent(req);
@@ -171,8 +176,34 @@ std::string RequestHandler::update(const Request* req)
 		resp = addUser(req);
 	else if (type == "remove_user")
 		resp = removeUser(req);
+	else if (type == "add_token")
+		resp = addToken(req, infoHash);
+	else if (type == "remove_token")
+		resp = removeToken(req, infoHash);
 
 	return resp;
+}
+
+std::string RequestHandler::addToken(const Request* req, const std::string& infoHash)
+{
+	try {
+		usrMap.at(req->at("userpasskey"))->addToken(infoHash);
+		return "success";
+	}
+	catch (const std::exception& e) {
+		return "failure";
+	}
+}
+
+std::string RequestHandler::removeToken(const Request* req, const std::string& infoHash)
+{
+	try {
+		usrMap.at(req->at("userpasskey"))->removeToken(infoHash);
+		return "success";
+	}
+	catch (const std::exception& e) {
+		return "failure";
+	}
 }
 
 std::string RequestHandler::changePasskey(const Request* req)

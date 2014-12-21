@@ -26,3 +26,20 @@ std::string User::record() {
 		+ std::to_string(id);
 	downloaded = uploaded = 0;
 }
+
+void User::addToken(const std::string& infoHash)
+{
+	if (std::find(tokens.begin(), tokens.end(), infoHash) == tokens.end())
+		tokens.push_front(infoHash);
+}
+
+void User::removeToken(const std::string& infoHash)
+{
+	tokens.remove(infoHash);
+}
+
+bool User::hasToken(const std::string& infoHash) {
+	if (std::find(tokens.begin(), tokens.end(), infoHash) != tokens.end())
+		return true;
+	return false;
+}

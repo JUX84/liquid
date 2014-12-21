@@ -33,6 +33,18 @@ void MySQL::loadUsers(UserMap& usrMap) {
 		std::cout << "Loaded user " << row[2] << " (" << row[1] << ") with passkey: " << row[0] << '\n';
 	}
 	std::cout << "Loaded " << mysql_num_rows(result) << " users\n";
+
+	// load tokens
+	query = "SELECT passkey, info_hash FROM users_freeleeches AS uf LEFT JOIN users AS u ON uf.UserID = u.ID JOIN torrents AS t ON uf.TorrentID = t.ID WHERE uf.Expired = '0'";
+	if (mysql_real_query(mysql, query.c_str(), query.size()))
+		return;
+	result = mysql_use_result(mysql);
+	while((row = mysql_fetch_row(result))) {
+		try {
+			usrMap.at(row[0])->addToken(row[1]);
+		} catch (const std::exception& e) {}
+	}
+	std::cout << "Loaded " << mysql_num_rows(result) << " user tokens\n";
 }
 
 void MySQL::loadTorrents(TorrentMap& torMap) {
