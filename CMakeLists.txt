@@ -28,10 +28,15 @@ target_link_libraries(liquid ev z)
 target_link_libraries(liquid mysqlclient)
 
 option(USE_CLANG "build with clang" ON)
+option(ENABLE_LOG "build with clang" ON)
 
-set(CMAKE_CXX_FLAGS "-std=c++14 -Wall -O2")
+set(CMAKE_CXX_FLAGS "-std=c++14 -Wall -O2 -D__FILENAME__='\"$(subst ${CMAKE_SOURCE_DIR}/src/,,$(abspath $<))\"'")
 if(USE_CLANG)
 	set(CMAKE_CXX_COMPILER "clang++")
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++")
 	target_link_libraries(liquid c++abi)
 endif(USE_CLANG)
+
+if(ENABLE_LOG)
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DENABLE_LOG")
+endif(ENABLE_LOG)
