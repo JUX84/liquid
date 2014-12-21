@@ -10,9 +10,11 @@ class User {
 		unsigned int id;
 		unsigned long uploaded;
 		unsigned long downloaded;
+		bool canLeech;
+		bool isVisible;
 		std::forward_list<std::string> tokens;
 	public:
-		User (unsigned int);
+		User (unsigned int, bool, bool);
 		unsigned int* getID();
 		void updateStats(unsigned int, unsigned int);
 		std::string record();

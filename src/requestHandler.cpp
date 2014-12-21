@@ -51,7 +51,7 @@ std::string RequestHandler::announce(const Request* req, const std::string& info
 	auto duration = std::chrono::system_clock::now().time_since_epoch();
 	long long now = std::chrono::duration_cast<std::chrono::seconds>(duration).count();
 	if (Config::get("type") != "private")
-		torMap.emplace(infoHash, Torrent(0));
+		torMap.emplace(infoHash, Torrent(0, 0, 0));
 	Torrent *tor = nullptr;
 	try {
 		tor = &torMap.at(infoHash);
@@ -224,7 +224,7 @@ std::string RequestHandler::changePasskey(const Request* req)
 std::string RequestHandler::addTorrent(const Request* req)
 {
 	try {
-		auto t = torMap.emplace(req->at("info_hash"), Torrent(std::stoul(req->at("id"))));
+		auto t = torMap.emplace(req->at("info_hash"), Torrent(std::stoul(req->at("id")), 0, 0));
 		if (!t.second)
 			return "failure";
 
@@ -270,7 +270,7 @@ std::string RequestHandler::updateTorrent(const Request* req)
 std::string RequestHandler::addUser(const Request* req)
 {
 	try {
-		return (usrMap.emplace(req->at("passkey"), new User(std::stoul(req->at("id")))).second) ? "success" : "failure";
+		return (usrMap.emplace(req->at("passkey"), new User(std::stoul(req->at("id")), true, true)).second) ? "success" : "failure";
 	}
 	catch (const std::exception& e) {
 		return "failure";
@@ -298,7 +298,6 @@ void RequestHandler::init() {
 }
 
 void RequestHandler::stop() {
-	// TODO record every changes before flushing
 	if (Config::get("type") == "private") {
 		db->flush();
 		db->disconnect();

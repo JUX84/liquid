@@ -8,11 +8,11 @@ class Torrent {
 	private:
 		Peers seeders;
 		Peers leechers;
-		unsigned int downloaded;
 		unsigned int id;
 		unsigned char free;
+		unsigned int downloaded;
 	public:
-		Torrent(unsigned int);
+		Torrent(unsigned int, unsigned char, unsigned int);
 		Peers* getSeeders();
 		Peers* getLeechers();
 		unsigned int getDownloaded();

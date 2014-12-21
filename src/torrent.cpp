@@ -1,10 +1,10 @@
 #include <iostream>
 #include "torrent.hpp"
 
-Torrent::Torrent (unsigned int id) {
+Torrent::Torrent (unsigned int id, unsigned char free, unsigned int downloaded) {
 	this->id = id;
-	this->downloaded = 0;
-	this->free = 0;
+	this->free = free;
+	this->downloaded = downloaded;
 }
 
 unsigned int Torrent::getID () {

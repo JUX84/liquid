@@ -25,12 +25,12 @@ void MySQL::disconnect() {
 }
 
 void MySQL::loadUsers(UserMap& usrMap) {
-	std::string query = "SELECT passkey, id, nick FROM users";
+	std::string query = "SELECT ID, passkey, can_leech, visible FROM users";
 	if (mysql_real_query(mysql, query.c_str(), query.size()))
 		return;
 	result = mysql_use_result(mysql);
 	while((row = mysql_fetch_row(result)))
-		usrMap.emplace(row[0], new User(std::stoul(row[1])));
+		usrMap.emplace(row[1], new User(std::stoul(row[0]), row[2] == std::string("1"), row[3] == std::string("1")));
 	LOG_INFO("Loaded " + std::to_string(mysql_num_rows(result)) + " users");
 
 	// load tokens
@@ -47,12 +47,20 @@ void MySQL::loadUsers(UserMap& usrMap) {
 }
 
 void MySQL::loadTorrents(TorrentMap& torMap) {
-	std::string query = "SELECT info_hash, id, name FROM torrents";
+	std::string query = "SELECT ID, info_hash, freetorrent, Snatched FROM torrents";
 	if (mysql_real_query(mysql, query.c_str(), query.size()))
 		return;
 	result = mysql_use_result(mysql);
-	while((row = mysql_fetch_row(result)))
-		torMap.emplace(row[0], Torrent(std::stoul(row[1])));
+	while((row = mysql_fetch_row(result))) {
+		// TEMP FIX
+		unsigned char free = 0;
+		if (row[2] == std::string("1"))
+			free = 100;
+		else if (row[2] == std::string("2"))
+			free = 50;
+		//
+		torMap.emplace(row[1], Torrent(std::stoul(row[0]), free, std::stoul(row[3])));
+	}
 	LOG_INFO("Loaded " + std::to_string(mysql_num_rows(result)) + " torrents");
 }
 
@@ -74,8 +82,10 @@ void MySQL::loadBannedIps(std::forward_list<std::string> &banned_ips) {
 
 void MySQL::record (std::string request) {
 	requests.push_front(request);
-	if (requests.size() > 10)
+	if (requests.size() > 10) {
 		flush();
+		requests.clear();
+	}
 }
 
 void MySQL::flush() {
