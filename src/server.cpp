@@ -58,7 +58,7 @@ void Server::acceptClient(ev::io& w, int revents)
 			new ConnectionHandler(responseSock);
 		}
 		catch (const std::exception& e) {
-			std::cerr << e.what() << '\n';
+			LOG_ERROR(e.what());
 		}
 	}
 	else {

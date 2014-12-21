@@ -4,7 +4,7 @@
 #include "peers.hpp"
 
 Peer::Peer(std::string hexIP, class User* u, bool seeding, unsigned int fid, std::string client, std::string peerID) {
-	std::cout << "Creating peer on torrent " << std::to_string(fid) << " using client " << client << " (" << hexIP << ")\n";
+	LOG_INFO("Creating peer on torrent " + std::to_string(fid) + " using client " + client);
 	this->hexIP = hexIP;
 	this->user = u;
 	this->seeding = seeding;
@@ -25,7 +25,7 @@ std::string* Peer::getHexIP() {
 }
 
 void Peer::updateStats (unsigned long stats, const long long &now) {
-	std::cout << "Updating stats (" << std::to_string(this->stats) << " -> " << std::to_string(stats) << ") on a user from torrent " << std::to_string(fid) << " (" << hexIP << ")\n";
+	LOG_INFO("Updating stats ("  + std::to_string(stats) + ") on a peer on torrent " + std::to_string(fid));
 	this->stats = stats;
 	seedtime += now - lastUpdate;
 	lastUpdate = now;
@@ -36,7 +36,7 @@ void Peer::resetStats() {
 }
 
 std::string Peer::record(const unsigned int& left) {
-	std::cout << "Recording stats of peer " << peerID << " (left: " << left << ")\n";
+	LOG_INFO("Recording stats of peer " + peerID + " (left: " << left << ")");
 	unsigned int downloaded,uploaded = 0;
 	auto duration = std::chrono::system_clock::now().time_since_epoch();
 	auto now = std::chrono::duration_cast<std::chrono::seconds>(duration).count();
@@ -65,7 +65,7 @@ std::string Peer::record(const unsigned int& left) {
 }
 
 std::string Peer::remove() {
-	std::cout << "Removing peer " << peerID << " from torrent " << std::to_string(fid) << '\n';
+	LOG_INFO("Removing peer " + peerID + " on torrent " + std::to_string(fid));
 	return "DELETE FROM xbt_files_users WHERE peer_id LIKE '"
 		+ peerID
 		+ "' AND fid = "

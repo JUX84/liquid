@@ -7,10 +7,10 @@
 
 void MySQL::connect() {
 	mysql = mysql_init(nullptr);
-	if (mysql_real_connect(mysql, Config::get("DB_Host").c_str(), Config::get("DB_User").c_str(), Config::get("DB_Password").c_str(), Config::get("DB_DBName").c_str(), Config::getInt("DB_Port"), nullptr, 0) == nullptr)
-		std::cerr << "Couldn't connect to database" << '\n';
-	else {
-		std::cout << "Succesfully connected to database\n";
+	if (mysql_real_connect(mysql, Config::get("DB_Host").c_str(), Config::get("DB_User").c_str(), Config::get("DB_Password").c_str(), Config::get("DB_DBName").c_str(), Config::getInt("DB_Port"), nullptr, 0) == nullptr) {
+		LOG_ERROR("Couldn't connect to database");
+	} else {
+		LOG_INFO("Succesfully connected to database");
 		std::string query = "TRUNCATE xbt_files_users;";
 		if (mysql_real_query(mysql, query.c_str(), query.size()))
 			return;
@@ -18,7 +18,7 @@ void MySQL::connect() {
 }
 
 void MySQL::disconnect() {
-	std::cout << "Disconnecting from database\n";
+	LOG_WARNING("Disconnecting from database");
 	mysql_free_result(result);
 	mysql_close(mysql);
 }
@@ -28,11 +28,9 @@ void MySQL::loadUsers(UserMap& usrMap) {
 	if (mysql_real_query(mysql, query.c_str(), query.size()))
 		return;
 	result = mysql_use_result(mysql);
-	while((row = mysql_fetch_row(result))) {
+	while((row = mysql_fetch_row(result)))
 		usrMap.emplace(row[0], new User(std::stoul(row[1])));
-		std::cout << "Loaded user " << row[2] << " (" << row[1] << ") with passkey: " << row[0] << '\n';
-	}
-	std::cout << "Loaded " << mysql_num_rows(result) << " users\n";
+	LOG_INFO("Loaded " + std::to_string(mysql_num_rows(result)) + " users");
 
 	// load tokens
 	query = "SELECT passkey, info_hash FROM users_freeleeches AS uf LEFT JOIN users AS u ON uf.UserID = u.ID JOIN torrents AS t ON uf.TorrentID = t.ID WHERE uf.Expired = '0'";
@@ -44,7 +42,7 @@ void MySQL::loadUsers(UserMap& usrMap) {
 			usrMap.at(row[0])->addToken(row[1]);
 		} catch (const std::exception& e) {}
 	}
-	std::cout << "Loaded " << mysql_num_rows(result) << " user tokens\n";
+	LOG_INFO("Loaded " + std::to_string(mysql_num_rows(result)) + " user tokens");
 }
 
 void MySQL::loadTorrents(TorrentMap& torMap) {
@@ -52,11 +50,9 @@ void MySQL::loadTorrents(TorrentMap& torMap) {
 	if (mysql_real_query(mysql, query.c_str(), query.size()))
 		return;
 	result = mysql_use_result(mysql);
-	while((row = mysql_fetch_row(result))) {
+	while((row = mysql_fetch_row(result)))
 		torMap.emplace(row[0], Torrent(std::stoul(row[1])));
-		std::cout << "Loaded torrent " << row[2] << " (" << row[1] << ") with info_hash: " << row[0] << '\n';
-	}
-	std::cout << "Loaded " << mysql_num_rows(result) << " torrents\n";
+	LOG_INFO("Loaded " + std::to_string(mysql_num_rows(result)) + " torrents");
 }
 
 void MySQL::loadBannedIps(std::forward_list<std::string> &banned_ips) {
@@ -71,20 +67,18 @@ void MySQL::loadBannedIps(std::forward_list<std::string> &banned_ips) {
 		while (from != to)
 			banned_ips.push_front(Utility::long2ip(from++));
 		banned_ips.push_front(Utility::long2ip(from));
-		std::cout << "Loaded banned ip (" << row[0] << " to " << row[1] << ")" << '\n';
 	}
-	std::cout << "Loaded " << mysql_num_rows(result) << " banned ips\n";
+	LOG_INFO("Loaded " + std::to_string(mysql_num_rows(result)) + " banned ips");
 }
 
 void MySQL::record (std::string request) {
-	std::cout << "Pushed a new record: " << request << '\n';
 	requests.push_front(request);
 	if (requests.size() > 10)
 		flush();
 }
 
 void MySQL::flush() {
-	std::cout << "flushing records" << '\n';
+	LOG_INFO("flushing sql records");
 	for(const auto &it : requests) {
 		if (mysql_real_query(mysql, it.c_str(), it.size()))
 			return;

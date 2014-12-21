@@ -20,14 +20,16 @@ int main()
 
 	try {
 		//Config::load("liquid.conf");
-		Server server(Config::getInt("port"));
+		int port = Config::getInt("port");
+		Server server(port);
 		Parser::init();
 		if (Config::get("type") == "private")
 			RequestHandler::init();
+		LOG_INFO("Starting " + Config::get("type") + " server on port " + std::to_string(port));
 		server.run();
 	}
 	catch (const std::exception& e) {
-		std::cerr << e.what() << std::endl;
+		LOG_ERROR(e.what());
 	}
 
 	return 0;

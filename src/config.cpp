@@ -28,7 +28,7 @@ std::string Config::get(const std::string& name)
 		return vars.at(name).first;
 	}
 	catch (const std::exception& e) {
-		std::cerr << "Error in Config::get(" + name + ")\n";
+		LOG_ERROR("Error in Config::get(" + name + ")");
 		return "";
 	}
 }
@@ -39,7 +39,7 @@ int Config::getInt(const std::string& name)
 		return std::stoi(vars.at(name).first);
 	}
 	catch (const std::exception& e) {
-		std::cerr << "Error in Config::getInt(" + name + ")\n";
+		LOG_ERROR("Error in Config::getInt(" + name + ")");
 		return -1;
 	}
 }
@@ -70,13 +70,13 @@ void Config::load(const std::string& file)
 
 		size_t equalSign = line.find('=');
 		if (equalSign == std::string::npos || equalSign == start || equalSign == line.size() - 1) {
-			std::cerr << std::to_string(lineNumber) + ": syntax error\n";
+			LOG_ERROR(std::to_string(lineNumber) + ": syntax error");
 			continue;
 		}
 
 		std::string name = trim(line, start, equalSign - 1);
 		if (vars.find(name) == vars.end()) {
-			std::cerr << std::to_string(lineNumber) << ": " << name + ": name not valid\n";
+			LOG_ERROR(std::to_string(lineNumber) << ": " << name + ": name not valid");
 			continue;
 		}
 		std::string value = trim(line, equalSign + 1, line.size() - 1);
@@ -95,7 +95,7 @@ bool Config::checkValue(const std::string& name, std::string& value)
 			std::stoi(value);
 		}
 		catch (const std::exception& e) {
-			std::cerr << name << ": must be an integer\n";
+			LOG_ERROR(name + ": must be an integer");
 			return false;
 		}
 	}
@@ -105,7 +105,7 @@ bool Config::checkValue(const std::string& name, std::string& value)
 			value.pop_back();
 		}
 		else {
-			std::cerr << name << ": value must have leading and trailing \"\n";
+			LOG_ERROR(name + ": value must have leading and trailing \"");
 			return false;
 		}
 	}

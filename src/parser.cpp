@@ -41,12 +41,12 @@ std::string Parser::check (const Request& req)
 				}
 			}
 			catch (const std::exception& e) {
-				std::cerr << "Error in Parser::check -- type for update not found\n";
+				LOG_ERROR("Error in Parser::check -- type for update not found");
 				return "missing update type";
 			}
 		}
 	} catch (const std::exception& e) {
-		std::cerr << "Error in Parser::check -- action not found\n";
+		LOG_ERROR("Error in Parser::check -- action not found");
 		return "missing action";
 	}
 	return "success";
