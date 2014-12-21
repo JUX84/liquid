@@ -1,5 +1,6 @@
 #include <chrono>
 #include <iostream>
+#include "logger.hpp"
 #include "config.hpp"
 #include "peers.hpp"
 
@@ -36,7 +37,7 @@ void Peer::resetStats() {
 }
 
 std::string Peer::record(const unsigned int& left) {
-	LOG_INFO("Recording stats of peer " + peerID + " (left: " << left << ")");
+	LOG_INFO("Recording stats of peer " + peerID + " (left: " + std::to_string(left) + ")");
 	unsigned int downloaded,uploaded = 0;
 	auto duration = std::chrono::system_clock::now().time_since_epoch();
 	auto now = std::chrono::duration_cast<std::chrono::seconds>(duration).count();

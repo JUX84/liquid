@@ -6,6 +6,7 @@
 #include <errno.h>
 #include <sys/socket.h>
 #include <netinet/in.h> // sockaddr_in
+#include "logger.hpp"
 #include "server.hpp"
 #include "connectionHandler.hpp"
 #include "requestHandler.hpp"

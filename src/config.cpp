@@ -5,6 +5,7 @@
 #include <iterator>
 #include <utility>
 #include <stdexcept>
+#include "logger.hpp"
 #include "config.hpp"
 
 std::unordered_map<std::string, std::pair<std::string, bool>> Config::vars = {
@@ -76,7 +77,7 @@ void Config::load(const std::string& file)
 
 		std::string name = trim(line, start, equalSign - 1);
 		if (vars.find(name) == vars.end()) {
-			LOG_ERROR(std::to_string(lineNumber) << ": " << name + ": name not valid");
+			LOG_ERROR(std::to_string(lineNumber) + ": " + name + ": name not valid");
 			continue;
 		}
 		std::string value = trim(line, equalSign + 1, line.size() - 1);

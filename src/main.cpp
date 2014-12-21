@@ -1,6 +1,7 @@
 #include <iostream>
 #include <cstdlib>
 #include <signal.h>
+#include "logger.hpp"
 #include "server.hpp"
 #include "parser.hpp"
 #include "config.hpp"

@@ -1,4 +1,5 @@
 #include <iostream>
+#include "logger.hpp"
 #include "config.hpp"
 #include "mysql.hpp"
 #include "user.hpp"

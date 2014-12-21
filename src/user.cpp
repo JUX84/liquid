@@ -1,4 +1,5 @@
 #include <iostream>
+#include "logger.hpp"
 #include "user.hpp"
 
 User::User (unsigned int id) {
@@ -16,7 +17,7 @@ void User::updateStats(unsigned int dowloaded, unsigned int uploaded) {
 }
 
 std::string User::record() {
-	LOG_INFO("Recording user " + std::to_string(id) + " stats: down (" + downloaded + "), up (" + uploaded + ")");
+	LOG_INFO("Recording user " + std::to_string(id) + " stats: down (" + std::to_string(downloaded) + "), up (" + std::to_string(uploaded) + ")");
 	return "UPDATE users_main(Downloaded, Uploaded) SET Downloaded = Downloaded + "
 		+ std::to_string(downloaded)
 		+ ", Uploaded = Uploaded + "
