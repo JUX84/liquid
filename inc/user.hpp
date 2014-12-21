@@ -12,7 +12,7 @@ class User {
 		unsigned long downloaded;
 		std::forward_list<std::string> tokens;
 	public:
-		User (unsigned int id);
+		User (unsigned int);
 		unsigned int* getID();
 		void updateStats(unsigned int, unsigned int);
 		std::string record();

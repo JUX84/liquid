@@ -4,6 +4,8 @@
 
 User::User (unsigned int id) {
 	this->id = id;
+	this->downloaded = 0;
+	this->uploaded = 0;
 }
 
 unsigned int* User::getID () {
