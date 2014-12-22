@@ -28,7 +28,7 @@ target_link_libraries(liquid ev z)
 target_link_libraries(liquid mysqlclient)
 
 option(USE_CLANG "build with clang" ON)
-option(ENABLE_LOG "build with clang" ON)
+option(ENABLE_LOG "enable log messages" ON)
 
 set(CMAKE_CXX_FLAGS "-std=c++14 -Wall -O2 -D__FILENAME__='\"$(subst ${CMAKE_SOURCE_DIR}/src/,,$(abspath $<))\"'")
 if(USE_CLANG)
