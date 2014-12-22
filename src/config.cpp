@@ -62,12 +62,12 @@ void Config::load(const std::string& file)
 
 	while (!f.eof()) {
 		std::getline(f, line);
-		if (line.empty())
-			continue;
 
 		size_t start = line.find_first_not_of(whitespaces);
-		if (line[start] == '#')
-			continue; // this line is a comment
+		if (line.empty() || start == std::string::npos || line[start] == '#') {
+			++lineNumber;
+			continue; // empty line or comment
+		}
 
 		size_t equalSign = line.find('=');
 		if (equalSign == std::string::npos || equalSign == start || equalSign == line.size() - 1) {
