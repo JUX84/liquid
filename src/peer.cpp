@@ -51,7 +51,7 @@ std::string Peer::record(const unsigned int& left) {
 	}
 	stats = 0;
 	lastUpdate = now;
-	std::string output = "INSERT INTO xbt_files_users(uid,downloaded,uploaded,remaining,seedtime,useragent,peerid,fid) VALUES ('"
+	std::string output = "INSERT INTO xbt_files_users(uid,downloaded,uploaded,remaining,seedtime,useragent,peer_id,fid) VALUES ('"
 						+ std::to_string(*user->getID()) + "', " +
 					"'" + std::to_string(downloaded) + "', " +
 					"'" + std::to_string(uploaded) + "', " +
