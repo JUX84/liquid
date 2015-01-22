@@ -25,7 +25,7 @@ void MySQL::disconnect() {
 }
 
 void MySQL::loadUsers(UserMap& usrMap) {
-	std::string query = "SELECT ID, torrent_pass, can_leech, visible FROM users";
+	std::string query = "SELECT ID, torrent_pass, can_leech, visible FROM users_main";
 	if (mysql_real_query(mysql, query.c_str(), query.size()))
 		return;
 	result = mysql_use_result(mysql);
