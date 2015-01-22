@@ -3,6 +3,7 @@
 #include <stdexcept>
 #include <chrono>
 #include "config.hpp"
+#include "logger.hpp"
 #include "requestHandler.hpp"
 #include "response.hpp"
 #include "torrent.hpp"
@@ -28,6 +29,8 @@ std::string RequestHandler::handle(std::string str, std::string ip)
 		return error("missing info_hash", gzip);
 	if (check != "success") // missing params
 		return error(check, gzip);
+	if (req->at("action") == "update")
+		return update(req, infoHashes->front());
 	if (Config::get("type") == "private" && getUser(req->at("passkey")) == nullptr)
 		return error("passkey not found", gzip);
 	try {
@@ -41,8 +44,6 @@ std::string RequestHandler::handle(std::string str, std::string ip)
 	}
 	else if (req->at("action") == "scrape")
 		return scrape(infoHashes, gzip);
-	else if (req->at("action") == "update")
-		return update(req, infoHashes->front());
 	return error("invalid action", gzip); // not possible, since the request is checked, but, well, who knows :3
 }
 
@@ -83,6 +84,7 @@ std::string RequestHandler::announce(const Request* req, const std::string& info
 		peer = tor->getSeeders()->getPeer(req->at("peer_id"), now);
 		if (req->at("event") == "stopped" || req->at("event") == "completed") {
 			if (peer != nullptr) {
+				peer->updateStats(std::stoul(req->at("uploaded")), now);
 				db->record(peer->record(std::stoul(req->at("left"))));
 				db->record(peer->remove());
 			} else if (req->at("event") == "completed") {
@@ -165,11 +167,11 @@ std::string RequestHandler::update(const Request* req, const std::string& infoHa
 	if (type == "update_user")
 		resp = changePasskey(req);
 	else if (type == "add_torrent")
-		resp = addTorrent(req);
+		resp = addTorrent(req, infoHash);
 	else if (type == "delete_torrent")
-		resp = deleteTorrent(req);
+		resp = deleteTorrent(infoHash);
 	else if (type == "update_torrent")
-		resp = updateTorrent(req);
+		resp = updateTorrent(req, infoHash);
 	else if (type == "add_user")
 		resp = addUser(req);
 	else if (type == "remove_user")
@@ -219,21 +221,19 @@ std::string RequestHandler::changePasskey(const Request* req)
 	}
 }
 
-std::string RequestHandler::addTorrent(const Request* req)
+std::string RequestHandler::addTorrent(const Request* req, const std::string& infoHash)
 {
 	try {
-		auto t = torMap.emplace(req->at("info_hash"), Torrent(std::stoul(req->at("id")), 0, 0));
+		auto t = torMap.emplace(infoHash, Torrent(std::stoul(req->at("id")), 0, 0));
 		if (!t.second)
 			return "failure";
-
 		try {
 			if (req->at("freetorrent") == "1")
-				t.first->second.setFree(1);
+				t.first->second.setFree(100);
 			else
 				t.first->second.setFree(0);
 		}
 		catch (const std::exception& e) {}
-
 		return "success";
 	}
 	catch (const std::exception& e) {
@@ -241,27 +241,24 @@ std::string RequestHandler::addTorrent(const Request* req)
 	}
 }
 
-std::string RequestHandler::deleteTorrent(const Request* req)
+std::string RequestHandler::deleteTorrent(const std::string& infoHash)
 {
-	const auto it = torMap.find(req->at("info_hash"));
+	const auto it = torMap.find(infoHash);
 	if (it != torMap.end())
 		torMap.erase(it);
-
 	return "success";
 }
 
-std::string RequestHandler::updateTorrent(const Request* req)
+std::string RequestHandler::updateTorrent(const Request* req, const std::string& infoHash)
 {
-	auto it = torMap.find(req->at("info_hash"));
+	auto it = torMap.find(infoHash);
 	if (it != torMap.end()) {
 		if (req->at("freetorrent") == "1")
-			it->second.setFree(1);
+			it->second.setFree(100);
 		else
 			it->second.setFree(0);
-
 		return "success";
 	}
-
 	return "failure";
 }
 
