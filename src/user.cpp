@@ -24,7 +24,7 @@ void User::updateStats(unsigned int dowloaded, unsigned int uploaded, long long 
 
 std::string User::record() {
 	LOG_INFO("Recording user " + std::to_string(id) + " stats: down (" + std::to_string(downloaded) + "), up (" + std::to_string(uploaded) + ")");
-	std::string resp = "UPDATE users_main(Downloaded, Uploaded) SET Downloaded = Downloaded + "
+	std::string resp = "UPDATE users_main SET Downloaded = Downloaded + "
 		+ std::to_string(downloaded)
 		+ ", Uploaded = Uploaded + "
 		+ std::to_string(uploaded)
