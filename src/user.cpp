@@ -20,20 +20,19 @@ void User::updateStats(unsigned int dowloaded, unsigned int uploaded, long long 
 	LOG_INFO("Updating stats of user " + std::to_string(id) + ": down (" + std::to_string(this->downloaded+downloaded) + "), up (" + std::to_string(this->uploaded+uploaded) + ")");
 	this->downloaded += downloaded;
 	this->uploaded += uploaded;
-	if(lastUpdate < now - 3600)
-		this->record();
 	lastUpdate = now;
 }
 
 std::string User::record() {
 	LOG_INFO("Recording user " + std::to_string(id) + " stats: down (" + std::to_string(downloaded) + "), up (" + std::to_string(uploaded) + ")");
-	return "UPDATE users_main(Downloaded, Uploaded) SET Downloaded = Downloaded + "
+	std::string resp = "UPDATE users_main(Downloaded, Uploaded) SET Downloaded = Downloaded + "
 		+ std::to_string(downloaded)
 		+ ", Uploaded = Uploaded + "
 		+ std::to_string(uploaded)
 		+ " WHERE ID = "
 		+ std::to_string(id);
 	downloaded = uploaded = 0;
+	return resp;
 }
 
 void User::addToken(const std::string& infoHash)
@@ -51,4 +50,8 @@ bool User::hasToken(const std::string& infoHash) {
 	if (std::find(tokens.begin(), tokens.end(), infoHash) != tokens.end())
 		return true;
 	return false;
+}
+
+bool User::canRecord(long long now) {
+	return (lastUpdate < (now - 30));
 }

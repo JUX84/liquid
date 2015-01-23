@@ -67,9 +67,11 @@ std::string RequestHandler::announce(const Request* req, const std::string& info
 			if (peer != nullptr) {
 				db->record(peer->record(std::stoul(req->at("left"))));
 				db->record(peer->remove());
+				if(peer->User()->canRecord(now))
+					db->record(peer->User()->record());
 				tor->getLeechers()->removePeer(*req);
 			}
-		} else if (req->at("event") == "started") {
+		} else if (req->at("event") == "started" || peer == nullptr) {
 			if (peer == nullptr)
 				tor->getLeechers()->addPeer(*req, tor->getID(), now);
 		} else if (peer != nullptr) {
@@ -78,6 +80,8 @@ std::string RequestHandler::announce(const Request* req, const std::string& info
 				free = 100;
 			peer->updateStats(std::stoul(req->at("downloaded"))*(1-(tor->getFree()/100)), now);
 			db->record(peer->record(std::stoul(req->at("left"))));
+			if(peer->User()->canRecord(now))
+				db->record(peer->User()->record());
 		}
 		peers = tor->getSeeders();
 	} else {
@@ -87,17 +91,20 @@ std::string RequestHandler::announce(const Request* req, const std::string& info
 				peer->updateStats(std::stoul(req->at("uploaded")), now);
 				db->record(peer->record(std::stoul(req->at("left"))));
 				db->record(peer->remove());
+				if(peer->User()->canRecord(now))
+					db->record(peer->User()->record());
 			} else if (req->at("event") == "completed") {
 				tor->downloadedpp();
-				tor->getSeeders()->addPeer(*req, tor->getID(), now);
 				tor->getLeechers()->removePeer(*req);
 			}
-		} else if (req->at("event") == "started") {
+		} else if (req->at("event") == "started" || peer == nullptr) {
 			if (peer == nullptr)
 				tor->getSeeders()->addPeer(*req, tor->getID(), now);
 		} else if (peer != nullptr) {
 			peer->updateStats(std::stoul(req->at("uploaded")), now);
 			db->record(peer->record(std::stoul(req->at("left"))));
+			if(peer->User()->canRecord(now))
+				db->record(peer->User()->record());
 		}
 		peers = tor->getLeechers();
 	}

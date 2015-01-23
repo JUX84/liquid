@@ -22,4 +22,5 @@ class User {
 		void addToken(const std::string&);
 		void removeToken(const std::string&);
 		bool hasToken(const std::string&);
+		bool canRecord(long long);
 };
