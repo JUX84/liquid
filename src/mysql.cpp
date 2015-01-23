@@ -26,8 +26,10 @@ void MySQL::disconnect() {
 
 void MySQL::loadUsers(UserMap& usrMap) {
 	std::string query = "SELECT ID, torrent_pass, can_leech, visible FROM users_main";
-	if (mysql_real_query(mysql, query.c_str(), query.size()))
+	if (mysql_real_query(mysql, query.c_str(), query.size())) {
+		LOG_ERROR("Couldn't load users database");
 		return;
+	}
 	result = mysql_use_result(mysql);
 	while((row = mysql_fetch_row(result)))
 		usrMap.emplace(row[1], new User(std::stoul(row[0]), row[2] == std::string("1"), row[3] == std::string("1")));
@@ -35,21 +37,27 @@ void MySQL::loadUsers(UserMap& usrMap) {
 
 	// load tokens
 	query = "SELECT passkey, info_hash FROM users_freeleeches AS uf LEFT JOIN users AS u ON uf.UserID = u.ID JOIN torrents AS t ON uf.TorrentID = t.ID WHERE uf.Expired = '0'";
-	if (mysql_real_query(mysql, query.c_str(), query.size()))
+	if (mysql_real_query(mysql, query.c_str(), query.size())) {
+		LOG_ERROR("Couldn't load user freeleeches");
 		return;
+	}
 	result = mysql_use_result(mysql);
 	while((row = mysql_fetch_row(result))) {
 		try {
 			usrMap.at(row[0])->addToken(row[1]);
-		} catch (const std::exception& e) {}
+		} catch (const std::exception& e) {
+			LOG_WARNING("Couldn't add freeleech token to user " + std::string(row[0]) + " (" + e.what() + ")");
+		}
 	}
 	LOG_INFO("Loaded " + std::to_string(mysql_num_rows(result)) + " user tokens");
 }
 
 void MySQL::loadTorrents(TorrentMap& torMap) {
 	std::string query = "SELECT ID, info_hash, freetorrent, Snatched FROM torrents";
-	if (mysql_real_query(mysql, query.c_str(), query.size()))
+	if (mysql_real_query(mysql, query.c_str(), query.size())) {
+		LOG_ERROR("Couldn't load torrents database");
 		return;
+	}
 	result = mysql_use_result(mysql);
 	while((row = mysql_fetch_row(result))) {
 		// TEMP FIX
@@ -66,8 +74,10 @@ void MySQL::loadTorrents(TorrentMap& torMap) {
 
 void MySQL::loadBannedIps(std::forward_list<std::string> &banned_ips) {
 	std::string query = "SELECT FromIP, ToIP FROM ip_bans";
-	if (mysql_real_query(mysql, query.c_str(), query.size()))
+	if (mysql_real_query(mysql, query.c_str(), query.size())) {
+		LOG_ERROR("Couldn't load banned IP addresses database");
 		return;
+	}
 	result = mysql_use_result(mysql);
 	while((row = mysql_fetch_row(result))) {
 		unsigned int from = std::stoul(row[0]);
@@ -77,7 +87,7 @@ void MySQL::loadBannedIps(std::forward_list<std::string> &banned_ips) {
 			banned_ips.push_front(Utility::long2ip(from++));
 		banned_ips.push_front(Utility::long2ip(from));
 	}
-	LOG_INFO("Loaded " + std::to_string(mysql_num_rows(result)) + " banned ips");
+	LOG_INFO("Loaded " + std::to_string(mysql_num_rows(result)) + " banned IP addresses");
 }
 
 void MySQL::record (std::string request) {
@@ -89,9 +99,11 @@ void MySQL::record (std::string request) {
 }
 
 void MySQL::flush() {
-	LOG_INFO("flushing sql records");
 	for(const auto &it : requests) {
-		if (mysql_real_query(mysql, it.c_str(), it.size()))
+		if (mysql_real_query(mysql, it.c_str(), it.size())) {
+			LOG_ERROR("Couldn't flush record (" + it + ")");
 			return;
+		}
 	}
+	LOG_INFO("Flush sql records");
 }
