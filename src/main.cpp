@@ -20,7 +20,7 @@ int main()
 	signal(SIGTERM, handler);
 
 	try {
-		//Config::load("liquid.conf");
+		Config::load("liquid.conf");
 		int port = Config::getInt("port");
 		Server server(port);
 		Parser::init();
