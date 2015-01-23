@@ -20,7 +20,6 @@ void User::updateStats(unsigned int dowloaded, unsigned int uploaded, long long 
 	LOG_INFO("Updating stats of user " + std::to_string(id) + ": down (" + std::to_string(this->downloaded+downloaded) + "), up (" + std::to_string(this->uploaded+uploaded) + ")");
 	this->downloaded += downloaded;
 	this->uploaded += uploaded;
-	lastUpdate = now;
 }
 
 std::string User::record() {
@@ -53,5 +52,7 @@ bool User::hasToken(const std::string& infoHash) {
 }
 
 bool User::canRecord(long long now) {
-	return (lastUpdate < (now - 30));
+	bool b = (lastUpdate < (now - 30));
+	lastUpdate = now;
+	return b;
 }
