@@ -45,7 +45,11 @@ std::string Utility::ip_hex_encode (const std::string& input)
 }
 
 std::string Utility::ip_hex_decode (const std::string& input) {
-	return "127.0.0.1";
+	char ip[INET_ADDRSTRLEN] = {0};
+	std::string tmp(input, 0, 4);
+
+	inet_ntop(AF_INET, tmp.data(), ip, INET_ADDRSTRLEN);
+	return ip;
 }
 
 std::string Utility::port_hex_encode (const std::string& input)
