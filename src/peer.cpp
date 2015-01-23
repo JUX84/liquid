@@ -3,6 +3,7 @@
 #include "logger.hpp"
 #include "config.hpp"
 #include "peers.hpp"
+#include "utility.hpp"
 
 Peer::Peer(std::string hexIP, class User* u, bool seeding, unsigned int fid, std::string client, std::string peerID) {
 	LOG_INFO("Creating peer on torrent " + std::to_string(fid) + " using client " + client);
@@ -49,7 +50,7 @@ std::string Peer::record(const unsigned int& left) {
 		downloaded = stats;
 		uploaded = 0;
 	}
-	std::string output = "INSERT INTO xbt_files_users(uid,downloaded,uploaded,remaining,seedtime,useragent,peer_id,fid) VALUES ('"
+	std::string output = "INSERT INTO xbt_files_users(uid,downloaded,uploaded,remaining,seedtime,useragent,peer_id,fid,ip) VALUES ('"
 						+ std::to_string(*user->getID()) + "', " +
 					"'" + std::to_string(downloaded) + "', " +
 					"'" + std::to_string(uploaded) + "', " +
@@ -57,7 +58,8 @@ std::string Peer::record(const unsigned int& left) {
 					"'" + std::to_string(seedtime) + "', " +
 					"'" + client + "', " +
 					"'" + peerID + "', " +
-					"'" + std::to_string(fid) + "') ON DUPLICATE KEY UPDATE downloaded = VALUES(downloaded), uploaded = VALUES(uploaded), seedtime = seedtime + VALUES(seedtime)";
+					"'" + std::to_string(fid) +
+					"'" + Utility::ip_hex_decode(this->hexIP) + "') ON DUPLICATE KEY UPDATE downloaded = VALUES(downloaded), uploaded = VALUES(uploaded), seedtime = seedtime + VALUES(seedtime)";
 	stats = 0;
 	seedtime = 0;
 	lastUpdate = now;

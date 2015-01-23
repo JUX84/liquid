@@ -44,6 +44,10 @@ std::string Utility::ip_hex_encode (const std::string& input)
 	return std::string(reinterpret_cast<const char*>(&(addr.s_addr)), sizeof(addr.s_addr));
 }
 
+std::string Utility::ip_hex_decode (const std::string& input) {
+	return "127.0.0.1";
+}
+
 std::string Utility::port_hex_encode (const std::string& input)
 {
 	uint16_t value = htons(std::stoi(input));
