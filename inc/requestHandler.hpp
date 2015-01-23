@@ -26,4 +26,5 @@ class RequestHandler {
 		static User* getUser(const std::string&);
 		static void stop();
 		static void clearTorrentPeers(ev::timer&, int);
+		static void flushSqlRecords(ev::timer&, int);
 };

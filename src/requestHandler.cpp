@@ -320,3 +320,7 @@ void RequestHandler::clearTorrentPeers(ev::timer& timer, int revents)
 			++t;
 	}
 }
+
+void RequestHandler::flushSqlRecords(ev::timer& timer, int revents) {
+	db->flush();
+}

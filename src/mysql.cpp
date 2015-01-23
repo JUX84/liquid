@@ -92,10 +92,6 @@ void MySQL::loadBannedIps(std::forward_list<std::string> &banned_ips) {
 
 void MySQL::record (std::string request) {
 	requests.push_front(request);
-	if (requests.size() > 10) {
-		flush();
-		requests.clear();
-	}
 }
 
 void MySQL::flush() {
@@ -105,5 +101,6 @@ void MySQL::flush() {
 			return;
 		}
 	}
+	requests.clear();
 	LOG_INFO("Flush sql records");
 }

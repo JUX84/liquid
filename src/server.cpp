@@ -13,7 +13,7 @@
 #include "config.hpp"
 
 Server::Server(uint16_t port)
-	: watcher(EV_DEFAULT), timer(EV_DEFAULT)
+	: watcher(EV_DEFAULT), timer(EV_DEFAULT), timer2(EV_DEFAULT)
 {
 	int opt = 1;
 	sockaddr_in address;
@@ -43,6 +43,10 @@ Server::Server(uint16_t port)
 	timer.set<&RequestHandler::clearTorrentPeers>();
 	timer.set(Config::getInt("clear_peers_interval"), Config::getInt("clear_peers_interval"));
 	timer.start();
+	
+	timer2.set<&RequestHandler::flushSqlRecords>();
+	timer2.set(60, 60);
+	timer2.start();
 }
 
 void Server::run()

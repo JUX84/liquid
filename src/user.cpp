@@ -52,7 +52,7 @@ bool User::hasToken(const std::string& infoHash) {
 }
 
 bool User::canRecord(long long now) {
-	bool b = (lastUpdate < (now - 30));
+	bool b = (lastUpdate < (now - 300));
 	lastUpdate = now;
 	return b;
 }
