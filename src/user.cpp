@@ -8,16 +8,21 @@ User::User (unsigned int id, bool canLeech, bool isVisible) {
 	this->uploaded = 0;
 	this->canLeech = canLeech;
 	this->isVisible = isVisible;
+	auto duration = std::chrono::system_clock::now().time_since_epoch();
+	this->lastUpdate = std::chrono::duration_cast<std::chrono::seconds>(duration).count();
 }
 
 unsigned int* User::getID () {
 	return &this->id;
 }
 
-void User::updateStats(unsigned int dowloaded, unsigned int uploaded) {
+void User::updateStats(unsigned int dowloaded, unsigned int uploaded, long long now) {
 	LOG_INFO("Updating stats of user " + std::to_string(id) + ": down (" + std::to_string(this->downloaded+downloaded) + "), up (" + std::to_string(this->uploaded+uploaded) + ")");
 	this->downloaded += downloaded;
 	this->uploaded += uploaded;
+	if(lastUpdate < now - 3600)
+		this->record();
+	lastUpdate = now;
 }
 
 std::string User::record() {

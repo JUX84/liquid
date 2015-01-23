@@ -49,8 +49,6 @@ std::string Peer::record(const unsigned int& left) {
 		downloaded = stats;
 		uploaded = 0;
 	}
-	stats = 0;
-	lastUpdate = now;
 	std::string output = "INSERT INTO xbt_files_users(uid,downloaded,uploaded,remaining,seedtime,useragent,peer_id,fid) VALUES ('"
 						+ std::to_string(*user->getID()) + "', " +
 					"'" + std::to_string(downloaded) + "', " +
@@ -60,8 +58,10 @@ std::string Peer::record(const unsigned int& left) {
 					"'" + client + "', " +
 					"'" + peerID + "', " +
 					"'" + std::to_string(fid) + "') ON DUPLICATE KEY UPDATE downloaded = VALUES(downloaded), uploaded = VALUES(uploaded), seedtime = seedtime + VALUES(seedtime)";
+	stats = 0;
 	seedtime = 0;
-	user->updateStats(downloaded,uploaded);
+	lastUpdate = now;
+	user->updateStats(downloaded,uploaded,now);
 	return output;
 }
 

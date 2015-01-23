@@ -12,11 +12,12 @@ class User {
 		unsigned long downloaded;
 		bool canLeech;
 		bool isVisible;
+		long long lastUpdate;
 		std::forward_list<std::string> tokens;
 	public:
 		User (unsigned int, bool, bool);
 		unsigned int* getID();
-		void updateStats(unsigned int, unsigned int);
+		void updateStats(unsigned int, unsigned int, long long);
 		std::string record();
 		void addToken(const std::string&);
 		void removeToken(const std::string&);
