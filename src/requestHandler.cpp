@@ -16,6 +16,7 @@ Database* RequestHandler::db;
 
 std::string RequestHandler::handle(std::string str, std::string ip)
 {
+	LOG_INFO("Handling request (" + ip + ")\n" + str);
 	std::pair<Request, std::forward_list<std::string>> infos = Parser::parse(str); // parse the request
 	Request* req = &infos.first;
 	std::forward_list<std::string>* infoHashes = &infos.second;
@@ -25,14 +26,20 @@ std::string RequestHandler::handle(std::string str, std::string ip)
 			gzip = true;
 	} catch (const std::exception& e) {}
 	std::string check = Parser::check(*req); // check if we have all we need to process (saves time if not the case
-	if (infoHashes->begin() == infoHashes->end())
-		return error("missing info_hash", gzip);
-	if (check != "success") // missing params
+	if (check != "success") { // missing params
+		LOG_WARNING("Couldn't parse request (" + check + ")");
 		return error(check, gzip);
-	if (req->at("action") == "update")
-		return update(req, infoHashes->front());
-	if (Config::get("type") == "private" && getUser(req->at("passkey")) == nullptr)
+	}
+	if (Config::get("type") == "private" && getUser(req->at("passkey")) == nullptr) {
+		LOG_WARNING("No passkey");
 		return error("passkey not found", gzip);
+	}
+	if (req->at("action") == "update")
+		return update(req, infoHashes);
+	if (infoHashes->begin() == infoHashes->end()) {
+		LOG_WARNING("Missing info hash");
+		return error("missing info_hash", gzip);
+	}
 	try {
 		req->at("ip") = Utility::ip_hex_encode(req->at("ip")) + Utility::port_hex_encode(req->at("port"));
 	} catch (const std::exception& e) {
@@ -44,11 +51,13 @@ std::string RequestHandler::handle(std::string str, std::string ip)
 	}
 	else if (req->at("action") == "scrape")
 		return scrape(infoHashes, gzip);
+	LOG_ERROR("WOWOWOW this shouldn't happen. NEVER !");
 	return error("invalid action", gzip); // not possible, since the request is checked, but, well, who knows :3
 }
 
 std::string RequestHandler::announce(const Request* req, const std::string& infoHash, const bool& gzip)
 {
+	LOG_INFO("Announce request (" + infoHash + ")");
 	auto duration = std::chrono::system_clock::now().time_since_epoch();
 	long long now = std::chrono::duration_cast<std::chrono::seconds>(duration).count();
 	if (Config::get("type") != "private")
@@ -57,6 +66,7 @@ std::string RequestHandler::announce(const Request* req, const std::string& info
 	try {
 		tor = &torMap.at(infoHash);
 	} catch (const std::exception& e) {
+		LOG_WARNING("Torrent not found");
 		return error("unregistered torrent", gzip);
 	}
 	Peers *peers = nullptr;
@@ -108,6 +118,7 @@ std::string RequestHandler::announce(const Request* req, const std::string& info
 		}
 		peers = tor->getLeechers();
 	}
+	LOG_INFO("Handled user stats");
 	std::string peerlist;
 	unsigned long i = 0;
 	if (req->at("event") != "stopped") {
@@ -117,6 +128,7 @@ std::string RequestHandler::announce(const Request* req, const std::string& info
 		} catch (const std::exception& e) {}
 		i = std::min(i, peers->size());
 	}
+	LOG_INFO("creating peer list (" + std::to_string(i) + ")");
 	while (i-- > 0) {
 		Peer* p = peers->nextPeer(now);
 		if (p != nullptr)
@@ -144,6 +156,7 @@ std::string RequestHandler::announce(const Request* req, const std::string& info
 
 std::string RequestHandler::scrape(const std::forward_list<std::string>* infoHashes, const bool& gzip)
 {
+	LOG_INFO("Scrape request");
 	std::string resp("d5:filesd");
 
 	for (const auto& infoHash : *infoHashes) {
@@ -166,28 +179,30 @@ std::string RequestHandler::scrape(const std::forward_list<std::string>* infoHas
 	return response(resp, gzip);
 }
 
-std::string RequestHandler::update(const Request* req, const std::string& infoHash)
+std::string RequestHandler::update(const Request* req, const std::forward_list<std::string>* infoHashes)
 {
+	LOG_INFO("Update request (" + req->at("passkey") + ")");
 	std::string resp;
 	const std::string& type = req->at("type");
 
 	if (type == "update_user")
 		resp = changePasskey(req);
 	else if (type == "add_torrent")
-		resp = addTorrent(req, infoHash);
+		resp = addTorrent(req, infoHashes->front());
 	else if (type == "delete_torrent")
-		resp = deleteTorrent(infoHash);
+		resp = deleteTorrent(infoHashes->front());
 	else if (type == "update_torrent")
-		resp = updateTorrent(req, infoHash);
+		resp = updateTorrent(req, infoHashes->front());
 	else if (type == "add_user")
 		resp = addUser(req);
 	else if (type == "remove_user")
 		resp = removeUser(req);
 	else if (type == "add_token")
-		resp = addToken(req, infoHash);
+		resp = addToken(req, infoHashes->front());
 	else if (type == "remove_token")
-		resp = removeToken(req, infoHash);
+		resp = removeToken(req, infoHashes->front());
 
+	LOG_INFO(type + " : " + resp);
 	return resp;
 }
 
@@ -293,6 +308,7 @@ User* RequestHandler::getUser(const std::string& passkey) {
 }
 
 void RequestHandler::init() {
+	LOG_INFO("Initializing request handler");
 	db = new MySQL();
 	db->connect();
 	db->loadUsers(usrMap);
@@ -300,6 +316,7 @@ void RequestHandler::init() {
 }
 
 void RequestHandler::stop() {
+	LOG_INFO("Stopping request handler");
 	if (Config::get("type") == "private") {
 		db->flush();
 		db->disconnect();
@@ -308,6 +325,7 @@ void RequestHandler::stop() {
 
 void RequestHandler::clearTorrentPeers(ev::timer& timer, int revents)
 {
+	LOG_INFO("Cleaning torrent peers");
 	auto duration = std::chrono::system_clock::now().time_since_epoch();
 	long long now = std::chrono::duration_cast<std::chrono::seconds>(duration).count();
 	auto t = torMap.begin();

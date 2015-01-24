@@ -91,10 +91,12 @@ void MySQL::loadBannedIps(std::forward_list<std::string> &banned_ips) {
 }
 
 void MySQL::record (std::string request) {
+	LOG_INFO("Registering new sql record (" + request + ")");
 	requests.push_front(request);
 }
 
 void MySQL::flush() {
+	LOG_INFO("Flushing sql records (" + std::to_string(requests.size()) + ")");
 	for(const auto &it : requests) {
 		if (mysql_real_query(mysql, it.c_str(), it.size())) {
 			LOG_ERROR("Couldn't flush record (" + it + ")");
@@ -102,5 +104,4 @@ void MySQL::flush() {
 		}
 	}
 	requests.clear();
-	LOG_INFO("Flush sql records");
 }

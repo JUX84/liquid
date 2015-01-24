@@ -1,3 +1,4 @@
+#include "logger.hpp"
 #include "response.hpp"
 #include "utility.hpp"
 
@@ -9,6 +10,7 @@ std::string response_head (const bool& gzip)
 
 std::string response (const std::string& body, const bool& gzip)
 {
+	LOG_INFO("Server response (" + body + ")");
 	if (gzip)
 		return response_head(gzip) + Utility::gzip_compress(body);
 	return response_head(gzip) + body;

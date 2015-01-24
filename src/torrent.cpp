@@ -1,4 +1,5 @@
 #include <iostream>
+#include "logger.hpp"
 #include "torrent.hpp"
 
 Torrent::Torrent (unsigned int id, unsigned char free, unsigned int downloaded) {
@@ -24,6 +25,7 @@ unsigned int Torrent::getDownloaded() {
 }
 
 void Torrent::downloadedpp() {
+	LOG_INFO("New snatch on torrent " + std::to_string(id));
 	++this->downloaded;
 }
 

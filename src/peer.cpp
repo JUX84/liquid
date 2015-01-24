@@ -27,33 +27,34 @@ std::string* Peer::getHexIP() {
 }
 
 void Peer::updateStats (unsigned long stats, const long long &now) {
-	LOG_INFO("Updating stats ("  + std::to_string(stats) + ") on a peer on torrent " + std::to_string(fid));
-	this->stats = stats;
+	LOG_INFO("Updating peer stats ("  + std::to_string(stats) + ") on torrent " + std::to_string(fid));
+	this->stats = stats - this->total_stats;
+	this->total_stats = stats;
 	seedtime += now - lastUpdate;
 	lastUpdate = now;
 }
 
-void Peer::resetStats() {
-	this->stats = 0;
-}
-
 std::string Peer::record(const unsigned int& left) {
-	LOG_INFO("Recording stats of peer " + peerID + " (left: " + std::to_string(left) + ")");
-	unsigned int downloaded,uploaded = 0;
+	LOG_INFO("Recording peer stats (ID: " + peerID + ", left: " + std::to_string(left) + ")");
+	unsigned int downloaded,uploaded,total_downloaded,total_uploaded = 0;
 	auto duration = std::chrono::system_clock::now().time_since_epoch();
 	auto now = std::chrono::duration_cast<std::chrono::seconds>(duration).count();
 	if (seeding) {
-		uploaded = stats;
 		downloaded = 0;
+		uploaded = total_stats;
+		total_downloaded = 0;
+		total_uploaded = stats;
 		seedtime = now - lastUpdate;
 	} else {
-		downloaded = stats;
+		downloaded = total_stats;
 		uploaded = 0;
+		total_downloaded = stats;
+		total_uploaded = 0;
 	}
 	std::string output = "INSERT INTO xbt_files_users(uid,active,downloaded,uploaded,remaining,seedtime,useragent,peer_id,fid,ip) VALUES ('"
 						+ std::to_string(*user->getID()) + "', 1, " +
-					"'" + std::to_string(downloaded) + "', " +
-					"'" + std::to_string(uploaded) + "', " +
+					"'" + std::to_string(total_downloaded) + "', " +
+					"'" + std::to_string(total_uploaded) + "', " +
 					"'" + std::to_string(left) + "', " +
 					"'" + std::to_string(seedtime) + "', " +
 					"'" + client + "', " +
@@ -65,6 +66,11 @@ std::string Peer::record(const unsigned int& left) {
 	lastUpdate = now;
 	user->updateStats(downloaded,uploaded,now);
 	return output;
+}
+
+std::string Peer::snatch() {
+	LOG_INFO("Peer " + peerID + " finished downloading torrent " + std::to_string(fid));
+	return "INSERT INTO xbt_snatched"; //TODO
 }
 
 std::string Peer::remove() {

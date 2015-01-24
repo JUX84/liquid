@@ -5,6 +5,7 @@
 class Peer {
 	private:
 		User* user;
+		unsigned long total_stats;
 		unsigned long stats;
 		bool seeding;
 		std::string hexIP;
@@ -22,4 +23,5 @@ class Peer {
 		std::string record(const unsigned int&);
 		std::string remove();
 		bool timedOut(const long long& now);
+		std::string snatch();
 };
