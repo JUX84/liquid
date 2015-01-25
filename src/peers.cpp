@@ -12,7 +12,7 @@ Peers::Peers() {
 	lastUpdate = std::chrono::duration_cast<std::chrono::seconds>(duration).count();
 }
 
-Peer* Peers::getPeer(const std::string& peerID, const long long& now) {
+Peer* Peers::getPeer(const std::string& peerID, long long now) {
 	lastUpdate = now;
 	try {
 		return &pMap.at(peerID);
@@ -21,7 +21,7 @@ Peer* Peers::getPeer(const std::string& peerID, const long long& now) {
 	}
 }
 
-void Peers::addPeer(const Request& req, unsigned int fid, const long long& now) {
+void Peers::addPeer(const Request& req, unsigned int fid, long long now) {
 	User* u = nullptr;
 	if (Config::get("type") == "private")
 		u = RequestHandler::getUser(req.at("passkey"));
@@ -33,7 +33,7 @@ void Peers::removePeer(const Request& req) {
 	pMap.erase(req.at("peer_id"));
 }
 
-Peer* Peers::nextPeer(const long long &now) {
+Peer* Peers::nextPeer(long long now) {
 	while (pMap.size() > 0) {
 		if (it == std::end(pMap)) {
 			it = std::begin(pMap);
@@ -53,7 +53,7 @@ unsigned long Peers::size () {
 	return pMap.size();
 }
 
-void Peers::timedOut(const long long& now)
+void Peers::timedOut(long long now)
 {
 	auto it = pMap.begin();
 	while (it != pMap.end()) {

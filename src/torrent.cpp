@@ -2,14 +2,19 @@
 #include "logger.hpp"
 #include "torrent.hpp"
 
-Torrent::Torrent (unsigned int id, unsigned char free, unsigned int downloaded) {
+Torrent::Torrent (unsigned int id, unsigned long size, unsigned char free, unsigned int downloaded) {
 	this->id = id;
+	this->size = size;
 	this->free = free;
 	this->downloaded = downloaded;
 }
 
 unsigned int Torrent::getID () {
 	return this->id;
+}
+
+unsigned int Torrent::getSize () {
+	return this->size;
 }
 
 Peers* Torrent::getSeeders() {

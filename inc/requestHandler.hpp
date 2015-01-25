@@ -9,8 +9,9 @@ class RequestHandler {
 		static TorrentMap torMap;
 		static UserMap usrMap;
 		static Database *db;
-		static std::string announce(const Request*, const std::string&, const bool&);
-		static std::string scrape(const std::forward_list<std::string>*, const bool&);
+		static std::forward_list<std::string> bannedIPs;
+		static std::string announce(const Request*, const std::string&, bool);
+		static std::string scrape(const std::forward_list<std::string>*, bool);
 		static std::string update(const Request*, const std::forward_list<std::string>*);
 		static std::string changePasskey(const Request*);
 		static std::string addTorrent(const Request*, const std::string&);

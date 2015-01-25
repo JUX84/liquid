@@ -10,6 +10,7 @@ Peer::Peer(std::string hexIP, class User* u, bool seeding, unsigned int fid, std
 	this->hexIP = hexIP;
 	this->user = u;
 	this->seeding = seeding;
+	this->completed = seeding;
 	this->fid = fid;
 	this->client = client;
 	this->peerID = peerID;
@@ -22,11 +23,19 @@ User* Peer::User() {
 	return this->user;
 }
 
-std::string* Peer::getHexIP() {
-	return &this->hexIP;
+const std::string& Peer::getPeerID() {
+	return peerID;
 }
 
-void Peer::updateStats (unsigned long stats, const long long &now) {
+const std::string& Peer::getHexIP() {
+	return hexIP;
+}
+
+const std::string& Peer::getClient() {
+	return client;
+}
+
+void Peer::updateStats (unsigned long stats, long long now) {
 	LOG_INFO("Updating peer stats ("  + std::to_string(stats) + ") on torrent " + std::to_string(fid));
 	this->stats = stats - this->total_stats;
 	this->total_stats = stats;
@@ -34,53 +43,51 @@ void Peer::updateStats (unsigned long stats, const long long &now) {
 	lastUpdate = now;
 }
 
-std::string Peer::record(const unsigned int& left) {
-	LOG_INFO("Recording peer stats (ID: " + peerID + ", left: " + std::to_string(left) + ")");
-	unsigned int downloaded,uploaded,total_downloaded,total_uploaded = 0;
-	auto duration = std::chrono::system_clock::now().time_since_epoch();
-	auto now = std::chrono::duration_cast<std::chrono::seconds>(duration).count();
-	if (seeding) {
-		downloaded = 0;
-		uploaded = total_stats;
-		total_downloaded = 0;
-		total_uploaded = stats;
-		seedtime = now - lastUpdate;
-	} else {
-		downloaded = total_stats;
-		uploaded = 0;
-		total_downloaded = stats;
-		total_uploaded = 0;
-	}
-	std::string output = "INSERT INTO xbt_files_users(uid,active,downloaded,uploaded,remaining,seedtime,useragent,peer_id,fid,ip) VALUES ('"
-						+ std::to_string(*user->getID()) + "', 1, " +
-					"'" + std::to_string(total_downloaded) + "', " +
-					"'" + std::to_string(total_uploaded) + "', " +
-					"'" + std::to_string(left) + "', " +
-					"'" + std::to_string(seedtime) + "', " +
-					"'" + client + "', " +
-					"'" + peerID + "', " +
-					"'" + std::to_string(fid) + "', " +
-					"'" + Utility::ip_hex_decode(this->hexIP) + "') ON DUPLICATE KEY UPDATE downloaded = VALUES(downloaded), uploaded = VALUES(uploaded), seedtime = seedtime + VALUES(seedtime)";
-	stats = 0;
-	seedtime = 0;
+long long Peer::getLastUpdate() {
+	return lastUpdate;
+}
+
+bool Peer::isSeeding() {
+	return seeding;
+}
+
+bool Peer::isCompleted() {
+	return completed;
+}
+
+unsigned long Peer::getStats() {
+	return stats;
+}
+
+unsigned long Peer::getTotalStats() {
+	return total_stats;
+}
+
+void Peer::reset(long long now) {
+	stats = seedtime = 0;
 	lastUpdate = now;
-	user->updateStats(downloaded,uploaded,now);
-	return output;
 }
 
-std::string Peer::snatch() {
-	LOG_INFO("Peer " + peerID + " finished downloading torrent " + std::to_string(fid));
-	return "INSERT INTO xbt_snatched"; //TODO
+unsigned int Peer::getFID() {
+	return fid;
 }
 
-std::string Peer::remove() {
-	LOG_INFO("Removing peer " + peerID + " on torrent " + std::to_string(fid));
-	return "DELETE FROM xbt_files_users WHERE peer_id LIKE '"
-		+ peerID
-		+ "' AND fid = "
-		+ std::to_string(fid);
+void Peer::snatched() {
+	completed = true;
 }
 
-bool Peer::timedOut(const long long &now) {
+bool Peer::isSnatched() {
+	return completed;
+}
+
+bool Peer::timedOut(long long now) {
 	return (now - lastUpdate > Config::getInt("timeout"));
+}
+
+void Peer::setSeedtime(long long seedtime) {
+	this->seedtime = seedtime;
+}
+
+long long Peer::getSeedtime() {
+	return seedtime;
 }

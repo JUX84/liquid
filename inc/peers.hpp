@@ -13,10 +13,10 @@ class Peers {
 		long long lastUpdate;
 	public:
 		Peers();
-		Peer* getPeer(const std::string&, const long long&);
-		void addPeer(const Request&, unsigned int, const long long&);
+		Peer* getPeer(const std::string&, long long);
+		void addPeer(const Request&, unsigned int, long long);
 		void removePeer(const Request&);
-		Peer* nextPeer(const long long&);
+		Peer* nextPeer(long long);
 		unsigned long size();
-		void timedOut(const long long&);
+		void timedOut(long long);
 };

@@ -92,7 +92,7 @@ std::string Utility::hex_to_bin(const std::string& input)
 	return output;
 }
 
-std::string Utility::long2ip (const unsigned int &lip) {
+std::string Utility::long2ip (unsigned int lip) {
 	in_addr x;
 	x.s_addr = htonl(lip);
 	return inet_ntoa(x);

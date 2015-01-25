@@ -13,6 +13,7 @@
 TorrentMap RequestHandler::torMap;
 UserMap RequestHandler::usrMap;
 Database* RequestHandler::db;
+std::forward_list<std::string> RequestHandler::bannedIPs;
 
 std::string RequestHandler::handle(std::string str, std::string ip)
 {
@@ -45,6 +46,10 @@ std::string RequestHandler::handle(std::string str, std::string ip)
 	} catch (const std::exception& e) {
 		req->emplace("ip", ip + Utility::port_hex_encode(req->at("port")));
 	}
+	for (const auto& bannedIP : bannedIPs) {
+		if(bannedIP == req->at("ip"))
+			return error("banned ip", gzip);
+	}
 	if (req->at("action") == "announce") {
 		req->emplace("event", "updating");
 		return announce(req, infoHashes->front(), gzip);
@@ -55,13 +60,13 @@ std::string RequestHandler::handle(std::string str, std::string ip)
 	return error("invalid action", gzip); // not possible, since the request is checked, but, well, who knows :3
 }
 
-std::string RequestHandler::announce(const Request* req, const std::string& infoHash, const bool& gzip)
+std::string RequestHandler::announce(const Request* req, const std::string& infoHash, bool gzip)
 {
 	LOG_INFO("Announce request (" + infoHash + ")");
 	auto duration = std::chrono::system_clock::now().time_since_epoch();
 	long long now = std::chrono::duration_cast<std::chrono::seconds>(duration).count();
 	if (Config::get("type") != "private")
-		torMap.emplace(infoHash, Torrent(0, 0, 0));
+		torMap.emplace(infoHash, Torrent(0, 0, 0, 0));
 	Torrent *tor = nullptr;
 	try {
 		tor = &torMap.at(infoHash);
@@ -73,12 +78,14 @@ std::string RequestHandler::announce(const Request* req, const std::string& info
 	Peer *peer = nullptr;
 	if (req->at("left") != "0") {
 		peer = tor->getLeechers()->getPeer(req->at("peer_id"), now);
+		if (!peer->isSnatched() && (std::stoul(req->at("left")) < ((1-0.25)*tor->getSize())))
+			peer->snatched();
 		if (req->at("event") == "stopped") {
 			if (peer != nullptr) {
-				db->record(peer->record(std::stoul(req->at("left"))));
-				db->record(peer->remove());
+				db->recordPeer(peer, std::stoul(req->at("left")), now);
+				db->recordPeerRemoval(peer);
 				if(peer->User()->canRecord(now))
-					db->record(peer->User()->record());
+					db->recordUser(peer->User());
 				tor->getLeechers()->removePeer(*req);
 			}
 		} else if (req->at("event") == "started" || peer == nullptr) {
@@ -89,9 +96,9 @@ std::string RequestHandler::announce(const Request* req, const std::string& info
 			if (peer->User()->hasToken(infoHash))
 				free = 100;
 			peer->updateStats(std::stoul(req->at("downloaded"))*(1-(tor->getFree()/100)), now);
-			db->record(peer->record(std::stoul(req->at("left"))));
+			db->recordPeer(peer, std::stoul(req->at("left")), now);
 			if(peer->User()->canRecord(now))
-				db->record(peer->User()->record());
+				db->recordUser(peer->User());
 		}
 		peers = tor->getSeeders();
 	} else {
@@ -99,10 +106,10 @@ std::string RequestHandler::announce(const Request* req, const std::string& info
 		if (req->at("event") == "stopped" || req->at("event") == "completed") {
 			if (peer != nullptr) {
 				peer->updateStats(std::stoul(req->at("uploaded")), now);
-				db->record(peer->record(std::stoul(req->at("left"))));
-				db->record(peer->remove());
+				db->recordPeer(peer, std::stoul(req->at("left")), now);
+				db->recordPeerRemoval(peer);
 				if(peer->User()->canRecord(now))
-					db->record(peer->User()->record());
+					db->recordUser(peer->User());
 			} else if (req->at("event") == "completed") {
 				tor->downloadedpp();
 				tor->getLeechers()->removePeer(*req);
@@ -112,9 +119,9 @@ std::string RequestHandler::announce(const Request* req, const std::string& info
 				tor->getSeeders()->addPeer(*req, tor->getID(), now);
 		} else if (peer != nullptr) {
 			peer->updateStats(std::stoul(req->at("uploaded")), now);
-			db->record(peer->record(std::stoul(req->at("left"))));
+			db->recordPeer(peer, std::stoul(req->at("left")), now);
 			if(peer->User()->canRecord(now))
-				db->record(peer->User()->record());
+				db->recordUser(peer->User());
 		}
 		peers = tor->getLeechers();
 	}
@@ -132,7 +139,7 @@ std::string RequestHandler::announce(const Request* req, const std::string& info
 	while (i-- > 0) {
 		Peer* p = peers->nextPeer(now);
 		if (p != nullptr)
-			peerlist.append(*p->getHexIP());
+			peerlist.append(p->getHexIP());
 	}
 	return response(
 			("d8:completei"
@@ -154,7 +161,7 @@ std::string RequestHandler::announce(const Request* req, const std::string& info
 			); // doesn't look as bad as it is stated on ocelot, needs stresstesting to check
 }
 
-std::string RequestHandler::scrape(const std::forward_list<std::string>* infoHashes, const bool& gzip)
+std::string RequestHandler::scrape(const std::forward_list<std::string>* infoHashes, bool gzip)
 {
 	LOG_INFO("Scrape request");
 	std::string resp("d5:filesd");
@@ -246,7 +253,7 @@ std::string RequestHandler::changePasskey(const Request* req)
 std::string RequestHandler::addTorrent(const Request* req, const std::string& infoHash)
 {
 	try {
-		auto t = torMap.emplace(infoHash, Torrent(std::stoul(req->at("id")), 0, 0));
+		auto t = torMap.emplace(infoHash, Torrent(std::stoul(req->at("id")), std::stoul(req->at("size")), 0, 0));
 		if (!t.second)
 			return "failure";
 		try {
@@ -313,6 +320,7 @@ void RequestHandler::init() {
 	db->connect();
 	db->loadUsers(usrMap);
 	db->loadTorrents(torMap);
+	db->loadBannedIPs(bannedIPs);
 }
 
 void RequestHandler::stop() {

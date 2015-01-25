@@ -8,6 +8,7 @@ class Peer {
 		unsigned long total_stats;
 		unsigned long stats;
 		bool seeding;
+		bool completed;
 		std::string hexIP;
 		std::string peerID;
 		unsigned int fid;
@@ -17,11 +18,20 @@ class Peer {
 	public:
 		Peer (std::string, User*, bool, unsigned int, std::string, std::string);
 		User* User();
-		std::string* getHexIP();
-		void updateStats(unsigned long stats, const long long&);
-		void resetStats();
-		std::string record(const unsigned int&);
-		std::string remove();
-		bool timedOut(const long long& now);
-		std::string snatch();
+		const std::string& getPeerID();
+		const std::string& getHexIP();
+		const std::string& getClient();
+		void updateStats(unsigned long stats, long long);
+		unsigned long getTotalStats();
+		unsigned long getStats();
+		long long getLastUpdate();
+		unsigned int getFID();
+		bool isSeeding();
+		bool isCompleted();
+		bool timedOut(long long);
+		bool isSnatched();
+		void snatched();
+		void setSeedtime(long long);
+		long long getSeedtime();
+		void reset(long long);
 };
