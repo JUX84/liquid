@@ -37,7 +37,7 @@ int main(int argc, char **argv)
 				}
 				catch (const std::exception& e) {}
 			default:
-				std::cerr << "Usage: " << argv0 << " [-c configFile] [-v <0,1,2>]\n";
+				std::cerr << "Usage: " << argv[0] << " [-c configFile] [-v <0,1,2>]\n";
 				return 1;
 		}
 	}
