@@ -1,6 +1,7 @@
 #include <iostream>
 #include <cstdlib>
 #include <signal.h>
+#include <unistd.h>
 #include "logger.hpp"
 #include "server.hpp"
 #include "parser.hpp"
@@ -13,13 +14,36 @@ void handler(int sig)
 	exit(0);
 }
 
-int main()
+int main(int argc, char **argv)
 {
 	std::ios_base::sync_with_stdio(false);
 	signal(SIGINT, handler);
 	signal(SIGTERM, handler);
 
+	std::string configFile = "liquid.conf";
+	unsigned int logLevel = Logger::Level::INFO;
+	int opt;
+
+	while ((opt = getopt(argc, argv, "c:v:")) != -1) {
+		switch (opt) {
+			case 'c':
+				configFile = optarg;
+				break;
+			case 'v':
+				try {
+					logLevel = std::stoul(optarg);
+					if (logLevel <= Logger::Level::ERROR)
+						break;
+				}
+				catch (const std::exception& e) {}
+			default:
+				std::cerr << "Usage: " << argv0 << " [-c configFile] [-v <0,1,2>]\n";
+				return 1;
+		}
+	}
+
 	try {
+		LOG_INIT(static_cast<Logger::Level>(logLevel));
 		Config::load("liquid.conf");
 		int port = Config::getInt("port");
 		Server server(port);
