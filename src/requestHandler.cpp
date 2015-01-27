@@ -17,7 +17,7 @@ std::forward_list<std::string> RequestHandler::bannedIPs;
 
 std::string RequestHandler::handle(std::string str, std::string ip)
 {
-	LOG_INFO("Handling request (" + ip + ")\n" + str);
+	LOG_INFO("Handling request\n" + str);
 	std::pair<Request, std::forward_list<std::string>> infos = Parser::parse(str); // parse the request
 	Request* req = &infos.first;
 	std::forward_list<std::string>* infoHashes = &infos.second;
@@ -78,8 +78,6 @@ std::string RequestHandler::announce(const Request* req, const std::string& info
 	Peer *peer = nullptr;
 	if (req->at("left") != "0") {
 		peer = tor->getLeechers()->getPeer(req->at("peer_id"), now);
-		if (!peer->isSnatched() && (std::stoul(req->at("left")) < ((1-0.25)*tor->getSize())))
-			peer->snatched();
 		if (req->at("event") == "stopped") {
 			if (peer != nullptr) {
 				db->recordPeer(peer, std::stoul(req->at("left")), now);
@@ -92,6 +90,8 @@ std::string RequestHandler::announce(const Request* req, const std::string& info
 			if (peer == nullptr)
 				tor->getLeechers()->addPeer(*req, tor->getID(), now);
 		} else if (peer != nullptr) {
+			if (!peer->isSnatched() && (std::stoul(req->at("left")) < ((1-0.25)*tor->getSize())))
+				peer->snatched();
 			int free = tor->getFree();
 			if (peer->User()->hasToken(infoHash))
 				free = 100;

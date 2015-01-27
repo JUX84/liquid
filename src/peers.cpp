@@ -39,7 +39,7 @@ Peer* Peers::nextPeer(long long now) {
 			it = std::begin(pMap);
 			continue;
 		} else if (it->second.timedOut(now)) {
-			pMap.erase(it);
+			pMap.erase(it++);
 			continue;
 		}
 		PeerMap::iterator tmp = it;
