@@ -176,3 +176,9 @@ void MySQL::recordPeerRemoval(Peer* p) {
 			+ "' AND fid = "
 			+ FID);
 }
+
+void MySQL::recordSnatch(Torrent* tor) {
+	std::string FID = std::to_string(tor->getID());
+	LOG_INFO("New snatch on torrent " + FID);
+	record("UPDATE torrents SET Snatched = Snatched + 1");
+}

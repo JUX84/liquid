@@ -17,7 +17,7 @@ std::forward_list<std::string> RequestHandler::bannedIPs;
 
 std::string RequestHandler::handle(std::string str, std::string ip)
 {
-	LOG_INFO("Handling request\n" + str);
+	LOG_INFO("Handling new request");
 	std::pair<Request, std::forward_list<std::string>> infos = Parser::parse(str); // parse the request
 	Request* req = &infos.first;
 	std::forward_list<std::string>* infoHashes = &infos.second;
@@ -32,10 +32,10 @@ std::string RequestHandler::handle(std::string str, std::string ip)
 		return error(check, gzip);
 	}
 	if (Config::get("type") == "private" && getUser(req->at("passkey")) == nullptr) {
-		LOG_WARNING("No passkey");
+		LOG_WARNING("Passkey " + req->at("passkey") + " not found");
 		return error("passkey not found", gzip);
 	}
-	if (req->at("action") == "update")
+	if (Config::get("type") == "private" && req->at("action") == "update" && req->at("passkey") == Config::get("updatekey")) 
 		return update(req, infoHashes);
 	if (infoHashes->begin() == infoHashes->end()) {
 		LOG_WARNING("Missing info hash");
@@ -56,7 +56,7 @@ std::string RequestHandler::handle(std::string str, std::string ip)
 	}
 	else if (req->at("action") == "scrape")
 		return scrape(infoHashes, gzip);
-	LOG_ERROR("WOWOWOW this shouldn't happen. NEVER !");
+	LOG_ERROR("Unexpected! Action not found.");
 	return error("invalid action", gzip); // not possible, since the request is checked, but, well, who knows :3
 }
 
@@ -80,16 +80,18 @@ std::string RequestHandler::announce(const Request* req, const std::string& info
 		peer = tor->getLeechers()->getPeer(req->at("peer_id"), now);
 		if (req->at("event") == "stopped") {
 			if (peer != nullptr) {
-				db->recordPeer(peer, std::stoul(req->at("left")), now);
-				db->recordPeerRemoval(peer);
-				if(peer->User()->canRecord(now))
-					db->recordUser(peer->User());
+				if (Config::get("type") == "private") {
+					db->recordPeer(peer, std::stoul(req->at("left")), now);
+					db->recordPeerRemoval(peer);
+					if(peer->User()->canRecord(now))
+						db->recordUser(peer->User());
+				}
 				tor->getLeechers()->removePeer(*req);
 			}
 		} else if (req->at("event") == "started" || peer == nullptr) {
 			if (peer == nullptr)
 				tor->getLeechers()->addPeer(*req, tor->getID(), now);
-		} else if (peer != nullptr) {
+		} else if (peer != nullptr && Config::get("type") == "private") {
 			if (!peer->isSnatched() && (std::stoul(req->at("left")) < ((1-0.25)*tor->getSize())))
 				peer->snatched();
 			int free = tor->getFree();
@@ -104,20 +106,23 @@ std::string RequestHandler::announce(const Request* req, const std::string& info
 	} else {
 		peer = tor->getSeeders()->getPeer(req->at("peer_id"), now);
 		if (req->at("event") == "stopped" || req->at("event") == "completed") {
-			if (peer != nullptr) {
+			if (peer != nullptr && Config::get("type") == "private") {
 				peer->updateStats(std::stoul(req->at("uploaded")), now);
 				db->recordPeer(peer, std::stoul(req->at("left")), now);
 				db->recordPeerRemoval(peer);
 				if(peer->User()->canRecord(now))
 					db->recordUser(peer->User());
 			} else if (req->at("event") == "completed") {
-				tor->downloadedpp();
+				if(Config::get("type") == "private") {
+					tor->downloadedpp();
+					db->recordSnatch(tor);
+				}
 				tor->getLeechers()->removePeer(*req);
 			}
 		} else if (req->at("event") == "started" || peer == nullptr) {
 			if (peer == nullptr)
 				tor->getSeeders()->addPeer(*req, tor->getID(), now);
-		} else if (peer != nullptr) {
+		} else if (peer != nullptr && Config::get("type") == "private") {
 			peer->updateStats(std::stoul(req->at("uploaded")), now);
 			db->recordPeer(peer, std::stoul(req->at("left")), now);
 			if(peer->User()->canRecord(now))

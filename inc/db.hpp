@@ -24,4 +24,5 @@ class Database {
 		virtual void recordPeer(Peer*, unsigned int, long long) = 0;
 		virtual void recordPeerSnatch(Peer*, long long) = 0;
 		virtual void recordPeerRemoval(Peer*) = 0;
+		virtual void recordSnatch(Torrent*) = 0;
 };

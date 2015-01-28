@@ -16,6 +16,7 @@ std::unordered_map<std::string, std::pair<std::string, bool>> Config::vars = {
 	{ "clear_peers_interval",		{ "300", true } },
 	{ "read_buffer_size",			{ "512", true } },
 	{ "max_request_size",			{ "4096", true } },
+	{ "updatekey",				{ "12345678901234567890123456789012", false } },
 	{ "DB_Host",				{ "127.0.0.1", false } },
 	{ "DB_User",				{ "jux", false } },
 	{ "DB_Password",			{ "jux", false } },
