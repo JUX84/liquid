@@ -213,6 +213,10 @@ std::string RequestHandler::update(const Request* req, const std::forward_list<s
 		resp = addToken(req, infoHashes->front());
 	else if (type == "remove_token")
 		resp = removeToken(req, infoHashes->front());
+	else if (type == "add_ban")
+		resp = addBan(req);
+	else if (type == "remove_ban")
+		resp = removeBan(req);
 
 	LOG_INFO(type + " : " + resp);
 	return resp;
@@ -309,6 +313,32 @@ std::string RequestHandler::addUser(const Request* req)
 std::string RequestHandler::removeUser(const Request* req)
 {
 	return (usrMap.erase(req->at("passkey")) == 1) ? "success" : "failure";
+}
+
+std::string RequestHandler::addBan(const Request* req) {
+	try {
+		unsigned int from = std::stoul(req->at("from"));
+		unsigned int to = std::stoul(req->at("from"));
+		while (from != to)
+			bannedIPs.push_front(Utility::long2ip(from++));
+		bannedIPs.push_front(Utility::long2ip(from));
+		return "success";
+	} catch (const std::exception& e) {
+		return "failure";
+	}
+}
+
+std::string RequestHandler::removeBan(const Request* req) {
+	try {
+		unsigned int from = std::stoul(req->at("from"));
+		unsigned int to = std::stoul(req->at("from"));
+		while (from != to)
+			bannedIPs.remove(Utility::long2ip(from++));
+		bannedIPs.remove(Utility::long2ip(from));
+		return "success";
+	} catch (const std::exception& e) {
+		return "failure";
+	}
 }
 
 User* RequestHandler::getUser(const std::string& passkey) {
