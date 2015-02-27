@@ -13,7 +13,7 @@ class MySQL : public Database {
 		void disconnect();
 		void loadUsers(UserMap&);
 		void loadTorrents(TorrentMap&);
-		void loadBannedIPs(std::forward_list<std::string>&);
+		void loadBannedIPs(std::unordered_set<std::string>&);
 		void record(std::string);
 		void flush();
 		void recordUser(User*);

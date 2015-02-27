@@ -2,7 +2,7 @@
 
 #include <map>
 #include <list>
-#include <forward_list>
+#include <unordered_set>
 #include "user.hpp"
 #include "torrent.hpp"
 
@@ -17,7 +17,7 @@ class Database {
 		virtual void disconnect() = 0;
 		virtual void loadUsers(UserMap&) = 0;
 		virtual void loadTorrents(TorrentMap&) = 0;
-		virtual void loadBannedIPs(std::forward_list<std::string>&) = 0;
+		virtual void loadBannedIPs(std::unordered_set<std::string>&) = 0;
 		virtual void record(std::string) = 0;
 		virtual void flush() = 0;
 		virtual void recordUser(User*) = 0;

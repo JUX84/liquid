@@ -13,7 +13,7 @@
 TorrentMap RequestHandler::torMap;
 UserMap RequestHandler::usrMap;
 Database* RequestHandler::db;
-std::forward_list<std::string> RequestHandler::bannedIPs;
+std::unordered_set<std::string> RequestHandler::bannedIPs;
 
 std::string RequestHandler::handle(std::string str, std::string ip)
 {
@@ -46,10 +46,8 @@ std::string RequestHandler::handle(std::string str, std::string ip)
 	} catch (const std::exception& e) {
 		req->emplace("ip", ip + Utility::port_hex_encode(req->at("port")));
 	}
-	for (const auto& bannedIP : bannedIPs) {
-		if(bannedIP == req->at("ip"))
-			return error("banned ip", gzip);
-	}
+	if(bannedIPs.find(req->at("ip")) != bannedIPs.end())
+		return error("banned ip", gzip);
 	if (req->at("action") == "announce") {
 		req->emplace("event", "updating");
 		return announce(req, infoHashes->front(), gzip);
@@ -320,8 +318,8 @@ std::string RequestHandler::addBan(const Request* req) {
 		unsigned int from = std::stoul(req->at("from"));
 		unsigned int to = std::stoul(req->at("from"));
 		while (from != to)
-			bannedIPs.push_front(Utility::long2ip(from++));
-		bannedIPs.push_front(Utility::long2ip(from));
+			bannedIPs.emplace(Utility::long2ip(from++));
+		bannedIPs.emplace(Utility::long2ip(from));
 		return "success";
 	} catch (const std::exception& e) {
 		return "failure";
@@ -333,8 +331,8 @@ std::string RequestHandler::removeBan(const Request* req) {
 		unsigned int from = std::stoul(req->at("from"));
 		unsigned int to = std::stoul(req->at("from"));
 		while (from != to)
-			bannedIPs.remove(Utility::long2ip(from++));
-		bannedIPs.remove(Utility::long2ip(from));
+			bannedIPs.erase(Utility::long2ip(from++));
+		bannedIPs.erase(Utility::long2ip(from));
 		return "success";
 	} catch (const std::exception& e) {
 		return "failure";

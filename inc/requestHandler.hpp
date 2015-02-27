@@ -9,7 +9,7 @@ class RequestHandler {
 		static TorrentMap torMap;
 		static UserMap usrMap;
 		static Database *db;
-		static std::forward_list<std::string> bannedIPs;
+		static std::unordered_set<std::string> bannedIPs;
 		static std::string announce(const Request*, const std::string&, bool);
 		static std::string scrape(const std::forward_list<std::string>*, bool);
 		static std::string update(const Request*, const std::forward_list<std::string>*);

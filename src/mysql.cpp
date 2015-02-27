@@ -72,7 +72,7 @@ void MySQL::loadTorrents(TorrentMap& torMap) {
 	LOG_INFO("Loaded " + std::to_string(mysql_num_rows(result)) + " torrents");
 }
 
-void MySQL::loadBannedIPs(std::forward_list<std::string> &bannedIPs) {
+void MySQL::loadBannedIPs(std::unordered_set<std::string> &bannedIPs) {
 	std::string query = "SELECT FromIP, ToIP FROM ip_bans";
 	if (mysql_real_query(mysql, query.c_str(), query.size())) {
 		LOG_ERROR("Couldn't load banned IP addresses database");
@@ -84,8 +84,8 @@ void MySQL::loadBannedIPs(std::forward_list<std::string> &bannedIPs) {
 		unsigned int to = std::stoul(row[1]);
 
 		while (from != to)
-			bannedIPs.push_front(Utility::long2ip(from++));
-		bannedIPs.push_front(Utility::long2ip(from));
+			bannedIPs.emplace(Utility::long2ip(from++));
+		bannedIPs.emplace(Utility::long2ip(from));
 	}
 	LOG_INFO("Loaded " + std::to_string(mysql_num_rows(result)) + " banned IP addresses");
 }
