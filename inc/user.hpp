@@ -2,6 +2,7 @@
 
 #include <string>
 #include <forward_list>
+#include <unordered_set>
 
 class Peer;
 
@@ -14,6 +15,7 @@ class User {
 		bool isVisible;
 		long long lastUpdate;
 		std::forward_list<std::string> tokens;
+		std::unordered_set<std::string> IPRestrictions;
 	public:
 		User (unsigned int, bool, bool);
 		unsigned int getID();
@@ -26,4 +28,7 @@ class User {
 		void removeToken(const std::string&);
 		bool hasToken(const std::string&);
 		bool canRecord(long long);
+		bool addIPRestriction(std::string, int);
+		void removeIPRestriction(std::string);
+		bool isRestricted(std::string);
 };

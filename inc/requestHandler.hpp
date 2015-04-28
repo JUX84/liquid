@@ -21,6 +21,8 @@ class RequestHandler {
 		static std::string removeUser(const Request*);
 		static std::string addBan(const Request*);
 		static std::string removeBan(const Request*);
+		static std::string addIPRestriction(const Request*);
+		static std::string removeIPRestriction(const Request*);
 		static std::string addToken(const Request*, const std::string&);
 		static std::string removeToken(const Request*, const std::string&);
 	public:

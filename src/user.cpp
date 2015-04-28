@@ -56,3 +56,24 @@ bool User::canRecord(long long now) {
 	lastUpdate = now;
 	return b;
 }
+
+bool User::addIPRestriction(std::string ip, int max) {
+	if (IPRestrictions.size() >= max || IPRestrictions.count(ip) > 0)
+		return false;
+	IPRestrictions.emplace(ip);
+	return true;
+}
+
+void User::removeIPRestriction(std::string ip) {
+	IPRestrictions.erase(ip);
+}
+
+bool User::isRestricted(std::string ip) {
+	if (IPRestrictions.size() == 0)
+		return false;
+	for (const auto &it : IPRestrictions) {
+		if (ip == it)
+			return false;
+	}
+	return true;
+}

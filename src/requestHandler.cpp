@@ -31,7 +31,8 @@ std::string RequestHandler::handle(std::string str, std::string ip)
 		LOG_WARNING("Couldn't parse request (" + check + ")");
 		return error(check, gzip);
 	}
-	if (Config::get("type") == "private" && getUser(req->at("passkey")) == nullptr) {
+	User* u = getUser(req->at("passkey"));
+	if (Config::get("type") == "private" && u == nullptr) {
 		LOG_WARNING("Passkey " + req->at("passkey") + " not found");
 		return error("passkey not found", gzip);
 	}
@@ -46,8 +47,10 @@ std::string RequestHandler::handle(std::string str, std::string ip)
 	} catch (const std::exception& e) {
 		req->emplace("ip", ip + Utility::port_hex_encode(req->at("port")));
 	}
-	if(bannedIPs.find(req->at("ip")) != bannedIPs.end())
+	if (bannedIPs.find(req->at("ip")) != bannedIPs.end())
 		return error("banned ip", gzip);
+	if (u->isRestricted(req->at("ip")))
+		return error("ip not associated with account");
 	if (req->at("action") == "announce") {
 		req->emplace("event", "updating");
 		return announce(req, infoHashes->front(), gzip);
@@ -192,7 +195,7 @@ std::string RequestHandler::scrape(const std::forward_list<std::string>* infoHas
 std::string RequestHandler::update(const Request* req, const std::forward_list<std::string>* infoHashes)
 {
 	LOG_INFO("Update request (" + req->at("passkey") + ")");
-	std::string resp;
+	std::string resp = "failure";
 	const std::string& type = req->at("type");
 
 	if (type == "update_user")
@@ -215,9 +218,37 @@ std::string RequestHandler::update(const Request* req, const std::forward_list<s
 		resp = addBan(req);
 	else if (type == "remove_ban")
 		resp = removeBan(req);
+	else if (type == "add_ip_restriction")
+		resp = addIPRestriction(req);
+	else if (type == "remove_ip_restriction")
+		resp = removeIPRestriction(req);
 
 	LOG_INFO(type + " : " + resp);
 	return resp;
+}
+
+std::string RequestHandler::addIPRestriction(const Request* req)
+{
+	try {
+		bool b = usrMap.at(req->at("passkey"))->addIPRestriction(req->at("ip"), Config::getInt("max_ip"));
+		if (!b)
+			return "failure";
+		return "success";
+	}
+	catch (const std::exception& e) {
+		return "failure";
+	}
+}
+
+std::string RequestHandler::removeIPRestriction(const Request* req)
+{
+	try {
+		usrMap.at(req->at("passkey"))->removeIPRestriction(req->at("ip"));
+		return "success";
+	}
+	catch (const std::exception& e) {
+		return "failure";
+	}
 }
 
 std::string RequestHandler::addToken(const Request* req, const std::string& infoHash)

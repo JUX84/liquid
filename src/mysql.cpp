@@ -50,6 +50,28 @@ void MySQL::loadUsers(UserMap& usrMap) {
 		}
 	}
 	LOG_INFO("Loaded " + std::to_string(mysql_num_rows(result)) + " user tokens");
+	
+	// load ip restrictions
+	query = "SELECT um.ID, um.torrent_pass, ir.IP FROM ip_restrictions AS ir INNER JOIN users_main as um ON um.ID = ir.UserID";
+	if (mysql_real_query(mysql, query.c_str(), query.size())) {
+		LOG_ERROR("Couldn't load IP restrictions addresses database");
+		return;
+	}
+	result = mysql_use_result(mysql);
+	while((row = mysql_fetch_row(result))) {
+		unsigned int userid = std::stoul(row[0]);
+		std::string passkey = row[1];
+		unsigned int ip = std::stoul(row[2]);
+		try {
+			User* u = usrMap.at("passkey");
+			bool b = u->addIPRestriction(Utility::long2ip(ip), Config::getInt("max_ip"));
+			if (!b)
+				LOG_WARNING("Too many IP restrictions for user " + std::to_string(userid));
+		} catch (const std::exception& e) {
+			LOG_ERROR("No user (" + std::to_string(userid) + ") with passkey " + passkey);
+		}
+	}
+	LOG_INFO("Loaded " + std::to_string(mysql_num_rows(result)) + " IP restrictions");
 }
 
 void MySQL::loadTorrents(TorrentMap& torMap) {
