@@ -135,11 +135,11 @@ std::string RequestHandler::announce(const Request* req, const std::string& info
 	std::string peerlist;
 	unsigned long i = 0;
 	if (req->at("event") != "stopped") {
-		i = 10;
+		i = Config::getInt("default_numwant");;
 		try {
 			i = std::stoi(req->at("numwant"));
 		} catch (const std::exception& e) {}
-		i = std::min(i, peers->size());
+		i = std::min(std::min(i, static_cast<unsigned long>(Config::getInt("max_numwant"))), peers->size());
 	}
 	LOG_INFO("creating peer list (" + std::to_string(i) + ")");
 	while (i-- > 0) {
