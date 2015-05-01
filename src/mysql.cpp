@@ -36,7 +36,7 @@ void MySQL::loadUsers(UserMap& usrMap) {
 	LOG_INFO("Loaded " + std::to_string(mysql_num_rows(result)) + " users");
 
 	// load tokens
-	query = "SELECT passkey, TorrentID FROM users_freeleeches AS uf LEFT JOIN users AS u ON uf.UserID = u.ID WHERE uf.Expired = '0'";
+	query = "SELECT u.torrent_pass, uf.TorrentID, UNIX_TIMESTAMP(uf.Time) FROM users_freeleeches AS uf LEFT JOIN users_main AS u ON uf.UserID = u.ID WHERE uf.Expired = '0'";
 	if (mysql_real_query(mysql, query.c_str(), query.size())) {
 		LOG_ERROR("Couldn't load user freeleeches");
 		return;
@@ -44,7 +44,7 @@ void MySQL::loadUsers(UserMap& usrMap) {
 	result = mysql_use_result(mysql);
 	while((row = mysql_fetch_row(result))) {
 		try {
-			usrMap.at(row[0])->addToken(std::stoul(row[1]));
+			usrMap.at(row[0])->addToken(std::stoul(row[1]), std::stoul(row[2]));
 		} catch (const std::exception& e) {
 			LOG_WARNING("Couldn't add freeleech token to user " + std::string(row[0]) + " (" + e.what() + ")");
 		}

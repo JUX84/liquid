@@ -25,6 +25,7 @@ class User {
 		void reset();
 		void updateStats(unsigned int, unsigned int, long long);
 		void addToken(unsigned int);
+		void addToken(unsigned int, long long);
 		void removeToken(unsigned int);
 		bool hasToken(unsigned int);
 		bool isTokenExpired(unsigned int);

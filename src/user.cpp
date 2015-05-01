@@ -45,6 +45,15 @@ void User::addToken(unsigned int tid)
 	}
 }
 
+void User::addToken(unsigned int tid, long long time)
+{
+	try {
+		tokens.at(tid) = time;
+	} catch (const std::exception& e) {
+		tokens.emplace(tid, time);
+	}
+}
+
 void User::removeToken(unsigned int tid)
 {
 	tokens.erase(tid);
