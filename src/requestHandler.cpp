@@ -131,6 +131,9 @@ std::string RequestHandler::announce(const Request* req, const std::string& info
 		}
 		peers = tor->getLeechers();
 	}
+	if (tor->canRecord(now)) {
+		db->recordTorrent(tor);
+	}
 	LOG_INFO("Handled user stats");
 	std::string peerlist;
 	unsigned long i = 0;
@@ -404,10 +407,13 @@ void RequestHandler::clearTorrentPeers(ev::timer& timer, int revents)
 	while (t != torMap.end()) {
 		t->second.getSeeders()->timedOut(now);
 		t->second.getLeechers()->timedOut(now);
-		if(Config::get("type") == "public" && t->second.getSeeders()->size() == 0 && t->second.getLeechers()->size() == 0)
+		if(Config::get("type") == "public" && t->second.getSeeders()->size() == 0 && t->second.getLeechers()->size() == 0) {
 			torMap.erase(t++);
-		else
+		} else {
+			if (t->second.canRecord(now))
+				db->recordTorrent(&t->second);
 			++t;
+		}
 	}
 }
 

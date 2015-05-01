@@ -17,6 +17,7 @@ class MySQL : public Database {
 		void record(std::string);
 		void flush();
 		void recordUser(User*);
+		void recordTorrent(Torrent*);
 		void recordPeer(Peer*, unsigned int, long long);
 		void recordPeerSnatch(Peer*, long long);
 		void recordPeerRemoval(Peer*);

@@ -142,6 +142,22 @@ void MySQL::recordUser(User* u) {
 	u->reset();
 }
 
+void MySQL::recordTorrent(Torrent* t) {
+	std::string ID = std::to_string(t->getID());
+	std::string Seeders = std::to_string(t->getSeeders()->size());
+	std::string Leechers = std::to_string(t->getLeechers()->size());
+	std::string Downloaded = std::to_string(t->getDownloaded());
+	LOG_INFO("Recording torrent " + ID + " stats: seeders (" + Seeders + "), leechers (" + Leechers + "), snatches (" + Downloaded + ")"); 
+	record("UPDATE torrents SET Snatched = "
+			+ Downloaded
+			+ ", Leechers = "
+			+ Leechers 
+			+ ", Seeders = "
+			+ Seeders 
+			+ " WHERE ID = "
+			+ ID);
+}
+
 void MySQL::recordPeer(Peer* p, unsigned int left, long long now) {
 	std::string Left = std::to_string(left);
 	std::string PeerID = p->getPeerID();
