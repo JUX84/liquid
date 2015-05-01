@@ -71,7 +71,7 @@ void ConnectionHandler::readRequest(ev::io& w, int revents)
 			response = "request too long";
 		}
 		else {
-			 std::string binIp(reinterpret_cast<const char*>(&(client.sin_addr.s_addr)), sizeof(client.sin_addr.s_addr));
+			std::string binIp(reinterpret_cast<const char*>(&(client.sin_addr.s_addr)), sizeof(client.sin_addr.s_addr));
 			response = RequestHandler::handle(request, binIp);
 		}
 

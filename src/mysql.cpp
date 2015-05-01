@@ -133,7 +133,7 @@ void MySQL::recordUser(User* u) {
 	std::string Downloaded = std::to_string(u->getDownloaded());
 	std::string Uploaded = std::to_string(u->getUploaded());
 	LOG_INFO("Recording user " + ID + " stats: down (" + Downloaded + "), up (" + Uploaded + ")");
-	record("UPDATE users_main SET Downloaded = Downloaded + "       
+	record("UPDATE users_main SET Downloaded = Downloaded + "
 			+ Downloaded
 			+ ", Uploaded = Uploaded + "
 			+ Uploaded
@@ -155,13 +155,13 @@ void MySQL::recordTorrent(Torrent* t) {
 	std::string Seeders = std::to_string(t->getSeeders()->size());
 	std::string Leechers = std::to_string(t->getLeechers()->size());
 	std::string Downloaded = std::to_string(t->getDownloaded());
-	LOG_INFO("Recording torrent " + ID + " stats: seeders (" + Seeders + "), leechers (" + Leechers + "), snatches (" + Downloaded + ")"); 
+	LOG_INFO("Recording torrent " + ID + " stats: seeders (" + Seeders + "), leechers (" + Leechers + "), snatches (" + Downloaded + ")");
 	record("UPDATE torrents SET Snatched = "
 			+ Downloaded
 			+ ", Leechers = "
-			+ Leechers 
+			+ Leechers
 			+ ", Seeders = "
-			+ Seeders 
+			+ Seeders
 			+ " WHERE ID = "
 			+ ID);
 }
@@ -199,13 +199,13 @@ void MySQL::recordPeer(Peer* p, unsigned int left, long long now) {
 		"'" + std::to_string(p->getFID()) + "', " +
 		"'" + Utility::ip_hex_decode(p->getHexIP()) + "') ON DUPLICATE KEY UPDATE downloaded = VALUES(downloaded), uploaded = VALUES(uploaded), seedtime = seedtime + VALUES(seedtime)");
 	p->reset(now);
-	p->User()->updateStats(downloaded,uploaded,now);	
+	p->User()->updateStats(downloaded,uploaded,now);
 }
 
 void MySQL::recordPeerSnatch(Peer* p, long long now) {
 	std::string PeerID = p->getPeerID();
 	std::string FID = std::to_string(p->getFID());
-	LOG_INFO("Peer " + PeerID + " finished downloading torrent " + FID); 
+	LOG_INFO("Peer " + PeerID + " finished downloading torrent " + FID);
 	record("INSERT INTO xbt_snatched(uid,tstamp,fid,IP) VALUES ('"
 		+ std::to_string(p->User()->getID()) + "', " +
 		"'" + std::to_string(now) + "', " +

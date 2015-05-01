@@ -36,7 +36,7 @@ std::string RequestHandler::handle(std::string str, std::string ip)
 		LOG_WARNING("Passkey " + req->at("passkey") + " not found");
 		return error("passkey not found", gzip);
 	}
-	if (Config::get("type") == "private" && req->at("action") == "update" && req->at("passkey") == Config::get("updatekey")) 
+	if (Config::get("type") == "private" && req->at("action") == "update" && req->at("passkey") == Config::get("updatekey"))
 		return update(req, infoHashes);
 	if (infoHashes->begin() == infoHashes->end()) {
 		LOG_WARNING("Missing info hash");
@@ -157,20 +157,20 @@ std::string RequestHandler::announce(const Request* req, const std::string& info
 	}
 	return response(
 			("d8:completei"
-			 + std::to_string(tor->getSeeders()->size())
-			 + "e10:incompletei"
-			 + std::to_string(tor->getLeechers()->size())
-			 + "e10:downloadedi"
-			 + std::to_string(tor->getDownloaded())
-			 + "e8:intervali"
-			 + std::to_string(900)
-			 + "e12:min intervali"
-			 + std::to_string(300)
-			 + "e5:peers"
-			 + std::to_string(peerlist.length())
-			 + ":"
-			 + peerlist
-			 + "e"),
+			+ std::to_string(tor->getSeeders()->size())
+			+ "e10:incompletei"
+			+ std::to_string(tor->getLeechers()->size())
+			+ "e10:downloadedi"
+			+ std::to_string(tor->getDownloaded())
+			+ "e8:intervali"
+			+ std::to_string(900)
+			+ "e12:min intervali"
+			+ std::to_string(300)
+			+ "e5:peers"
+			+ std::to_string(peerlist.length())
+			+ ":"
+			+ peerlist
+			+ "e"),
 			gzip
 			); // doesn't look as bad as it is stated on ocelot, needs stresstesting to check
 }
