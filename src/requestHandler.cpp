@@ -96,8 +96,12 @@ std::string RequestHandler::announce(const Request* req, const std::string& info
 			if (!peer->isSnatched() && (std::stoul(req->at("left")) < ((1-0.25)*tor->getSize())))
 				peer->snatched();
 			int free = tor->getFree();
-			if (peer->User()->hasToken(infoHash))
-				free = 100;
+			if (peer->User()->hasToken(tor->getID())) {
+				if (peer->User()->isTokenExpired(tor->getID()))
+					db->recordTokenExpiration(std::to_string(peer->User()->getID()), std::to_string(tor->getID()));
+				else
+					free = 100;
+			}
 			peer->updateStats(std::stoul(req->at("downloaded"))*(1-(tor->getFree()/100)), now);
 			db->recordPeer(peer, std::stoul(req->at("left")), now);
 			if(peer->User()->canRecord(now))
@@ -115,6 +119,8 @@ std::string RequestHandler::announce(const Request* req, const std::string& info
 					db->recordUser(peer->User());
 			} else if (req->at("event") == "completed") {
 				if(Config::get("type") == "private") {
+					if (peer->User()->hasToken(tor->getID()))
+						db->recordTokenExpiration(std::to_string(peer->User()->getID()), std::to_string(tor->getID()));
 					tor->downloadedpp();
 					db->recordSnatch(tor);
 				}
@@ -131,9 +137,8 @@ std::string RequestHandler::announce(const Request* req, const std::string& info
 		}
 		peers = tor->getLeechers();
 	}
-	if (tor->canRecord(now)) {
+	if (tor->canRecord(now))
 		db->recordTorrent(tor);
-	}
 	LOG_INFO("Handled user stats");
 	std::string peerlist;
 	unsigned long i = 0;
@@ -257,7 +262,7 @@ std::string RequestHandler::removeIPRestriction(const Request* req)
 std::string RequestHandler::addToken(const Request* req, const std::string& infoHash)
 {
 	try {
-		usrMap.at(req->at("userpasskey"))->addToken(infoHash);
+		usrMap.at(req->at("userpasskey"))->addToken(torMap.at(infoHash).getID());
 		return "success";
 	}
 	catch (const std::exception& e) {
@@ -268,7 +273,7 @@ std::string RequestHandler::addToken(const Request* req, const std::string& info
 std::string RequestHandler::removeToken(const Request* req, const std::string& infoHash)
 {
 	try {
-		usrMap.at(req->at("userpasskey"))->removeToken(infoHash);
+		usrMap.at(req->at("userpasskey"))->removeToken(torMap.at(infoHash).getID());
 		return "success";
 	}
 	catch (const std::exception& e) {

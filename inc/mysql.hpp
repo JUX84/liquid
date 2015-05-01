@@ -21,5 +21,6 @@ class MySQL : public Database {
 		void recordPeer(Peer*, unsigned int, long long);
 		void recordPeerSnatch(Peer*, long long);
 		void recordPeerRemoval(Peer*);
+		void recordTokenExpiration(std::string, std::string);
 		void recordSnatch(Torrent*);
 };

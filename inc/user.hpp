@@ -3,6 +3,7 @@
 #include <string>
 #include <forward_list>
 #include <unordered_set>
+#include <unordered_map>
 
 class Peer;
 
@@ -14,7 +15,7 @@ class User {
 		bool canLeech;
 		bool isVisible;
 		long long lastUpdate;
-		std::forward_list<std::string> tokens;
+		std::unordered_map<unsigned int, long long> tokens;
 		std::unordered_set<std::string> IPRestrictions;
 	public:
 		User (unsigned int, bool, bool);
@@ -23,9 +24,10 @@ class User {
 		unsigned long getUploaded();
 		void reset();
 		void updateStats(unsigned int, unsigned int, long long);
-		void addToken(const std::string&);
-		void removeToken(const std::string&);
-		bool hasToken(const std::string&);
+		void addToken(unsigned int);
+		void removeToken(unsigned int);
+		bool hasToken(unsigned int);
+		bool isTokenExpired(unsigned int);
 		bool canRecord(long long);
 		bool addIPRestriction(std::string, int);
 		void removeIPRestriction(std::string);

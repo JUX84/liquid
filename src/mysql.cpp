@@ -36,7 +36,7 @@ void MySQL::loadUsers(UserMap& usrMap) {
 	LOG_INFO("Loaded " + std::to_string(mysql_num_rows(result)) + " users");
 
 	// load tokens
-	query = "SELECT passkey, info_hash FROM users_freeleeches AS uf LEFT JOIN users AS u ON uf.UserID = u.ID JOIN torrents AS t ON uf.TorrentID = t.ID WHERE uf.Expired = '0'";
+	query = "SELECT passkey, TorrentID FROM users_freeleeches AS uf LEFT JOIN users AS u ON uf.UserID = u.ID WHERE uf.Expired = '0'";
 	if (mysql_real_query(mysql, query.c_str(), query.size())) {
 		LOG_ERROR("Couldn't load user freeleeches");
 		return;
@@ -44,13 +44,13 @@ void MySQL::loadUsers(UserMap& usrMap) {
 	result = mysql_use_result(mysql);
 	while((row = mysql_fetch_row(result))) {
 		try {
-			usrMap.at(row[0])->addToken(row[1]);
+			usrMap.at(row[0])->addToken(std::stoul(row[1]));
 		} catch (const std::exception& e) {
 			LOG_WARNING("Couldn't add freeleech token to user " + std::string(row[0]) + " (" + e.what() + ")");
 		}
 	}
 	LOG_INFO("Loaded " + std::to_string(mysql_num_rows(result)) + " user tokens");
-	
+
 	// load ip restrictions
 	query = "SELECT um.ID, um.torrent_pass, ir.IP FROM ip_restrictions AS ir INNER JOIN users_main as um ON um.ID = ir.UserID";
 	if (mysql_real_query(mysql, query.c_str(), query.size())) {
@@ -132,7 +132,7 @@ void MySQL::recordUser(User* u) {
 	std::string ID = std::to_string(u->getID());
 	std::string Downloaded = std::to_string(u->getDownloaded());
 	std::string Uploaded = std::to_string(u->getUploaded());
-	LOG_INFO("Recording user " + ID + " stats: down (" + Downloaded + "), up (" + Uploaded + ")");                                                      
+	LOG_INFO("Recording user " + ID + " stats: down (" + Downloaded + "), up (" + Uploaded + ")");
 	record("UPDATE users_main SET Downloaded = Downloaded + "       
 			+ Downloaded
 			+ ", Uploaded = Uploaded + "
@@ -140,6 +140,14 @@ void MySQL::recordUser(User* u) {
 			+ " WHERE ID = "
 			+ ID);
 	u->reset();
+}
+
+void MySQL::recordTokenExpiration(std::string UserID, std::string TorrentID) {
+	LOG_INFO("Recording token expiration (UserID: " + UserID + ", TorrentID: " + TorrentID + ")");
+	record("UPDATE users_freeleeches SET Expired = 1 WHERE UserID = "
+			+ UserID
+			+ " AND TorrentID = "
+			+ TorrentID);
 }
 
 void MySQL::recordTorrent(Torrent* t) {
@@ -163,9 +171,9 @@ void MySQL::recordPeer(Peer* p, unsigned int left, long long now) {
 	std::string PeerID = p->getPeerID();
 	long long lastUpdate = p->getLastUpdate();
 	unsigned long total_stats,stats;
-       	total_stats = p->getTotalStats();
+	total_stats = p->getTotalStats();
 	stats = p->getStats();
-	LOG_INFO("Recording peer stats (ID: " + PeerID + ", left: " + Left + ")");                                          
+	LOG_INFO("Recording peer stats (ID: " + PeerID + ", left: " + Left + ")");
 	unsigned int downloaded,uploaded,total_downloaded,total_uploaded = 0;
 	if (p->isSeeding()) {
 		downloaded = 0;
@@ -181,7 +189,7 @@ void MySQL::recordPeer(Peer* p, unsigned int left, long long now) {
 	}
 	record("INSERT INTO xbt_files_users(uid,active,completed,downloaded,uploaded,remaining,seedtime,useragent,peer_id,fid,ip) VALUES ('"
 		+ std::to_string(p->User()->getID()) + "', 1, " +
-		+ (p->isCompleted() ? "1" : "0") + ", " + 
+		+ (p->isCompleted() ? "1" : "0") + ", " +
 		"'" + std::to_string(total_downloaded) + "', " +
 		"'" + std::to_string(total_uploaded) + "', " +
 		"'" + Left + "', " +

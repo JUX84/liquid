@@ -34,21 +34,35 @@ void User::updateStats(unsigned int dowloaded, unsigned int uploaded, long long 
 	this->uploaded += uploaded;
 }
 
-void User::addToken(const std::string& infoHash)
+void User::addToken(unsigned int tid)
 {
-	if (std::find(tokens.begin(), tokens.end(), infoHash) == tokens.end())
-		tokens.push_front(infoHash);
+	auto duration = std::chrono::system_clock::now().time_since_epoch();
+	long long now = std::chrono::duration_cast<std::chrono::seconds>(duration).count();
+	try {
+		tokens.at(tid) = now;
+	} catch (const std::exception& e) {
+		tokens.emplace(tid, now);
+	}
 }
 
-void User::removeToken(const std::string& infoHash)
+void User::removeToken(unsigned int tid)
 {
-	tokens.remove(infoHash);
+	tokens.erase(tid);
 }
 
-bool User::hasToken(const std::string& infoHash) {
-	if (std::find(tokens.begin(), tokens.end(), infoHash) != tokens.end())
-		return true;
-	return false;
+bool User::hasToken(unsigned int tid) {
+	return tokens.find(tid) != tokens.end();
+}
+
+bool User::isTokenExpired(unsigned int tid) {
+	try {
+		auto duration = std::chrono::system_clock::now().time_since_epoch();
+		long long now = std::chrono::duration_cast<std::chrono::seconds>(duration).count();
+		return ((now - tokens.at(tid)) < (3600 * 24)); // tokens expire after 24h or upon completion
+	} catch (const std::exception& e) {
+		LOG_ERROR("A token was found but an error occured while checking it (UserID: " + std::to_string(id) + ", TorrentID: " + std::to_string(tid) + ")");
+		return false;
+	}
 }
 
 bool User::canRecord(long long now) {
