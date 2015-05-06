@@ -34,6 +34,10 @@ void Torrent::incSnatches() {
 	++snatches;
 }
 
+void Torrent::reset() {
+	snatches = 0;
+}
+
 unsigned char Torrent::getFree() {
 	return free;
 }

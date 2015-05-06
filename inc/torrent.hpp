@@ -19,6 +19,7 @@ class Torrent {
 		Peers* getLeechers();
 		unsigned int getSnatches();
 		void incSnatches();
+		void reset();
 		unsigned int getID();
 		unsigned int getSize();
 		unsigned char getFree();

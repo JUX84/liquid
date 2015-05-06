@@ -182,11 +182,6 @@ void MySQL::flushPeers() {
 		return;
 	}
 	peerRequests.clear();
-	str = "DELETE FROM xbt_files_users WHERE active = 0";
-	if (mysql_real_query(mysql, str.c_str(), str.size())) {
-		LOG_ERROR("Couldn't flush record (" + str + ")");
-		return;
-	}
 }
 
 void MySQL::flushSnatches() {
@@ -225,6 +220,7 @@ void MySQL::recordTorrent(Torrent* t) {
 	std::string Snatches = std::to_string(t->getSnatches());
 	LOG_INFO("Recording torrent " + ID + " stats: seeders (" + Seeders + "), leechers (" + Leechers + "), snatches (" + Snatches + ")");
 	torrentRequests.push_back("(" + ID + ", " + Seeders + ", " + Leechers + ", " + Snatches + ")");
+	t->reset();
 }
 
 void MySQL::recordPeer(Peer* p, unsigned int left, long long now) {
