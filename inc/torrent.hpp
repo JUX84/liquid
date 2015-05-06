@@ -11,14 +11,14 @@ class Torrent {
 		unsigned int id;
 		unsigned long size;
 		unsigned char free;
-		unsigned int downloaded;
+		unsigned int snatches;
 		long long lastUpdate;
 	public:
-		Torrent(unsigned int, unsigned long, unsigned char, unsigned int);
+		Torrent(unsigned int, unsigned long, unsigned char);
 		Peers* getSeeders();
 		Peers* getLeechers();
-		unsigned int getDownloaded();
-		void downloadedpp();
+		unsigned int getSnatches();
+		void incSnatches();
 		unsigned int getID();
 		unsigned int getSize();
 		unsigned char getFree();

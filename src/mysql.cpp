@@ -75,7 +75,7 @@ void MySQL::loadUsers(UserMap& usrMap) {
 }
 
 void MySQL::loadTorrents(TorrentMap& torMap) {
-	std::string query = "SELECT ID, Size, info_hash, freetorrent, Snatched FROM torrents";
+	std::string query = "SELECT ID, Size, info_hash, freetorrent FROM torrents";
 	if (mysql_real_query(mysql, query.c_str(), query.size())) {
 		LOG_ERROR("Couldn't load torrents database");
 		return;
@@ -89,7 +89,7 @@ void MySQL::loadTorrents(TorrentMap& torMap) {
 		else if (row[3] == std::string("2"))
 			free = 50;
 		//
-		torMap.emplace(row[2], Torrent(std::stoul(row[0]), std::stoul(row[1]), free, std::stoul(row[4])));
+		torMap.emplace(row[2], Torrent(std::stoul(row[0]), std::stoul(row[1]), free));
 	}
 	LOG_INFO("Loaded " + std::to_string(mysql_num_rows(result)) + " torrents");
 }
@@ -112,20 +112,96 @@ void MySQL::loadBannedIPs(std::unordered_set<std::string> &bannedIPs) {
 	LOG_INFO("Loaded " + std::to_string(mysql_num_rows(result)) + " banned IP addresses");
 }
 
-void MySQL::record (std::string request) {
-	LOG_INFO("Registering new sql record (" + request + ")");
-	requests.push_front(request);
+void MySQL::flush() {
+	flushUsers();
+	flushTorrents();
+	flushPeers();
+	flushTokens();
+	flushSnatches();
 }
 
-void MySQL::flush() {
-	LOG_INFO("Flushing sql records (" + std::to_string(requests.size()) + ")");
-	for(const auto &it : requests) {
-		if (mysql_real_query(mysql, it.c_str(), it.size())) {
-			LOG_ERROR("Couldn't flush record (" + it + ")");
-			return;
-		}
+void MySQL::flushUsers() {
+	std::string str = "INSERT INTO users_main(ID, Downloaded, Uploaded) VALUES ";
+	for(const auto &it : userRequests) {
+		if (str != "")
+			str += ", ";
+		str += it;
 	}
-	requests.clear();
+	str += " ON DUPLICATE KEY Downloaded = Downloaded + VALUES(Downloaded), Uploaded = Uploaded + VALUES(Uploaded)";
+	LOG_INFO("Flushing USERS sql records (" + std::to_string(userRequests.size()) + ")");
+	if (mysql_real_query(mysql, str.c_str(), str.size())) {
+		LOG_ERROR("Couldn't flush record (" + str + ")");
+		return;
+	}
+	userRequests.clear();
+}
+
+void MySQL::flushTokens() {
+	std::string str = "INSERT INTO users_freeleeches(UserID, TorrentID) VALUES ";
+	for(const auto &it : tokenRequests) {
+		if (str != "")
+			str += ", ";
+		str += it;
+	}
+	str += " ON DUPLICATE KEY Expired = TRUE";
+	LOG_INFO("Flushing TOKENS sql records (" + std::to_string(tokenRequests.size()) + ")");
+	if (mysql_real_query(mysql, str.c_str(), str.size())) {
+		LOG_ERROR("Couldn't flush record (" + str + ")");
+		return;
+	}
+	tokenRequests.clear();
+}
+
+void MySQL::flushTorrents() {
+	std::string str = "INSERT INTO torrents(ID, Seeders, Leechers, Snatched) VALUES ";
+	for(const auto &it : torrentRequests) {
+		if (str != "")
+			str += ", ";
+		str += it;
+	}
+	str += " ON DUPLICATE KEY Seeders = VALUES(Seeder), Leechers = VALUES(Leechers), Snatched = Snatched + VALUES(Snatched)";
+	LOG_INFO("Flushing TORRENTS sql records (" + std::to_string(torrentRequests.size()) + ")");
+	if (mysql_real_query(mysql, str.c_str(), str.size())) {
+		LOG_ERROR("Couldn't flush record (" + str + ")");
+		return;
+	}
+	torrentRequests.clear();
+}
+
+void MySQL::flushPeers() {
+	std::string str = "INSERT INTO xbt_files_users (uid,active,completed,downloaded,uploaded,remaining,seedtime,useragent,peer_id,fid,ip) VALUES ";
+	for(const auto &it : peerRequests) {
+		if (str != "")
+			str += ", ";
+		str += it;
+	}
+	str += " ON DUPLICATE KEY UPDATE downloaded = VALUES(downloaded), uploaded = VALUES(uploaded), seedtime = seedtime + VALUES(seedtime)";
+	LOG_INFO("Flushing PEERS sql records (" + std::to_string(peerRequests.size()) + ")");
+	if (mysql_real_query(mysql, str.c_str(), str.size())) {
+		LOG_ERROR("Couldn't flush record (" + str + ")");
+		return;
+	}
+	peerRequests.clear();
+	str = "DELETE FROM xbt_files_users WHERE active = 0";
+	if (mysql_real_query(mysql, str.c_str(), str.size())) {
+		LOG_ERROR("Couldn't flush record (" + str + ")");
+		return;
+	}
+}
+
+void MySQL::flushSnatches() {
+	std::string str = "INSERT INTO xbt_snatched (uid,tstamp,fid,IP) VALUES ";
+	for(const auto &it : snatchRequests) {
+		if (str != "")
+			str += ", ";
+		str += it;
+	}
+	LOG_INFO("Flushing SNATCHES sql records (" + std::to_string(snatchRequests.size()) + ")");
+	if (mysql_real_query(mysql, str.c_str(), str.size())) {
+		LOG_ERROR("Couldn't flush record (" + str + ")");
+		return;
+	}
+	snatchRequests.clear();
 }
 
 void MySQL::recordUser(User* u) {
@@ -133,37 +209,22 @@ void MySQL::recordUser(User* u) {
 	std::string Downloaded = std::to_string(u->getDownloaded());
 	std::string Uploaded = std::to_string(u->getUploaded());
 	LOG_INFO("Recording user " + ID + " stats: down (" + Downloaded + "), up (" + Uploaded + ")");
-	record("UPDATE users_main SET Downloaded = Downloaded + "
-			+ Downloaded
-			+ ", Uploaded = Uploaded + "
-			+ Uploaded
-			+ " WHERE ID = "
-			+ ID);
+	userRequests.push_back("(" + ID + ", " + Downloaded + ", " + Uploaded + ")");
 	u->reset();
 }
 
-void MySQL::recordTokenExpiration(std::string UserID, std::string TorrentID) {
+void MySQL::recordToken(std::string UserID, std::string TorrentID) {
 	LOG_INFO("Recording token expiration (UserID: " + UserID + ", TorrentID: " + TorrentID + ")");
-	record("UPDATE users_freeleeches SET Expired = 1 WHERE UserID = "
-			+ UserID
-			+ " AND TorrentID = "
-			+ TorrentID);
+	tokenRequests.push_back("(" + UserID + ", " + TorrentID + ")");
 }
 
 void MySQL::recordTorrent(Torrent* t) {
 	std::string ID = std::to_string(t->getID());
 	std::string Seeders = std::to_string(t->getSeeders()->size());
 	std::string Leechers = std::to_string(t->getLeechers()->size());
-	std::string Downloaded = std::to_string(t->getDownloaded());
-	LOG_INFO("Recording torrent " + ID + " stats: seeders (" + Seeders + "), leechers (" + Leechers + "), snatches (" + Downloaded + ")");
-	record("UPDATE torrents SET Snatched = "
-			+ Downloaded
-			+ ", Leechers = "
-			+ Leechers
-			+ ", Seeders = "
-			+ Seeders
-			+ " WHERE ID = "
-			+ ID);
+	std::string Snatches = std::to_string(t->getSnatches());
+	LOG_INFO("Recording torrent " + ID + " stats: seeders (" + Seeders + "), leechers (" + Leechers + "), snatches (" + Snatches + ")");
+	torrentRequests.push_back("(" + ID + ", " + Seeders + ", " + Leechers + ", " + Snatches + ")");
 }
 
 void MySQL::recordPeer(Peer* p, unsigned int left, long long now) {
@@ -187,9 +248,10 @@ void MySQL::recordPeer(Peer* p, unsigned int left, long long now) {
 		total_downloaded = stats;
 		total_uploaded = 0;
 	}
-	record("INSERT INTO xbt_files_users(uid,active,completed,downloaded,uploaded,remaining,seedtime,useragent,peer_id,fid,ip) VALUES ('"
-		+ std::to_string(p->User()->getID()) + "', 1, " +
-		+ (p->isCompleted() ? "1" : "0") + ", " +
+	peerRequests.push_back("('" +
+		std::to_string(p->User()->getID()) + "', " +
+		(p->isActive() ? "1" : "0") + ", " +
+		(p->isCompleted() ? "1" : "0") + ", " +
 		"'" + std::to_string(total_downloaded) + "', " +
 		"'" + std::to_string(total_uploaded) + "', " +
 		"'" + Left + "', " +
@@ -197,34 +259,18 @@ void MySQL::recordPeer(Peer* p, unsigned int left, long long now) {
 		"'" + p->getClient() + "', " +
 		"'" + PeerID + "', " +
 		"'" + std::to_string(p->getFID()) + "', " +
-		"'" + Utility::ip_hex_decode(p->getHexIP()) + "') ON DUPLICATE KEY UPDATE downloaded = VALUES(downloaded), uploaded = VALUES(uploaded), seedtime = seedtime + VALUES(seedtime)");
+		"'" + Utility::ip_hex_decode(p->getHexIP()) + "')");
 	p->reset(now);
 	p->User()->updateStats(downloaded,uploaded,now);
 }
 
-void MySQL::recordPeerSnatch(Peer* p, long long now) {
+void MySQL::recordSnatch(Peer* p, long long now) {
 	std::string PeerID = p->getPeerID();
 	std::string FID = std::to_string(p->getFID());
 	LOG_INFO("Peer " + PeerID + " finished downloading torrent " + FID);
-	record("INSERT INTO xbt_snatched(uid,tstamp,fid,IP) VALUES ('"
+	snatchRequests.push_back("('"
 		+ std::to_string(p->User()->getID()) + "', " +
 		"'" + std::to_string(now) + "', " +
 		"'" + FID + "', " +
 		"'" + Utility::ip_hex_decode(p->getHexIP()) + "')");
-}
-
-void MySQL::recordPeerRemoval(Peer* p) {
-	std::string PeerID = p->getPeerID();
-	std::string FID = std::to_string(p->getFID());
-	LOG_INFO("Removing peer " + PeerID + " on torrent " + FID);
-	record("DELETE FROM xbt_files_users WHERE peer_id LIKE '"
-			+ PeerID
-			+ "' AND fid = "
-			+ FID);
-}
-
-void MySQL::recordSnatch(Torrent* tor) {
-	std::string FID = std::to_string(tor->getID());
-	LOG_INFO("New snatch on torrent " + FID);
-	record("UPDATE torrents SET Snatched = Snatched + 1");
 }

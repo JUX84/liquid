@@ -67,7 +67,7 @@ std::string RequestHandler::announce(const Request* req, const std::string& info
 	auto duration = std::chrono::system_clock::now().time_since_epoch();
 	long long now = std::chrono::duration_cast<std::chrono::seconds>(duration).count();
 	if (Config::get("type") != "private")
-		torMap.emplace(infoHash, Torrent(0, 0, 0, 0));
+		torMap.emplace(infoHash, Torrent(0, 0, 0));
 	Torrent *tor = nullptr;
 	try {
 		tor = &torMap.at(infoHash);
@@ -82,8 +82,8 @@ std::string RequestHandler::announce(const Request* req, const std::string& info
 		if (req->at("event") == "stopped") {
 			if (peer != nullptr) {
 				if (Config::get("type") == "private") {
+					peer->inactive();
 					db->recordPeer(peer, std::stoul(req->at("left")), now);
-					db->recordPeerRemoval(peer);
 					if(peer->User()->canRecord(now))
 						db->recordUser(peer->User());
 				}
@@ -98,7 +98,7 @@ std::string RequestHandler::announce(const Request* req, const std::string& info
 			int free = tor->getFree();
 			if (peer->User()->hasToken(tor->getID())) {
 				if (peer->User()->isTokenExpired(tor->getID()))
-					db->recordTokenExpiration(std::to_string(peer->User()->getID()), std::to_string(tor->getID()));
+					db->recordToken(std::to_string(peer->User()->getID()), std::to_string(tor->getID()));
 				else
 					free = 100;
 			}
@@ -113,16 +113,15 @@ std::string RequestHandler::announce(const Request* req, const std::string& info
 		if (req->at("event") == "stopped" || req->at("event") == "completed") {
 			if (peer != nullptr && Config::get("type") == "private") {
 				peer->updateStats(std::stoul(req->at("uploaded")), now);
+				peer->inactive();
 				db->recordPeer(peer, std::stoul(req->at("left")), now);
-				db->recordPeerRemoval(peer);
 				if(peer->User()->canRecord(now))
 					db->recordUser(peer->User());
 			} else if (req->at("event") == "completed") {
 				if(Config::get("type") == "private") {
 					if (peer->User()->hasToken(tor->getID()))
-						db->recordTokenExpiration(std::to_string(peer->User()->getID()), std::to_string(tor->getID()));
-					tor->downloadedpp();
-					db->recordSnatch(tor);
+						db->recordToken(std::to_string(peer->User()->getID()), std::to_string(tor->getID()));
+					tor->incSnatches();
 				}
 				tor->getLeechers()->removePeer(*req);
 			}
@@ -161,7 +160,7 @@ std::string RequestHandler::announce(const Request* req, const std::string& info
 			+ "e10:incompletei"
 			+ std::to_string(tor->getLeechers()->size())
 			+ "e10:downloadedi"
-			+ std::to_string(tor->getDownloaded())
+			+ std::to_string(tor->getSnatches())
 			+ "e8:intervali"
 			+ std::to_string(900)
 			+ "e12:min intervali"
@@ -191,7 +190,7 @@ std::string RequestHandler::scrape(const std::forward_list<std::string>* infoHas
 				+ "e10:incompletei"
 				+ std::to_string(it->second.getLeechers()->size())
 				+ "e10:downloadedi"
-				+ std::to_string(it->second.getDownloaded())
+				+ std::to_string(it->second.getSnatches())
 				+ "ee";
 		}
 	}
@@ -299,7 +298,7 @@ std::string RequestHandler::changePasskey(const Request* req)
 std::string RequestHandler::addTorrent(const Request* req, const std::string& infoHash)
 {
 	try {
-		auto t = torMap.emplace(infoHash, Torrent(std::stoul(req->at("id")), std::stoul(req->at("size")), 0, 0));
+		auto t = torMap.emplace(infoHash, Torrent(std::stoul(req->at("id")), std::stoul(req->at("size")), 0));
 		if (!t.second)
 			return "failure";
 		try {

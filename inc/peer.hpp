@@ -9,6 +9,7 @@ class Peer {
 		unsigned long stats;
 		bool seeding;
 		bool completed;
+		bool active;
 		std::string hexIP;
 		std::string peerID;
 		unsigned int fid;
@@ -28,6 +29,8 @@ class Peer {
 		unsigned int getFID();
 		bool isSeeding();
 		bool isCompleted();
+		bool isActive();
+		void inactive();
 		bool timedOut(long long);
 		bool isSnatched();
 		void snatched();

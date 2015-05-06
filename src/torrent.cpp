@@ -2,40 +2,40 @@
 #include "logger.hpp"
 #include "torrent.hpp"
 
-Torrent::Torrent (unsigned int id, unsigned long size, unsigned char free, unsigned int downloaded) {
+Torrent::Torrent (unsigned int id, unsigned long size, unsigned char free) {
 	this->id = id;
 	this->size = size;
 	this->free = free;
-	this->downloaded = downloaded;
+	snatches = 0;
 }
 
 unsigned int Torrent::getID () {
-	return this->id;
+	return id;
 }
 
 unsigned int Torrent::getSize () {
-	return this->size;
+	return size;
 }
 
 Peers* Torrent::getSeeders() {
-	return &this->seeders;
+	return &seeders;
 }
 
 Peers* Torrent::getLeechers() {
-	return &this->leechers;
+	return &leechers;
 }
 
-unsigned int Torrent::getDownloaded() {
-	return this->downloaded;
+unsigned int Torrent::getSnatches() {
+	return snatches;
 }
 
-void Torrent::downloadedpp() {
+void Torrent::incSnatches() {
 	LOG_INFO("New snatch on torrent " + std::to_string(id));
-	++this->downloaded;
+	++snatches;
 }
 
 unsigned char Torrent::getFree() {
-	return this->free;
+	return free;
 }
 
 void Torrent::setFree(unsigned char free) {
