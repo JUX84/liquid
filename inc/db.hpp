@@ -32,5 +32,5 @@ class Database {
 		virtual void recordTorrent(Torrent*) = 0;
 		virtual void recordPeer(Peer*, unsigned int, long long) = 0;
 		virtual void recordSnatch(Peer*, long long) = 0;
-		virtual void recordToken(std::string, std::string) = 0;
+		virtual void recordToken(unsigned int, unsigned int, unsigned int, bool) = 0;
 };

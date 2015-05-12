@@ -24,5 +24,5 @@ class MySQL : public Database {
 		void recordTorrent(Torrent*);
 		void recordPeer(Peer*, unsigned int, long long);
 		void recordSnatch(Peer*, long long);
-		void recordToken(std::string, std::string);
+		void recordToken(unsigned int, unsigned int, unsigned int, bool);
 };

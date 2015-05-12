@@ -97,12 +97,11 @@ std::string RequestHandler::announce(const Request* req, const std::string& info
 				peer->snatched();
 			int free = tor->getFree();
 			if (peer->User()->hasToken(tor->getID())) {
-				if (peer->User()->isTokenExpired(tor->getID()))
-					db->recordToken(std::to_string(peer->User()->getID()), std::to_string(tor->getID()));
-				else
-					free = 100;
+				bool expired = peer->User()->isTokenExpired(tor->getID());
+				db->recordToken(peer->User()->getID(), tor->getID(), peer->getTotalStats()-std::stoul(req->at("downloaded")), expired);
+				free = 100;
 			}
-			peer->updateStats(std::stoul(req->at("downloaded"))*(1-(tor->getFree()/100)), now);
+			peer->updateStats(std::stoul(req->at("downloaded"))*(1-(free/100)), now);
 			db->recordPeer(peer, std::stoul(req->at("left")), now);
 			if(peer->User()->canRecord(now))
 				db->recordUser(peer->User());
@@ -120,7 +119,7 @@ std::string RequestHandler::announce(const Request* req, const std::string& info
 			} else if (req->at("event") == "completed") {
 				if(Config::get("type") == "private") {
 					if (peer->User()->hasToken(tor->getID()))
-						db->recordToken(std::to_string(peer->User()->getID()), std::to_string(tor->getID()));
+						db->recordToken(peer->User()->getID(), tor->getID(), peer->getTotalStats()-std::stoul(req->at("downloaded")), true);
 					tor->incSnatches();
 				}
 				tor->getLeechers()->removePeer(*req);

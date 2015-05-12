@@ -137,13 +137,13 @@ void MySQL::flushUsers() {
 }
 
 void MySQL::flushTokens() {
-	std::string str = "INSERT INTO users_freeleeches(UserID, TorrentID) VALUES ";
+	std::string str = "INSERT INTO users_freeleeches(UserID, TorrentID, Downloaded, Expired) VALUES ";
 	for(const auto &it : tokenRequests) {
 		if (str != "")
 			str += ", ";
 		str += it;
 	}
-	str += " ON DUPLICATE KEY Expired = TRUE";
+	str += " ON DUPLICATE KEY Downloaded = Downloaded + VALUES(Downloaded), Expired = VALUES(Expired)";
 	LOG_INFO("Flushing TOKENS sql records (" + std::to_string(tokenRequests.size()) + ")");
 	if (mysql_real_query(mysql, str.c_str(), str.size())) {
 		LOG_ERROR("Couldn't flush record (" + str + ")");
@@ -208,9 +208,13 @@ void MySQL::recordUser(User* u) {
 	u->reset();
 }
 
-void MySQL::recordToken(std::string UserID, std::string TorrentID) {
-	LOG_INFO("Recording token expiration (UserID: " + UserID + ", TorrentID: " + TorrentID + ")");
-	tokenRequests.push_back("(" + UserID + ", " + TorrentID + ")");
+void MySQL::recordToken(unsigned int UserID, unsigned int TorrentID, unsigned int Downloaded, bool Expired) {
+	std::string uid = std::to_string(UserID);
+	std::string tid = std::to_string(TorrentID);
+	std::string down = std::to_string(Downloaded);
+	std::string exp = (Expired ? "TRUE" : "FALSE");
+	LOG_INFO("Recording token expiration (uid: " + uid + ", tid: " + tid + ", down: " + down + ", " + exp + ")");
+	tokenRequests.push_back("(" + uid + ", " + tid + ", " + down + ", " + exp + ")");
 }
 
 void MySQL::recordTorrent(Torrent* t) {
