@@ -236,10 +236,7 @@ std::string RequestHandler::update(const Request* req, const std::forward_list<s
 std::string RequestHandler::addIPRestriction(const Request* req)
 {
 	try {
-		bool b = usrMap.at(req->at("passkey"))->addIPRestriction(req->at("ip"), Config::getInt("max_ip"));
-		if (!b)
-			return "failure";
-		return "success";
+		return (usrMap.at(req->at("passkey"))->addIPRestriction(req->at("ip"), Config::getInt("max_ip")) ? "success" : "failure");
 	}
 	catch (const std::exception& e) {
 		return "failure";
