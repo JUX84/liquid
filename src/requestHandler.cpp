@@ -352,8 +352,8 @@ std::string RequestHandler::removeUser(const Request* req)
 
 std::string RequestHandler::addBan(const Request* req) {
 	try {
-		unsigned int from = std::stoul(req->at("from"));
-		unsigned int to = std::stoul(req->at("from"));
+		unsigned int from = std::stoul(req->at("fromip"));
+		unsigned int to = std::stoul(req->at("toip"));
 		while (from != to)
 			bannedIPs.emplace(Utility::long2ip(from++));
 		bannedIPs.emplace(Utility::long2ip(from));
@@ -365,8 +365,8 @@ std::string RequestHandler::addBan(const Request* req) {
 
 std::string RequestHandler::removeBan(const Request* req) {
 	try {
-		unsigned int from = std::stoul(req->at("from"));
-		unsigned int to = std::stoul(req->at("from"));
+		unsigned int from = std::stoul(req->at("fromip"));
+		unsigned int to = std::stoul(req->at("toip"));
 		while (from != to)
 			bannedIPs.erase(Utility::long2ip(from++));
 		bannedIPs.erase(Utility::long2ip(from));
