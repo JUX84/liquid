@@ -1,4 +1,8 @@
+short term:
 multithreading
 client whitelist
 ipv6
 down/up speeds
+
+long term:
+influxdb
