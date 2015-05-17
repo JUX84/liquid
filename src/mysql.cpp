@@ -121,6 +121,10 @@ void MySQL::flush() {
 }
 
 void MySQL::flushUsers() {
+	if (userRequests.size() == 0) {
+		LOG_INFO("No user record to flush");
+		return;
+	}
 	std::string str = "INSERT INTO users_main(ID, Downloaded, Uploaded) VALUES ";
 	for(const auto &it : userRequests) {
 		if (str != "")
@@ -137,6 +141,10 @@ void MySQL::flushUsers() {
 }
 
 void MySQL::flushTokens() {
+	if (tokenRequests.size() == 0) {
+		LOG_INFO("No token record to flush");
+		return;
+	}
 	std::string str = "INSERT INTO users_freeleeches(UserID, TorrentID, Downloaded, Expired) VALUES ";
 	for(const auto &it : tokenRequests) {
 		if (str != "")
@@ -153,6 +161,10 @@ void MySQL::flushTokens() {
 }
 
 void MySQL::flushTorrents() {
+	if (torrentRequests.size() == 0) {
+		LOG_INFO("No torrent record to flush");
+		return;
+	}
 	std::string str = "INSERT INTO torrents(ID, Seeders, Leechers, Snatched) VALUES ";
 	for(const auto &it : torrentRequests) {
 		if (str != "")
@@ -169,6 +181,10 @@ void MySQL::flushTorrents() {
 }
 
 void MySQL::flushPeers() {
+	if (peerRequests.size() == 0) {
+		LOG_INFO("No peer record to flush");
+		return;
+	}
 	std::string str = "INSERT INTO xbt_files_users (uid,active,completed,downloaded,uploaded,remaining,seedtime,useragent,peer_id,fid,ip) VALUES ";
 	for(const auto &it : peerRequests) {
 		if (str != "")
@@ -185,6 +201,10 @@ void MySQL::flushPeers() {
 }
 
 void MySQL::flushSnatches() {
+	if (snatchRequests.size() == 0) {
+		LOG_INFO("No snatch record to flush");
+		return;
+	}
 	std::string str = "INSERT INTO xbt_snatched (uid,tstamp,fid,IP) VALUES ";
 	for(const auto &it : snatchRequests) {
 		if (str != "")

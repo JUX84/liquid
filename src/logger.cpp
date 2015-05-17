@@ -16,6 +16,11 @@ void Logger::init(Logger::Level minLevel)
 
 void Logger::write(Logger::Level level, const char* file, int line, const std::string& message)
 {
-	if (level >= minLevel)
+	if (level >= minLevel) {
+			std::time_t time = std::time(nullptr);
+			char timestr[9];
+			if (std::strftime(timestr, sizeof(timestr), "%H:%M:%S", std::localtime(&time)))
+				std::cout << "[" << timestr << "] ";
 			std::cout << file << ':' << line << ": " << levelNames[level] << ": " << message << '\n';
+	}
 }
