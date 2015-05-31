@@ -1,4 +1,6 @@
 short term:
+separate private and public tracker functions using #define's
+modular db management (associative array for db table/columns -> value)
 multithreading
 client whitelist
 ipv6
