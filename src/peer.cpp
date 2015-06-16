@@ -14,6 +14,7 @@ Peer::Peer(std::string hexIP, class User* u, bool seeding, unsigned int fid, std
 	this->fid = fid;
 	this->client = client;
 	this->peerID = peerID;
+	this->speed = 0;
 	auto duration = std::chrono::system_clock::now().time_since_epoch();
 	lastUpdate = std::chrono::duration_cast<std::chrono::seconds>(duration).count();
 	seedtime = 0;
@@ -40,6 +41,7 @@ void Peer::updateStats (unsigned long stats, long long now) {
 	LOG_INFO("Updating peer stats ("  + std::to_string(stats) + ") on torrent " + std::to_string(fid));
 	this->stats = stats - total_stats;
 	total_stats = stats;
+	speed = (this->stats)/(now -lastUpdate);
 	seedtime += now - lastUpdate;
 	lastUpdate = now;
 }
@@ -99,4 +101,8 @@ bool Peer::isActive() {
 
 void Peer::inactive() {
 	active = false;
+}
+
+unsigned int Peer::getSpeed() {
+	return speed;
 }

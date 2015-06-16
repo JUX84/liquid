@@ -120,7 +120,10 @@ void MySQL::loadLeechStatus(LeechStatus &leechStatus) {
 	}
 	result = mysql_use_result(mysql);
 	while((row = mysql_fetch_row(result)))
-		leechStatus = (row[0] == "freeleech" ? FREELEECH : NORMAL);
+	{
+		std::string data = row[0];
+		leechStatus = (data == "freeleech" ? FREELEECH : NORMAL);
+	}
 	LOG_INFO("Loaded " + std::to_string(mysql_num_rows(result)) + " banned IP addresses");
 }
 
@@ -197,7 +200,7 @@ void MySQL::flushPeers() {
 		LOG_INFO("No peer record to flush");
 		return;
 	}
-	std::string str = "INSERT INTO xbt_files_users (uid,active,completed,downloaded,uploaded,remaining,seedtime,useragent,peer_id,fid,ip) VALUES ";
+	std::string str = "INSERT INTO xbt_files_users (uid,active,completed,downloaded,uploaded,remaining,upspeed,downspeed,seedtime,useragent,peer_id,fid,ip) VALUES ";
 	for(const auto &it : peerRequests) {
 		if (str != "")
 			str += ", ";
@@ -267,18 +270,22 @@ void MySQL::recordPeer(Peer* p, unsigned int left, long long now) {
 	total_stats = p->getTotalStats();
 	stats = p->getStats();
 	LOG_INFO("Recording peer stats (ID: " + PeerID + ", left: " + Left + ")");
-	unsigned int downloaded,uploaded,total_downloaded,total_uploaded = 0;
+	unsigned int downloaded,uploaded,total_downloaded,total_uploaded, up_speed, down_speed = 0;
 	if (p->isSeeding()) {
 		downloaded = 0;
 		uploaded = total_stats;
 		total_downloaded = 0;
 		total_uploaded = stats;
+		up_speed = p->getSpeed();
+		down_speed = 0;
 		p->setSeedtime(now - lastUpdate);
 	} else {
 		downloaded = total_stats;
 		uploaded = 0;
 		total_downloaded = stats;
 		total_uploaded = 0;
+		up_speed = 0;
+		down_speed = p->getSpeed();
 	}
 	peerRequests.push_back("('" +
 		std::to_string(p->User()->getID()) + "', " +
@@ -287,6 +294,8 @@ void MySQL::recordPeer(Peer* p, unsigned int left, long long now) {
 		"'" + std::to_string(total_downloaded) + "', " +
 		"'" + std::to_string(total_uploaded) + "', " +
 		"'" + Left + "', " +
+		"'" + std::to_string(up_speed) + "', " +
+		"'" + std::to_string(down_speed) + "', " +
 		"'" + std::to_string(p->getSeedtime()) + "', " +
 		"'" + p->getClient() + "', " +
 		"'" + PeerID + "', " +

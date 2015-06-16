@@ -16,6 +16,7 @@ class Peer {
 		std::string client;
 		long long seedtime;
 		long long lastUpdate;
+		unsigned int speed;
 	public:
 		Peer (std::string, User*, bool, unsigned int, std::string, std::string);
 		User* User();
@@ -26,6 +27,7 @@ class Peer {
 		unsigned long getTotalStats();
 		unsigned long getStats();
 		long long getLastUpdate();
+		unsigned int getSpeed();
 		unsigned int getFID();
 		bool isSeeding();
 		bool isCompleted();
