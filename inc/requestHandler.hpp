@@ -26,6 +26,7 @@ class RequestHandler {
 		static std::string removeIPRestriction(const Request*);
 		static std::string addToken(const Request*, const std::string&);
 		static std::string removeToken(const Request*, const std::string&);
+		static std::string setLeechStatus(const Request*);
 	public:
 		static void init();
 		static std::string handle(std::string, std::string);

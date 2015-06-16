@@ -97,6 +97,8 @@ std::string RequestHandler::announce(const Request* req, const std::string& info
 			if (!peer->isSnatched() && (std::stoul(req->at("left")) < ((1-0.25)*tor->getSize())))
 				peer->snatched();
 			int free = tor->getFree();
+			if (leechStatus == FREELEECH)
+				free = 100;
 			if (peer->User()->hasToken(tor->getID())) {
 				bool expired = peer->User()->isTokenExpired(tor->getID());
 				db->recordToken(peer->User()->getID(), tor->getID(), peer->getTotalStats()-std::stoul(req->at("downloaded")), expired);
@@ -230,6 +232,8 @@ std::string RequestHandler::update(const Request* req, const std::forward_list<s
 		resp = addIPRestriction(req);
 	else if (type == "remove_ip_restriction")
 		resp = removeIPRestriction(req);
+	else if (type == "set_leech_status")
+		resp = setLeechStatus(req);
 
 	LOG_INFO(type + " : " + resp);
 	return resp;
@@ -375,6 +379,15 @@ std::string RequestHandler::removeBan(const Request* req) {
 	}
 }
 
+std::string RequestHandler::setLeechStatus(const Request* req) {
+	try {
+		leechStatus = (req->at("leech_status") == "freeleech" ? FREELEECH : NORMAL);
+		return "success";
+	} catch (const std::exception& e) {
+		return "failure";
+	}
+}
+
 User* RequestHandler::getUser(const std::string& passkey) {
 	try {
 		return usrMap.at(passkey);
@@ -390,7 +403,8 @@ void RequestHandler::init() {
 	db->loadUsers(usrMap);
 	db->loadTorrents(torMap);
 	db->loadBannedIPs(bannedIPs);
-	//db->loadLeechStatus(leechStatus);
+	if (Config::get("type") == "private")
+		db->loadLeechStatus(leechStatus);
 }
 
 void RequestHandler::stop() {
