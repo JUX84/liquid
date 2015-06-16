@@ -9,6 +9,11 @@
 typedef std::map<std::string, User*> UserMap;
 typedef std::map<std::string, Torrent> TorrentMap;
 
+enum LeechStatus {
+	NORMAL,
+	FREELEECH
+};
+
 class Database {
 	protected:
 		std::list<std::string> userRequests;
@@ -22,6 +27,7 @@ class Database {
 		virtual void loadUsers(UserMap&) = 0;
 		virtual void loadTorrents(TorrentMap&) = 0;
 		virtual void loadBannedIPs(std::unordered_set<std::string>&) = 0;
+		virtual void loadLeechStatus(LeechStatus&) = 0;
 		virtual void flush() = 0;
 		virtual void flushUsers() = 0;
 		virtual void flushTorrents() = 0;

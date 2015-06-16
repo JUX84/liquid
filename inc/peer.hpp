@@ -22,7 +22,7 @@ class Peer {
 		const std::string& getPeerID();
 		const std::string& getHexIP();
 		const std::string& getClient();
-		void updateStats(unsigned long stats, long long);
+		void updateStats(unsigned long, long long);
 		unsigned long getTotalStats();
 		unsigned long getStats();
 		long long getLastUpdate();

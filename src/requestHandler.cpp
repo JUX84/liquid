@@ -14,6 +14,7 @@ TorrentMap RequestHandler::torMap;
 UserMap RequestHandler::usrMap;
 Database* RequestHandler::db;
 std::unordered_set<std::string> RequestHandler::bannedIPs;
+LeechStatus RequestHandler::leechStatus;
 
 std::string RequestHandler::handle(std::string str, std::string ip)
 {
@@ -141,10 +142,11 @@ std::string RequestHandler::announce(const Request* req, const std::string& info
 	std::string peerlist;
 	unsigned long i = 0;
 	if (req->at("event") != "stopped") {
-		i = Config::getInt("default_numwant");;
 		try {
 			i = std::stoi(req->at("numwant"));
-		} catch (const std::exception& e) {}
+		} catch (const std::exception& e) {
+			i = Config::getInt("default_numwant");;
+		}
 		i = std::min(std::min(i, static_cast<unsigned long>(Config::getInt("max_numwant"))), peers->size());
 	}
 	LOG_INFO("creating peer list (" + std::to_string(i) + ")");
@@ -170,7 +172,7 @@ std::string RequestHandler::announce(const Request* req, const std::string& info
 			+ peerlist
 			+ "e"),
 			gzip
-			); // doesn't look as bad as it is stated on ocelot, needs stresstesting to check
+			);
 }
 
 std::string RequestHandler::scrape(const std::forward_list<std::string>* infoHashes, bool gzip)
@@ -388,6 +390,7 @@ void RequestHandler::init() {
 	db->loadUsers(usrMap);
 	db->loadTorrents(torMap);
 	db->loadBannedIPs(bannedIPs);
+	//db->loadLeechStatus(leechStatus);
 }
 
 void RequestHandler::stop() {

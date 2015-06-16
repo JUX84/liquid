@@ -112,6 +112,18 @@ void MySQL::loadBannedIPs(std::unordered_set<std::string> &bannedIPs) {
 	LOG_INFO("Loaded " + std::to_string(mysql_num_rows(result)) + " banned IP addresses");
 }
 
+void MySQL::loadLeechStatus(LeechStatus &leechStatus) {
+	std::string query = "SELECT `Data` FROM site_options WHERE `Option` = 'leech_status'";
+	if (mysql_real_query(mysql, query.c_str(), query.size())) {
+		LOG_ERROR("Couldn't load banned IP addresses database");
+		return;
+	}
+	result = mysql_use_result(mysql);
+	while((row = mysql_fetch_row(result)))
+		leechStatus = (row[0] == "freeleech" ? FREELEECH : NORMAL);
+	LOG_INFO("Loaded " + std::to_string(mysql_num_rows(result)) + " banned IP addresses");
+}
+
 void MySQL::flush() {
 	flushUsers();
 	flushTorrents();
