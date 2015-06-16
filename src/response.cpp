@@ -18,5 +18,6 @@ std::string response (const std::string& body, bool gzip)
 
 std::string error (const std::string& reason, bool gzip)
 {
+	LOG_INFO("Error (" + reason + ")");
 	return response("d14:failure reason" + std::to_string(reason.size()) + ":" + reason + "12:min intervali5400e8:intervali5400ee", gzip);
 }

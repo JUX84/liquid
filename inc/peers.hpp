@@ -14,7 +14,7 @@ class Peers {
 	public:
 		Peers();
 		Peer* getPeer(const std::string&, long long);
-		void addPeer(const Request&, unsigned int, long long);
+		Peer* addPeer(const Request&, unsigned int, long long);
 		void removePeer(const Request&);
 		Peer* nextPeer(long long);
 		unsigned long size();

@@ -21,12 +21,14 @@ Peer* Peers::getPeer(const std::string& peerID, long long now) {
 	}
 }
 
-void Peers::addPeer(const Request& req, unsigned int fid, long long now) {
+Peer* Peers::addPeer(const Request& req, unsigned int fid, long long now) {
 	User* u = nullptr;
 	if (Config::get("type") == "private")
 		u = RequestHandler::getUser(req.at("passkey"));
-	pMap.emplace(req.at("peer_id"), Peer(req.at("ip"), u, req.at("left") == "0", fid, req.at("user-agent"), req.at("peer_id")));
+	Peer* p = new Peer(req.at("ip"), u, req.at("left") == "0", fid, req.at("user-agent"), req.at("peer_id"));
+	pMap.emplace(req.at("peer_id"), *p);
 	lastUpdate = now;
+	return p;
 }
 
 void Peers::removePeer(const Request& req) {

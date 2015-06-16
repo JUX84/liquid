@@ -142,11 +142,11 @@ void MySQL::flushUsers() {
 	}
 	std::string str = "INSERT INTO users_main(ID, Downloaded, Uploaded) VALUES ";
 	for(const auto &it : userRequests) {
-		if (str != "")
+		if (str != "INSERT INTO users_main(ID, Downloaded, Uploaded) VALUES ")
 			str += ", ";
 		str += it;
 	}
-	str += " ON DUPLICATE KEY Downloaded = Downloaded + VALUES(Downloaded), Uploaded = Uploaded + VALUES(Uploaded)";
+	str += " ON DUPLICATE KEY UPDATE Downloaded = Downloaded + VALUES(Downloaded), Uploaded = Uploaded + VALUES(Uploaded)";
 	LOG_INFO("Flushing USERS sql records (" + std::to_string(userRequests.size()) + ")");
 	if (mysql_real_query(mysql, str.c_str(), str.size())) {
 		LOG_ERROR("Couldn't flush record (" + str + ")");
@@ -162,11 +162,11 @@ void MySQL::flushTokens() {
 	}
 	std::string str = "INSERT INTO users_freeleeches(UserID, TorrentID, Downloaded, Expired) VALUES ";
 	for(const auto &it : tokenRequests) {
-		if (str != "")
+		if (str != "INSERT INTO users_freeleeches(UserID, TorrentID, Downloaded, Expired) VALUES ")
 			str += ", ";
 		str += it;
 	}
-	str += " ON DUPLICATE KEY Downloaded = Downloaded + VALUES(Downloaded), Expired = VALUES(Expired)";
+	str += " ON DUPLICATE KEY UPDATE Downloaded = Downloaded + VALUES(Downloaded), Expired = VALUES(Expired)";
 	LOG_INFO("Flushing TOKENS sql records (" + std::to_string(tokenRequests.size()) + ")");
 	if (mysql_real_query(mysql, str.c_str(), str.size())) {
 		LOG_ERROR("Couldn't flush record (" + str + ")");
@@ -182,11 +182,11 @@ void MySQL::flushTorrents() {
 	}
 	std::string str = "INSERT INTO torrents(ID, Seeders, Leechers, Snatched) VALUES ";
 	for(const auto &it : torrentRequests) {
-		if (str != "")
+		if (str != "INSERT INTO torrents(ID, Seeders, Leechers, Snatched) VALUES ")
 			str += ", ";
 		str += it;
 	}
-	str += " ON DUPLICATE KEY Seeders = VALUES(Seeder), Leechers = VALUES(Leechers), Snatched = Snatched + VALUES(Snatched)";
+	str += " ON DUPLICATE KEY UPDATE Seeders = VALUES(Seeders), Leechers = VALUES(Leechers), Snatched = Snatched + VALUES(Snatched)";
 	LOG_INFO("Flushing TORRENTS sql records (" + std::to_string(torrentRequests.size()) + ")");
 	if (mysql_real_query(mysql, str.c_str(), str.size())) {
 		LOG_ERROR("Couldn't flush record (" + str + ")");
@@ -202,7 +202,7 @@ void MySQL::flushPeers() {
 	}
 	std::string str = "INSERT INTO xbt_files_users (uid,active,completed,downloaded,uploaded,remaining,upspeed,downspeed,seedtime,useragent,peer_id,fid,ip) VALUES ";
 	for(const auto &it : peerRequests) {
-		if (str != "")
+		if (str != "INSERT INTO xbt_files_users (uid,active,completed,downloaded,uploaded,remaining,upspeed,downspeed,seedtime,useragent,peer_id,fid,ip) VALUES ")
 			str += ", ";
 		str += it;
 	}
@@ -222,7 +222,7 @@ void MySQL::flushSnatches() {
 	}
 	std::string str = "INSERT INTO xbt_snatched (uid,tstamp,fid,IP) VALUES ";
 	for(const auto &it : snatchRequests) {
-		if (str != "")
+		if (str != "INSERT INTO xbt_snatched (uid,tstamp,fid,IP) VALUES ")
 			str += ", ";
 		str += it;
 	}
