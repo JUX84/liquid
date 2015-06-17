@@ -8,8 +8,6 @@ User::User (unsigned int id, bool canLeech, bool isVisible) {
 	uploaded = 0;
 	this->canLeech = canLeech;
 	this->isVisible = isVisible;
-	auto duration = std::chrono::system_clock::now().time_since_epoch();
-	lastUpdate = std::chrono::duration_cast<std::chrono::seconds>(duration).count();
 }
 
 unsigned int User::getID () {

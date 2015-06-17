@@ -14,7 +14,6 @@ class User {
 		unsigned long downloaded;
 		bool canLeech;
 		bool isVisible;
-		long long lastUpdate;
 		std::unordered_map<unsigned int, long long> tokens;
 		std::unordered_set<std::string> IPRestrictions;
 	public:
