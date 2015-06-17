@@ -40,11 +40,9 @@ Server::Server(uint16_t port)
 	watcher.set<Server, &Server::acceptClient>(this);
 	watcher.start(sock, ev::READ);
 
-	if (Config::get("type") == "public") {
-		timer.set<&RequestHandler::clearTorrentPeers>();
-		timer.set(Config::getInt("clear_peers_interval"), Config::getInt("clear_peers_interval"));
-		timer.start();
-	}
+	timer.set<&RequestHandler::clearTorrentPeers>();
+	timer.set(Config::getInt("clear_peers_interval"), Config::getInt("clear_peers_interval"));
+	timer.start();
 
 	timer2.set<&RequestHandler::flushSqlRecords>();
 	timer2.set(60, 60);
