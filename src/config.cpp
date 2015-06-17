@@ -12,7 +12,7 @@ std::unordered_map<std::string, std::pair<std::string, bool>> Config::vars = {
 //	{ "name",				{ "default value", is_integer} }
 	{ "type",				{ "private", false } },
 	{ "port",				{ "48151", true } },
-	{ "timeout",				{ "600", true } },
+	{ "timeout",				{ "1800", true } },
 	{ "clear_peers_interval",		{ "300", true } },
 	{ "read_buffer_size",			{ "512", true } },
 	{ "max_request_size",			{ "4096", true } },
