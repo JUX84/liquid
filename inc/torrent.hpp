@@ -12,7 +12,6 @@ class Torrent {
 		unsigned long size;
 		unsigned char free;
 		unsigned int snatches;
-		long long lastUpdate;
 	public:
 		Torrent(unsigned int, unsigned long, unsigned char);
 		Peers* getSeeders();
@@ -24,5 +23,4 @@ class Torrent {
 		unsigned int getSize();
 		unsigned char getFree();
 		void setFree(unsigned char);
-		bool canRecord(long long);
 };

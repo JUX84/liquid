@@ -84,16 +84,15 @@ std::string RequestHandler::announce(const Request* req, const std::string& info
 			if (peer != nullptr) {
 				if (Config::get("type") == "private") {
 					peer->inactive();
-					db->recordPeer(peer, std::stoul(req->at("left")), now);
-					if(peer->User()->canRecord(now))
-						db->recordUser(peer->User());
+					db->recordPeer(peer, now);
+					db->recordUser(peer->User());
 				}
 				tor->getLeechers()->removePeer(*req);
 			}
 		} else if (req->at("event") == "started" || peer == nullptr) {
 			if (peer == nullptr) {
 				peer = tor->getLeechers()->addPeer(*req, tor->getID(), now);
-				db->recordPeer(peer, std::stoul(req->at("left")), now);
+				db->recordPeer(peer, now);
 			}
 		} else if (peer != nullptr && Config::get("type") == "private") {
 			if (!peer->isSnatched() && (std::stoul(req->at("left")) < ((1-0.25)*tor->getSize())))
@@ -106,21 +105,19 @@ std::string RequestHandler::announce(const Request* req, const std::string& info
 				db->recordToken(peer->User()->getID(), tor->getID(), peer->getTotalStats()-std::stoul(req->at("downloaded")), expired);
 				free = 100;
 			}
-			peer->updateStats(std::stoul(req->at("downloaded"))*(1-(free/100)), now);
-			db->recordPeer(peer, std::stoul(req->at("left")), now);
-			if(peer->User()->canRecord(now))
-				db->recordUser(peer->User());
+			peer->updateStats(std::stoul(req->at("downloaded"))*(1-(free/100)), std::stoul(req->at("left")), now);
+			db->recordPeer(peer, now);
+			db->recordUser(peer->User());
 		}
 		peers = tor->getSeeders();
 	} else {
 		peer = tor->getSeeders()->getPeer(req->at("peer_id"), now);
 		if (req->at("event") == "stopped" || req->at("event") == "completed") {
 			if (peer != nullptr && Config::get("type") == "private") {
-				peer->updateStats(std::stoul(req->at("uploaded")), now);
+				peer->updateStats(std::stoul(req->at("uploaded")), std::stoul(req->at("left")), now);
 				peer->inactive();
-				db->recordPeer(peer, std::stoul(req->at("left")), now);
-				if(peer->User()->canRecord(now))
-					db->recordUser(peer->User());
+				db->recordPeer(peer, now);
+				db->recordUser(peer->User());
 			} else if (req->at("event") == "completed") {
 				if (peer == nullptr) {
 					peer = tor->getLeechers()->getPeer(req->at("peer_id"), now);
@@ -135,30 +132,28 @@ std::string RequestHandler::announce(const Request* req, const std::string& info
 						free = 100;
 						db->recordToken(peer->User()->getID(), tor->getID(), peer->getTotalStats()-std::stoul(req->at("downloaded")), true);
 					}
-					peer->updateStats(std::stoul(req->at("downloaded"))*(1-(free/100)), now);
-					db->recordPeer(peer, std::stoul(req->at("left")), now);
+					peer->updateStats(std::stoul(req->at("downloaded"))*(1-(free/100)), std::stoul(req->at("left")), now);
+					db->recordPeer(peer, now);
 					db->recordUser(peer->User());
 					tor->incSnatches();
 				}
 				tor->getLeechers()->removePeer(*req);
 				peer = tor->getSeeders()->addPeer(*req, tor->getID(), now);
-				db->recordPeer(peer, std::stoul(req->at("left")), now);
+				db->recordPeer(peer, now);
 			}
 		} else if (req->at("event") == "started" || peer == nullptr) {
 			if (peer == nullptr) {
 				peer = tor->getSeeders()->addPeer(*req, tor->getID(), now);
-				db->recordPeer(peer, std::stoul(req->at("left")), now);
+				db->recordPeer(peer, now);
 			}
 		} else if (peer != nullptr && Config::get("type") == "private") {
-			peer->updateStats(std::stoul(req->at("uploaded")), now);
-			db->recordPeer(peer, std::stoul(req->at("left")), now);
-			if(peer->User()->canRecord(now))
-				db->recordUser(peer->User());
+			peer->updateStats(std::stoul(req->at("uploaded")), std::stoul(req->at("left")), now);
+			db->recordPeer(peer, now);
+			db->recordUser(peer->User());
 		}
 		peers = tor->getLeechers();
 	}
-	if (tor->canRecord(now))
-		db->recordTorrent(tor);
+	db->recordTorrent(tor);
 	LOG_INFO("Handled user stats");
 	std::string peerlist;
 	unsigned long i = 0;
@@ -441,13 +436,12 @@ void RequestHandler::clearTorrentPeers(ev::timer& timer, int revents)
 	long long now = std::chrono::duration_cast<std::chrono::seconds>(duration).count();
 	auto t = torMap.begin();
 	while (t != torMap.end()) {
-		t->second.getSeeders()->timedOut(now);
-		t->second.getLeechers()->timedOut(now);
+		t->second.getSeeders()->timedOut(now, db);
+		t->second.getLeechers()->timedOut(now, db);
 		if(Config::get("type") == "public" && t->second.getSeeders()->size() == 0 && t->second.getLeechers()->size() == 0) {
 			torMap.erase(t++);
 		} else {
-			if (t->second.canRecord(now))
-				db->recordTorrent(&t->second);
+			db->recordTorrent(&t->second);
 			++t;
 		}
 	}

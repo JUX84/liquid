@@ -29,7 +29,6 @@ class User {
 		void removeToken(unsigned int);
 		bool hasToken(unsigned int);
 		bool isTokenExpired(unsigned int);
-		bool canRecord(long long);
 		bool addIPRestriction(std::string, int);
 		void removeIPRestriction(std::string);
 		bool isRestricted(std::string);

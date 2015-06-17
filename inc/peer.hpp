@@ -7,6 +7,7 @@ class Peer {
 		User* user;
 		unsigned long total_stats;
 		unsigned long stats;
+		unsigned long left;
 		bool seeding;
 		bool completed;
 		bool active;
@@ -18,14 +19,15 @@ class Peer {
 		long long lastUpdate;
 		unsigned int speed;
 	public:
-		Peer (std::string, User*, bool, unsigned int, std::string, std::string);
+		Peer (std::string, User*, bool, unsigned long, unsigned int, std::string, std::string);
 		User* User();
 		const std::string& getPeerID();
 		const std::string& getHexIP();
 		const std::string& getClient();
-		void updateStats(unsigned long, long long);
+		void updateStats(unsigned long, unsigned long, long long);
 		unsigned long getTotalStats();
 		unsigned long getStats();
+		unsigned long getLeft();
 		long long getLastUpdate();
 		unsigned int getSpeed();
 		unsigned int getFID();

@@ -45,9 +45,3 @@ unsigned char Torrent::getFree() {
 void Torrent::setFree(unsigned char free) {
 	this->free = free;
 }
-
-bool Torrent::canRecord(long long now) {
-	bool b = (lastUpdate < (now - 60));
-	lastUpdate = now;
-	return b;
-}

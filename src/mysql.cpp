@@ -262,8 +262,8 @@ void MySQL::recordTorrent(Torrent* t) {
 	t->reset();
 }
 
-void MySQL::recordPeer(Peer* p, unsigned int left, long long now) {
-	std::string Left = std::to_string(left);
+void MySQL::recordPeer(Peer* p, long long now) {
+	std::string Left = std::to_string(p->getLeft());
 	std::string PeerID = p->getPeerID();
 	long long lastUpdate = p->getLastUpdate();
 	unsigned long total_stats,stats;

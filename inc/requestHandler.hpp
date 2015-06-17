@@ -1,8 +1,8 @@
 #pragma once
 
 #include <ev++.h>
-#include "parser.hpp"
 #include "db.hpp"
+#include "parser.hpp"
 
 class RequestHandler {
 	private:

@@ -25,7 +25,7 @@ Peer* Peers::addPeer(const Request& req, unsigned int fid, long long now) {
 	User* u = nullptr;
 	if (Config::get("type") == "private")
 		u = RequestHandler::getUser(req.at("passkey"));
-	Peer* p = new Peer(req.at("ip"), u, req.at("left") == "0", fid, req.at("user-agent"), req.at("peer_id"));
+	Peer* p = new Peer(req.at("ip"), u, req.at("left") == "0", std::stoul(req.at("left")), fid, req.at("user-agent"), req.at("peer_id"));
 	pMap.emplace(req.at("peer_id"), *p);
 	lastUpdate = now;
 	return p;
@@ -54,13 +54,18 @@ unsigned long Peers::size () {
 	return pMap.size();
 }
 
-void Peers::timedOut(long long now)
+void Peers::timedOut(long long now, Database* db)
 {
 	auto it = pMap.begin();
 	while (it != pMap.end()) {
-		if (it->second.timedOut(now))
-			pMap.erase(it++);
-		else
-			++it;
+		if (it->second.timedOut(now)) {
+			if (Config::get("type") == "public")
+				pMap.erase(it);
+			else {
+				it->second.inactive();
+				db->recordPeer(&it->second, now);
+			}
+		}
+		++it;
 	}
 }

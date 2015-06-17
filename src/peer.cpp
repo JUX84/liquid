@@ -5,11 +5,12 @@
 #include "peers.hpp"
 #include "utility.hpp"
 
-Peer::Peer(std::string hexIP, class User* u, bool seeding, unsigned int fid, std::string client, std::string peerID) {
+Peer::Peer(std::string hexIP, class User* u, bool seeding, unsigned long left, unsigned int fid, std::string client, std::string peerID) {
 	LOG_INFO("Creating peer on torrent " + std::to_string(fid) + " using client " + client);
 	user = u;
 	total_stats = 0;
 	stats = 0;
+	this->left = left;
 	this->seeding = seeding;
 	completed = seeding;
 	active = true;
@@ -39,16 +40,21 @@ const std::string& Peer::getClient() {
 	return client;
 }
 
-void Peer::updateStats (unsigned long stats, long long now) {
+void Peer::updateStats (unsigned long stats, unsigned long left, long long now) {
 	LOG_INFO("Updating peer stats ("  + std::to_string(stats) + ") on torrent " + std::to_string(fid));
 	this->stats = stats - total_stats;
 	total_stats = stats;
+	this->left = left;
 	if (now > lastUpdate)
 		speed = (this->stats)/(now-lastUpdate);
 	else
 		speed = 0;
 	seedtime += now - lastUpdate;
 	lastUpdate = now;
+}
+
+unsigned long Peer::getLeft() {
+	return left;
 }
 
 long long Peer::getLastUpdate() {

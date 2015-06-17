@@ -74,12 +74,6 @@ bool User::isTokenExpired(unsigned int tid) {
 	}
 }
 
-bool User::canRecord(long long now) {
-	bool b = (lastUpdate < (now - 300));
-	lastUpdate = now;
-	return b;
-}
-
 bool User::addIPRestriction(std::string ip, int max) {
 	if (IPRestrictions.size() >= max || IPRestrictions.count(ip) > 0)
 		return false;
