@@ -43,11 +43,8 @@ std::string RequestHandler::handle(std::string str, std::string ip)
 		LOG_WARNING("Missing info hash");
 		return error("missing info_hash", gzip);
 	}
-	try {
-		req->at("ip") = Utility::ip_hex_encode(req->at("ip"));
-	} catch (const std::exception& e) {
-		req->emplace("ip", Utility::ip_hex_encode(ip));
-	}
+	if (req->find("ip") == req->end())
+		req->emplace("ip", ip);
 	if (bannedIPs.find(req->at("ip")) != bannedIPs.end())
 		return error("banned ip", gzip);
 	if (u->isRestricted(req->at("ip")))
@@ -185,7 +182,7 @@ std::string RequestHandler::announce(const Request* req, const std::string& info
 	while (i-- > 0) {
 		Peer* p = peers->nextPeer(now);
 		if (p != nullptr)
-			peerlist.append(p->getHexIP());
+			peerlist.append(p->getHexIPPort());
 	}
 	return response(
 			("d8:completei"

@@ -11,7 +11,8 @@ class Peer {
 		bool seeding;
 		bool completed;
 		bool active;
-		std::string hexIP;
+		std::string IP;
+		std::string hexIPPort;
 		std::string peerID;
 		unsigned int fid;
 		std::string client;
@@ -20,10 +21,11 @@ class Peer {
 		unsigned int speed;
 		unsigned int corrupt;
 	public:
-		Peer (std::string, User*, bool, unsigned long, unsigned int, std::string, std::string);
+		Peer (std::string, std::string, User*, bool, unsigned long, unsigned int, std::string, std::string);
 		User* User();
 		const std::string& getPeerID();
-		const std::string& getHexIP();
+		const std::string& getIP();
+		const std::string& getHexIPPort();
 		const std::string& getClient();
 		void updateStats(unsigned long, unsigned long, unsigned int, long long);
 		unsigned long getTotalStats();

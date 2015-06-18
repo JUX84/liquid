@@ -37,25 +37,12 @@ std::string Utility::gzip_compress (const std::string& input)
 	return output;
 }
 
-std::string Utility::ip_hex_encode (const std::string& input)
+std::string Utility::ip_port_hex_encode (const std::string& ip, const std::string& port)
 {
 	in_addr addr;
-	inet_pton(AF_INET, input.c_str(), &(addr.s_addr));
-	return std::string(reinterpret_cast<const char*>(&(addr.s_addr)), sizeof(addr.s_addr));
-}
-
-std::string Utility::ip_hex_decode (const std::string& input) {
-	char ip[INET_ADDRSTRLEN] = {0};
-	std::string tmp(input, 0, 4);
-
-	inet_ntop(AF_INET, tmp.data(), ip, INET_ADDRSTRLEN);
-	return ip;
-}
-
-std::string Utility::port_hex_encode (const std::string& input)
-{
-	uint16_t value = htons(std::stoi(input));
-	return std::string(reinterpret_cast<const char*>(&value), sizeof(value));
+	inet_pton(AF_INET, ip.c_str(), &(addr.s_addr));
+	uint16_t value = htons(std::stoi(port));
+	return std::string(reinterpret_cast<const char*>(&(addr.s_addr)), sizeof(addr.s_addr)) + std::string(reinterpret_cast<const char*>(&value), sizeof(value));
 }
 
 std::string Utility::hex_to_bin(const std::string& input)

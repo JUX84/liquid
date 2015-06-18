@@ -5,7 +5,7 @@
 #include "peers.hpp"
 #include "utility.hpp"
 
-Peer::Peer(std::string hexIP, class User* u, bool seeding, unsigned long left, unsigned int fid, std::string client, std::string peerID) {
+Peer::Peer(std::string IP, std::string port, class User* u, bool seeding, unsigned long left, unsigned int fid, std::string client, std::string peerID) {
 	LOG_INFO("Creating peer on torrent " + std::to_string(fid) + " using client " + client);
 	user = u;
 	total_stats = 0;
@@ -14,7 +14,8 @@ Peer::Peer(std::string hexIP, class User* u, bool seeding, unsigned long left, u
 	this->seeding = seeding;
 	completed = seeding;
 	active = true;
-	this->hexIP = hexIP;
+	this->IP = IP;
+	this->hexIPPort = Utility::ip_port_hex_encode(IP, port);
 	this->peerID = peerID;
 	this->fid = fid;
 	this->client = client;
@@ -32,8 +33,12 @@ const std::string& Peer::getPeerID() {
 	return peerID;
 }
 
-const std::string& Peer::getHexIP() {
-	return hexIP;
+const std::string& Peer::getIP() {
+	return IP;
+}
+
+const std::string& Peer::getHexIPPort() {
+	return hexIPPort;
 }
 
 const std::string& Peer::getClient() {

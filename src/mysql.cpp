@@ -320,7 +320,7 @@ void MySQL::recordPeer(Peer* p, long long now) {
 		"'" + p->getClient() + "', " +
 		"'" + PeerID + "', " +
 		"'" + std::to_string(p->getFID()) + "', " +
-		"'" + Utility::ip_hex_decode(p->getHexIP()) + "')");
+		"'" + p->getIP() + "')");
 	p->reset(now);
 	p->User()->updateStats(downloaded,uploaded);
 }
@@ -333,5 +333,5 @@ void MySQL::recordSnatch(Peer* p, long long now) {
 		+ std::to_string(p->User()->getID()) + "', " +
 		"'" + std::to_string(now) + "', " +
 		"'" + FID + "', " +
-		"'" + Utility::ip_hex_decode(p->getHexIP()) + "')");
+		"'" + p->getIP() + "')");
 }
