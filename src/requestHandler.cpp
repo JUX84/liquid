@@ -257,7 +257,7 @@ std::string RequestHandler::update(const Request* req, const std::forward_list<s
 		resp = setLeechStatus(req);
 
 	LOG_INFO(type + " : " + resp);
-	return resp;
+	return response(resp, false);
 }
 
 std::string RequestHandler::addIPRestriction(const Request* req)
