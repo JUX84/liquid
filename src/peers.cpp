@@ -63,8 +63,8 @@ unsigned int Peers::timedOut(long long now, Database* db)
 				db->recordPeer(&it->second, now);
 				++changed;
 			}
+			pMap.erase(it++);
 		}
-		pMap.erase(it++);
 	}
 	return changed;
 }
