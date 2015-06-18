@@ -40,7 +40,6 @@ class Peer {
 		bool timedOut(long long);
 		bool isSnatched();
 		void snatched();
-		void setSeedtime(long long);
 		long long getSeedtime();
 		void reset(long long);
 };

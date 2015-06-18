@@ -99,12 +99,8 @@ bool Peer::timedOut(long long now) {
 	return (now - lastUpdate) > Config::getInt("timeout");
 }
 
-void Peer::setSeedtime(long long seedtime) {
-	this->seedtime = seedtime;
-}
-
 long long Peer::getSeedtime() {
-	return seedtime;
+	return (seeding ? seedtime : 0);
 }
 
 bool Peer::isActive() {
