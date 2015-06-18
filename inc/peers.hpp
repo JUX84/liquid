@@ -19,5 +19,5 @@ class Peers {
 		void removePeer(const Request&);
 		Peer* nextPeer(long long);
 		unsigned long size();
-		bool timedOut(long long, Database*);
+		unsigned int timedOut(long long, Database*);
 };

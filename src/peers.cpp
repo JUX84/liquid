@@ -54,16 +54,16 @@ unsigned long Peers::size () {
 	return pMap.size();
 }
 
-bool Peers::timedOut(long long now, Database* db)
+unsigned int Peers::timedOut(long long now, Database* db)
 {
 	auto it = pMap.begin();
-	bool changed = false;
+	unsigned int changed = 0;
 	while (it != pMap.end()) {
 		if (it->second.timedOut(now)) {
 			if (Config::get("type") == "private") {
 				it->second.inactive();
 				db->recordPeer(&it->second, now);
-				changed = true;
+				++changed;
 			}
 		}
 		pMap.erase(it++);

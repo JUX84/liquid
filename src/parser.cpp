@@ -13,7 +13,7 @@ void Parser::init ()
 	required.emplace("announce", std::forward_list<std::string>{"port","peer_id","left","compact","user-agent","downloaded","uploaded"}); // init a set of required params in a request
 	if (Config::get("type") == "private")
 		required.at("announce").push_front("passkey");
-	required.emplace("scrape", std::forward_list<std::string>());
+	required.emplace("scrape", std::forward_list<std::string>{});
 
 	required.emplace("update", std::forward_list<std::string>{"type"});
 	required.emplace("change_passkey", std::forward_list<std::string>{"oldpasskey", "newpasskey"});

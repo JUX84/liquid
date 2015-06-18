@@ -447,16 +447,18 @@ void RequestHandler::clearTorrentPeers(ev::timer& timer, int revents)
 	LOG_INFO("Cleaning torrent peers");
 	auto duration = std::chrono::system_clock::now().time_since_epoch();
 	long long now = std::chrono::duration_cast<std::chrono::seconds>(duration).count();
-	bool seedersChanged, leechersChanged;
+	unsigned int changed = 0;
 	auto t = torMap.begin();
 	while (t != torMap.end()) {
-		seedersChanged = t->second.getSeeders()->timedOut(now, db);
-		leechersChanged = t->second.getLeechers()->timedOut(now, db);
+		changed += t->second.getSeeders()->timedOut(now, db);
+		changed += t->second.getLeechers()->timedOut(now, db);
 		if(Config::get("type") == "public" && t->second.getSeeders()->size() == 0 && t->second.getLeechers()->size() == 0) {
 			torMap.erase(t++);
 		} else {
-			if (seedersChanged || leechersChanged)
+			if (changed > 0) {
+				LOG_INFO(std::to_string(changed) + " new inactive peers");
 				db->recordTorrent(&t->second);
+			}
 			++t;
 		}
 	}
