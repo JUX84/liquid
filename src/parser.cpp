@@ -17,13 +17,16 @@ void Parser::init ()
 
 	required.emplace("update", std::forward_list<std::string>{"type"});
 	required.emplace("change_passkey", std::forward_list<std::string>{"oldpasskey", "newpasskey"});
-	required.emplace("add_torrent", std::forward_list<std::string>{"info_hash", "id", "size"});
-	required.emplace("delete_torrent", std::forward_list<std::string>{"info_hash"});
-	required.emplace("update_torrent", std::forward_list<std::string>{"info_hash", "freetorrent"});
+	required.emplace("add_torrent", std::forward_list<std::string>{"id", "size"});
+	required.emplace("delete_torrent", std::forward_list<std::string>{});
+	required.emplace("update_torrent", std::forward_list<std::string>{"freetorrent"});
 	required.emplace("add_user", std::forward_list<std::string>{"passkey", "id"});
 	required.emplace("remove_user", std::forward_list<std::string>{"passkey"});
 	required.emplace("add_ban", std::forward_list<std::string>{"from", "to"});
 	required.emplace("remove_ban", std::forward_list<std::string>{"from", "to"});
+	required.emplace("add_ip_restriction", std::forward_list<std::string>{});
+	required.emplace("remove_ip_restriction", std::forward_list<std::string>{});
+	required.emplace("set_leech_status", std::forward_list<std::string>{});
 }
 
 std::string Parser::check (const Request& req)
