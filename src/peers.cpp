@@ -60,15 +60,13 @@ bool Peers::timedOut(long long now, Database* db)
 	bool changed = false;
 	while (it != pMap.end()) {
 		if (it->second.timedOut(now)) {
-			if (Config::get("type") == "public")
-				pMap.erase(it);
-			else {
+			if (Config::get("type") == "private") {
 				it->second.inactive();
 				db->recordPeer(&it->second, now);
 				changed = true;
 			}
 		}
-		++it;
+		pMap.erase(it++);
 	}
 	return changed;
 }
