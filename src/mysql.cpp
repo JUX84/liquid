@@ -267,7 +267,7 @@ void MySQL::recordTorrent(Torrent* t) {
 	std::string Leechers = std::to_string(t->getLeechers()->size());
 	std::string Snatches = std::to_string(t->getSnatches());
 	std::string Balance = std::to_string(t->getBalance());
-	LOG_INFO("Recording torrent " + ID + " stats: seeders (" + Seeders + "), leechers (" + Leechers + "), snatches (" + Snatches + "), balance (" + Balance + ")");
+	LOG_INFO("Recording torrent " + ID + " stats: seeders (" + Seeders + "), leechers (" + Leechers + "), new snatches (" + Snatches + "), balance (" + Balance + ")");
 	torrentRequests.push_back("(" + ID + ", " + Seeders + ", " + Leechers + ", " + Snatches + ", " + Balance + ")");
 	t->reset();
 }

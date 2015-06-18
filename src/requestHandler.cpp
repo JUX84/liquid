@@ -55,13 +55,13 @@ std::string RequestHandler::handle(std::string str, std::string ip)
 	}
 	else if (req->at("action") == "scrape")
 		return scrape(infoHashes, gzip);
-	LOG_ERROR("Unexpected! Action not found.");
+	LOG_ERROR("Unexpected! Action not found");
 	return error("invalid action", gzip); // not possible, since the request is checked, but, well, who knows :3
 }
 
 std::string RequestHandler::announce(const Request* req, const std::string& infoHash, bool gzip)
 {
-	LOG_INFO("Announce request (" + infoHash + ")");
+	LOG_INFO("Announce request");
 	auto duration = std::chrono::system_clock::now().time_since_epoch();
 	long long now = std::chrono::duration_cast<std::chrono::seconds>(duration).count();
 	if (Config::get("type") != "private")
@@ -71,7 +71,7 @@ std::string RequestHandler::announce(const Request* req, const std::string& info
 		tor = &torMap.at(infoHash);
 	} catch (const std::exception& e) {
 		LOG_WARNING("Torrent not found");
-		return error("unregistered torrent", gzip);
+		return error("torrent not found", gzip);
 	}
 	Peers *peers = nullptr;
 	Peer *peer = nullptr;
@@ -230,7 +230,7 @@ std::string RequestHandler::scrape(const std::forward_list<std::string>* infoHas
 
 std::string RequestHandler::update(const Request* req, const std::forward_list<std::string>* infoHashes)
 {
-	LOG_INFO("Update request (" + req->at("passkey") + ")");
+	LOG_INFO("Update request");
 	std::string resp = "failure";
 	const std::string& type = req->at("type");
 
@@ -435,10 +435,8 @@ void RequestHandler::init() {
 
 void RequestHandler::stop() {
 	LOG_INFO("Stopping request handler");
-	if (Config::get("type") == "private") {
-		db->flush();
-		db->disconnect();
-	}
+	db->flush();
+	db->disconnect();
 }
 
 void RequestHandler::clearTorrentPeers(ev::timer& timer, int revents)
