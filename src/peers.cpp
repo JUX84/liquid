@@ -64,6 +64,8 @@ unsigned int Peers::timedOut(long long now, Database* db)
 				++changed;
 			}
 			pMap.erase(it++);
+		} else {
+			++it;
 		}
 	}
 	return changed;
