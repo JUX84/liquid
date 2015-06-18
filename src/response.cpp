@@ -10,7 +10,6 @@ std::string response_head (bool gzip)
 
 std::string response (const std::string& body, bool gzip)
 {
-	LOG_INFO("Server response (" + body + ")");
 	if (gzip)
 		return response_head(gzip) + Utility::gzip_compress(body);
 	return response_head(gzip) + body;

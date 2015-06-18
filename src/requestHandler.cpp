@@ -167,7 +167,6 @@ std::string RequestHandler::announce(const Request* req, const std::string& info
 		peers = tor->getLeechers();
 	}
 	db->recordTorrent(tor);
-	LOG_INFO("Handled user stats");
 	std::string peerlist;
 	unsigned long i = 0;
 	if (req->at("event") != "stopped") {

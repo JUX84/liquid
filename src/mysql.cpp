@@ -153,10 +153,8 @@ void MySQL::flush() {
 }
 
 void MySQL::flushUsers() {
-	if (userRequests.size() == 0) {
-		LOG_INFO("No user record to flush");
+	if (userRequests.size() == 0)
 		return;
-	}
 	std::string str = "INSERT INTO users_main(ID, Downloaded, Uploaded) VALUES ";
 	for(const auto &it : userRequests) {
 		if (str != "INSERT INTO users_main(ID, Downloaded, Uploaded) VALUES ")
@@ -173,10 +171,8 @@ void MySQL::flushUsers() {
 }
 
 void MySQL::flushTokens() {
-	if (tokenRequests.size() == 0) {
-		LOG_INFO("No token record to flush");
+	if (tokenRequests.size() == 0)
 		return;
-	}
 	std::string str = "INSERT INTO users_freeleeches(UserID, TorrentID, Downloaded, Expired) VALUES ";
 	for(const auto &it : tokenRequests) {
 		if (str != "INSERT INTO users_freeleeches(UserID, TorrentID, Downloaded, Expired) VALUES ")
@@ -193,10 +189,8 @@ void MySQL::flushTokens() {
 }
 
 void MySQL::flushTorrents() {
-	if (torrentRequests.size() == 0) {
-		LOG_INFO("No torrent record to flush");
+	if (torrentRequests.size() == 0)
 		return;
-	}
 	std::string str = "INSERT INTO torrents(ID, Seeders, Leechers, Snatched, balance) VALUES ";
 	for(const auto &it : torrentRequests) {
 		if (str != "INSERT INTO torrents(ID, Seeders, Leechers, Snatched, balance) VALUES ")
@@ -213,10 +207,8 @@ void MySQL::flushTorrents() {
 }
 
 void MySQL::flushPeers() {
-	if (peerRequests.size() == 0) {
-		LOG_INFO("No peer record to flush");
+	if (peerRequests.size() == 0)
 		return;
-	}
 	std::string str = "INSERT INTO xbt_files_users (uid,active,completed,downloaded,uploaded,remaining,upspeed,downspeed,corrupt,seedtime,useragent,peer_id,fid,ip) VALUES ";
 	for(const auto &it : peerRequests) {
 		if (str != "INSERT INTO xbt_files_users (uid,active,completed,downloaded,uploaded,remaining,upspeed,downspeed,corrupt,seedtime,useragent,peer_id,fid,ip) VALUES ")
@@ -233,10 +225,8 @@ void MySQL::flushPeers() {
 }
 
 void MySQL::flushSnatches() {
-	if (snatchRequests.size() == 0) {
-		LOG_INFO("No snatch record to flush");
+	if (snatchRequests.size() == 0)
 		return;
-	}
 	std::string str = "INSERT INTO xbt_snatched (uid,tstamp,fid,IP) VALUES ";
 	for(const auto &it : snatchRequests) {
 		if (str != "INSERT INTO xbt_snatched (uid,tstamp,fid,IP) VALUES ")
