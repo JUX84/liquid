@@ -14,6 +14,7 @@ std::unordered_map<std::string, std::pair<std::string, bool>> Config::vars = {
 	{ "port",				{ "2710", true } },
 	{ "timeout",				{ "3600", true } },
 	{ "clear_peers_interval",		{ "600", true } },
+	{ "flush_records_interval",		{ "5", true } },
 	{ "read_buffer_size",			{ "512", true } },
 	{ "max_request_size",			{ "4096", true } },
 	{ "max_ip",				{ "5", true } },

@@ -45,7 +45,7 @@ Server::Server(uint16_t port)
 	timer.start();
 
 	timer2.set<&RequestHandler::flushSqlRecords>();
-	timer2.set(60, 60);
+	timer2.set(Config::getInt("flush_records_interval"), Config::getInt("flush_records_interval"));
 	timer2.start();
 }
 

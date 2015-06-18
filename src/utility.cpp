@@ -45,6 +45,14 @@ std::string Utility::ip_port_hex_encode (const std::string& ip, const std::strin
 	return std::string(reinterpret_cast<const char*>(&(addr.s_addr)), sizeof(addr.s_addr)) + std::string(reinterpret_cast<const char*>(&value), sizeof(value));
 }
 
+std::string Utility::ip_hex_decode (const std::string& input) {
+	char ip[INET_ADDRSTRLEN] = {0};
+	std::string tmp(input, 0, 4);
+
+	inet_ntop(AF_INET, tmp.data(), ip, INET_ADDRSTRLEN);
+	return ip;
+}
+
 std::string Utility::hex_to_bin(const std::string& input)
 {
 	std::string output;

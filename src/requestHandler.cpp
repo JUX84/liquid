@@ -44,7 +44,7 @@ std::string RequestHandler::handle(std::string str, std::string ip)
 		return error("missing info_hash", gzip);
 	}
 	if (req->find("ip") == req->end())
-		req->emplace("ip", ip);
+		req->emplace("ip", Utility::ip_hex_decode(ip));
 	if (bannedIPs.find(req->at("ip")) != bannedIPs.end())
 		return error("banned ip", gzip);
 	if (u->isRestricted(req->at("ip")))
