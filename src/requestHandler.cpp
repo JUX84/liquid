@@ -32,13 +32,13 @@ std::string RequestHandler::handle(std::string str, std::string ip)
 		LOG_WARNING("Couldn't parse request (" + check + ")");
 		return error(check, gzip);
 	}
+	if (Config::get("type") == "private" && req->at("action") == "update" && req->at("passkey") == Config::get("updatekey"))
+		return update(req, infoHashes);
 	User* u = getUser(req->at("passkey"));
 	if (Config::get("type") == "private" && u == nullptr) {
 		LOG_WARNING("Passkey " + req->at("passkey") + " not found");
 		return error("passkey not found", gzip);
 	}
-	if (Config::get("type") == "private" && req->at("action") == "update" && req->at("passkey") == Config::get("updatekey"))
-		return update(req, infoHashes);
 	if (infoHashes->begin() == infoHashes->end()) {
 		LOG_WARNING("Missing info hash");
 		return error("missing info_hash", gzip);
