@@ -78,6 +78,12 @@ std::string RequestHandler::announce(const Request* req, const std::string& info
 	}
 	Peers *peers = nullptr;
 	Peer *peer = nullptr;
+	unsigned int corrupt;
+	try {
+		corrupt = std::stoul(req->at("corrupt"));
+	} catch (const std::exception& e) {
+		corrupt = 0;
+	}
 	if (req->at("left") != "0") {
 		peer = tor->getLeechers()->getPeer(req->at("peer_id"), now);
 		if (req->at("event") == "stopped") {
@@ -105,8 +111,8 @@ std::string RequestHandler::announce(const Request* req, const std::string& info
 				db->recordToken(peer->User()->getID(), tor->getID(), peer->getTotalStats()-std::stoul(req->at("downloaded")), expired);
 				free = 100;
 			}
-			tor->decBalance(peer->getCorrupt()-std::stoul(req->at("corrupt")));
-			peer->updateStats(std::stoul(req->at("downloaded"))*(1-(free/100)), std::stoul(req->at("left")), std::stoul(req->at("corrupt")), now);
+			tor->decBalance(peer->getCorrupt()-corrupt);
+			peer->updateStats(std::stoul(req->at("downloaded"))*(1-(free/100)), std::stoul(req->at("left")), corrupt, now);
 			tor->decBalance(peer->getStats());
 			db->recordPeer(peer, now);
 			db->recordUser(peer->User());
@@ -116,7 +122,7 @@ std::string RequestHandler::announce(const Request* req, const std::string& info
 		peer = tor->getSeeders()->getPeer(req->at("peer_id"), now);
 		if (req->at("event") == "stopped" || req->at("event") == "completed") {
 			if (peer != nullptr && Config::get("type") == "private") {
-				peer->updateStats(std::stoul(req->at("uploaded")), std::stoul(req->at("left")), std::stoul(req->at("corrupt")), now);
+				peer->updateStats(std::stoul(req->at("uploaded")), std::stoul(req->at("left")), corrupt, now);
 				tor->incBalance(peer->getStats());
 				peer->inactive();
 				db->recordPeer(peer, now);
@@ -135,8 +141,8 @@ std::string RequestHandler::announce(const Request* req, const std::string& info
 						free = 100;
 						db->recordToken(peer->User()->getID(), tor->getID(), peer->getTotalStats()-std::stoul(req->at("downloaded")), true);
 					}
-					tor->decBalance(peer->getCorrupt()-std::stoul(req->at("corrupt")));
-					peer->updateStats(std::stoul(req->at("downloaded"))*(1-(free/100)), std::stoul(req->at("left")), std::stoul(req->at("corrupt")), now);
+					tor->decBalance(peer->getCorrupt()-corrupt);
+					peer->updateStats(std::stoul(req->at("downloaded"))*(1-(free/100)), std::stoul(req->at("left")), corrupt, now);
 					tor->decBalance(peer->getStats());
 					db->recordPeer(peer, now);
 					db->recordUser(peer->User());
@@ -153,7 +159,7 @@ std::string RequestHandler::announce(const Request* req, const std::string& info
 				db->recordPeer(peer, now);
 			}
 		} else if (peer != nullptr && Config::get("type") == "private") {
-			peer->updateStats(std::stoul(req->at("uploaded")), std::stoul(req->at("left")), std::stoul(req->at("corrupt")), now);
+			peer->updateStats(std::stoul(req->at("uploaded")), std::stoul(req->at("left")), corrupt, now);
 			tor->incBalance(peer->getStats());
 			db->recordPeer(peer, now);
 			db->recordUser(peer->User());
