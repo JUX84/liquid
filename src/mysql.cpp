@@ -75,7 +75,7 @@ void MySQL::loadUsers(UserMap& usrMap) {
 }
 
 void MySQL::loadTorrents(TorrentMap& torMap) {
-	std::string query = "SELECT ID, Size, info_hash, freetorrent FROM torrents";
+	std::string query = "SELECT ID, Size, info_hash, freetorrent, balance FROM torrents";
 	if (mysql_real_query(mysql, query.c_str(), query.size())) {
 		LOG_ERROR("Couldn't load torrents database");
 		return;
@@ -89,7 +89,7 @@ void MySQL::loadTorrents(TorrentMap& torMap) {
 		else if (row[3] == std::string("2"))
 			free = 50;
 		//
-		torMap.emplace(row[2], Torrent(std::stoul(row[0]), std::stoul(row[1]), free));
+		torMap.emplace(row[2], Torrent(std::stoul(row[0]), std::stoul(row[1]), free, std::stoul(row[4])));
 	}
 	LOG_INFO("Loaded " + std::to_string(mysql_num_rows(result)) + " torrents");
 }
@@ -180,13 +180,13 @@ void MySQL::flushTorrents() {
 		LOG_INFO("No torrent record to flush");
 		return;
 	}
-	std::string str = "INSERT INTO torrents(ID, Seeders, Leechers, Snatched) VALUES ";
+	std::string str = "INSERT INTO torrents(ID, Seeders, Leechers, Snatched, balance) VALUES ";
 	for(const auto &it : torrentRequests) {
-		if (str != "INSERT INTO torrents(ID, Seeders, Leechers, Snatched) VALUES ")
+		if (str != "INSERT INTO torrents(ID, Seeders, Leechers, Snatched, balance) VALUES ")
 			str += ", ";
 		str += it;
 	}
-	str += " ON DUPLICATE KEY UPDATE Seeders = VALUES(Seeders), Leechers = VALUES(Leechers), Snatched = Snatched + VALUES(Snatched)";
+	str += " ON DUPLICATE KEY UPDATE Seeders = VALUES(Seeders), Leechers = VALUES(Leechers), Snatched = Snatched + VALUES(Snatched), balance = VALUES(balance)";
 	LOG_INFO("Flushing TORRENTS sql records (" + std::to_string(torrentRequests.size()) + ")");
 	if (mysql_real_query(mysql, str.c_str(), str.size())) {
 		LOG_ERROR("Couldn't flush record (" + str + ")");
@@ -200,13 +200,13 @@ void MySQL::flushPeers() {
 		LOG_INFO("No peer record to flush");
 		return;
 	}
-	std::string str = "INSERT INTO xbt_files_users (uid,active,completed,downloaded,uploaded,remaining,upspeed,downspeed,seedtime,useragent,peer_id,fid,ip) VALUES ";
+	std::string str = "INSERT INTO xbt_files_users (uid,active,completed,downloaded,uploaded,remaining,upspeed,downspeed,corrupt,seedtime,useragent,peer_id,fid,ip) VALUES ";
 	for(const auto &it : peerRequests) {
-		if (str != "INSERT INTO xbt_files_users (uid,active,completed,downloaded,uploaded,remaining,upspeed,downspeed,seedtime,useragent,peer_id,fid,ip) VALUES ")
+		if (str != "INSERT INTO xbt_files_users (uid,active,completed,downloaded,uploaded,remaining,upspeed,downspeed,corrupt,seedtime,useragent,peer_id,fid,ip) VALUES ")
 			str += ", ";
 		str += it;
 	}
-	str += " ON DUPLICATE KEY UPDATE downloaded = VALUES(downloaded), uploaded = VALUES(uploaded), seedtime = seedtime + VALUES(seedtime)";
+	str += " ON DUPLICATE KEY UPDATE downloaded = VALUES(downloaded), uploaded = VALUES(uploaded), seedtime = seedtime + VALUES(seedtime), upspeed = VALUES(upspeed), downspeed = VALUES(downspeed), corrupt = VALUES(corrupt)";
 	LOG_INFO("Flushing PEERS sql records (" + std::to_string(peerRequests.size()) + ")");
 	if (mysql_real_query(mysql, str.c_str(), str.size())) {
 		LOG_ERROR("Couldn't flush record (" + str + ")");
@@ -257,8 +257,9 @@ void MySQL::recordTorrent(Torrent* t) {
 	std::string Seeders = std::to_string(t->getSeeders()->size());
 	std::string Leechers = std::to_string(t->getLeechers()->size());
 	std::string Snatches = std::to_string(t->getSnatches());
-	LOG_INFO("Recording torrent " + ID + " stats: seeders (" + Seeders + "), leechers (" + Leechers + "), snatches (" + Snatches + ")");
-	torrentRequests.push_back("(" + ID + ", " + Seeders + ", " + Leechers + ", " + Snatches + ")");
+	std::string Balance = std::to_string(t->getBalance());
+	LOG_INFO("Recording torrent " + ID + " stats: seeders (" + Seeders + "), leechers (" + Leechers + "), snatches (" + Snatches + "), balance (" + Balance + ")");
+	torrentRequests.push_back("(" + ID + ", " + Seeders + ", " + Leechers + ", " + Snatches + ", " + Balance + ")");
 	t->reset();
 }
 
@@ -269,8 +270,8 @@ void MySQL::recordPeer(Peer* p, long long now) {
 	unsigned long total_stats,stats;
 	total_stats = p->getTotalStats();
 	stats = p->getStats();
-	LOG_INFO("Recording peer stats (ID: " + PeerID + ", left: " + Left + ")");
-	unsigned int downloaded,uploaded,total_downloaded,total_uploaded, up_speed, down_speed = 0;
+	LOG_INFO("Recording peer stats (ID: " + PeerID + ", left: " + Left + ", speed: " + std::to_string(p->getSpeed()/1024) + " Ko/s)");
+	unsigned int downloaded,uploaded,total_downloaded,total_uploaded,up_speed,down_speed = 0;
 	if (p->isSeeding()) {
 		downloaded = 0;
 		uploaded = total_stats;
@@ -296,6 +297,7 @@ void MySQL::recordPeer(Peer* p, long long now) {
 		"'" + Left + "', " +
 		"'" + std::to_string(up_speed) + "', " +
 		"'" + std::to_string(down_speed) + "', " +
+		"'" + std::to_string(p->getCorrupt()) + "', " +
 		"'" + std::to_string(p->getSeedtime()) + "', " +
 		"'" + p->getClient() + "', " +
 		"'" + PeerID + "', " +

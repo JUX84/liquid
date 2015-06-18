@@ -18,19 +18,21 @@ class Peer {
 		long long seedtime;
 		long long lastUpdate;
 		unsigned int speed;
+		unsigned int corrupt;
 	public:
 		Peer (std::string, User*, bool, unsigned long, unsigned int, std::string, std::string);
 		User* User();
 		const std::string& getPeerID();
 		const std::string& getHexIP();
 		const std::string& getClient();
-		void updateStats(unsigned long, unsigned long, long long);
+		void updateStats(unsigned long, unsigned long, unsigned int, long long);
 		unsigned long getTotalStats();
 		unsigned long getStats();
 		unsigned long getLeft();
 		long long getLastUpdate();
 		unsigned int getSpeed();
 		unsigned int getFID();
+		unsigned int getCorrupt();
 		bool isSeeding();
 		bool isCompleted();
 		bool isActive();

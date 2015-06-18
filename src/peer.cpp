@@ -40,7 +40,7 @@ const std::string& Peer::getClient() {
 	return client;
 }
 
-void Peer::updateStats (unsigned long stats, unsigned long left, long long now) {
+void Peer::updateStats (unsigned long stats, unsigned long left, unsigned int corrupt, long long now) {
 	LOG_INFO("Updating peer stats ("  + std::to_string(stats) + ") on torrent " + std::to_string(fid));
 	this->stats = stats - total_stats;
 	total_stats = stats;
@@ -50,6 +50,7 @@ void Peer::updateStats (unsigned long stats, unsigned long left, long long now) 
 	else
 		speed = 0;
 	seedtime += now - lastUpdate;
+	this->corrupt = corrupt;
 	lastUpdate = now;
 }
 
@@ -116,4 +117,8 @@ void Peer::inactive() {
 
 unsigned int Peer::getSpeed() {
 	return speed;
+}
+
+unsigned int Peer::getCorrupt() {
+	return corrupt;
 }
