@@ -44,9 +44,9 @@ std::string RequestHandler::handle(std::string str, std::string ip)
 		return error("missing info_hash", gzip);
 	}
 	try {
-		req->at("ip") = Utility::ip_hex_encode(req->at("ip")) + Utility::port_hex_encode(req->at("port"));
+		req->at("ip") = Utility::ip_hex_encode(req->at("ip"));
 	} catch (const std::exception& e) {
-		req->emplace("ip", ip + Utility::port_hex_encode(req->at("port")));
+		req->emplace("ip", Utility::ip_hex_encode(ip));
 	}
 	if (bannedIPs.find(req->at("ip")) != bannedIPs.end())
 		return error("banned ip", gzip);

@@ -288,7 +288,7 @@ void MySQL::recordPeer(Peer* p, long long now) {
 	unsigned long total_stats,stats;
 	total_stats = p->getTotalStats();
 	stats = p->getStats();
-	speed = p->getSpeed();
+	unsigned int speed = p->getSpeed();
 	LOG_INFO("Recording peer stats (ID: " + PeerID + ", left: " + Left + ", stats: " + std::to_string(stats) + ", speed: " + std::to_string(speed/1024) + " Ko/s)");
 	unsigned int downloaded,uploaded,total_downloaded,total_uploaded,up_speed,down_speed;
 	if (p->isSeeding()) {

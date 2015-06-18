@@ -3,6 +3,7 @@
 #include "peers.hpp"
 #include "config.hpp"
 #include "requestHandler.hpp"
+#include "utility.hpp"
 
 Peers::Peers() {
 	pMap = PeerMap();
@@ -25,7 +26,7 @@ Peer* Peers::addPeer(const Request& req, unsigned int fid, long long now) {
 	User* u = nullptr;
 	if (Config::get("type") == "private")
 		u = RequestHandler::getUser(req.at("passkey"));
-	Peer* p = new Peer(req.at("ip"), u, req.at("left") == "0", std::stoul(req.at("left")), fid, req.at("user-agent"), req.at("peer_id"));
+	Peer* p = new Peer(req.at("ip") + Utility::port_hex_encode(req.at("port")), u, req.at("left") == "0", std::stoul(req.at("left")), fid, req.at("user-agent"), req.at("peer_id"));
 	pMap.emplace(req.at("peer_id"), *p);
 	lastUpdate = now;
 	return p;
