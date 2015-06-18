@@ -12,13 +12,20 @@ void MySQL::connect() {
 		LOG_ERROR("Couldn't connect to database");
 	} else {
 		LOG_INFO("Succesfully connected to database");
-		std::string query = "TRUNCATE xbt_files_users;";
+		std::string query = "TRUNCATE xbt_files_users";
 		if (mysql_real_query(mysql, query.c_str(), query.size()))
 			return;
 	}
 }
 
 void MySQL::disconnect() {
+	LOG_WARNING("Clearing database");
+	std::string query = "TRUNCATE xbt_files_users";
+	if (mysql_real_query(mysql, query.c_str(), query.size()))
+		return;
+	query = "UPDATE torrents SET Leechers = 0, Seeders = 0";
+	if (mysql_real_query(mysql, query.c_str(), query.size()))
+		return;
 	LOG_WARNING("Disconnecting from database");
 	mysql_free_result(result);
 	mysql_close(mysql);
@@ -235,12 +242,14 @@ void MySQL::flushSnatches() {
 }
 
 void MySQL::recordUser(User* u) {
-	std::string ID = std::to_string(u->getID());
-	std::string Downloaded = std::to_string(u->getDownloaded());
-	std::string Uploaded = std::to_string(u->getUploaded());
-	LOG_INFO("Recording user " + ID + " stats: down (" + Downloaded + "), up (" + Uploaded + ")");
-	userRequests.push_back("(" + ID + ", " + Downloaded + ", " + Uploaded + ")");
-	u->reset();
+	if (u->hasChanged()) {
+		std::string ID = std::to_string(u->getID());
+		std::string Downloaded = std::to_string(u->getDownloaded());
+		std::string Uploaded = std::to_string(u->getUploaded());
+		LOG_INFO("Recording user " + ID + " stats: down (" + Downloaded + "), up (" + Uploaded + ")");
+		userRequests.push_back("(" + ID + ", " + Downloaded + ", " + Uploaded + ")");
+		u->reset();
+	}
 }
 
 void MySQL::recordToken(unsigned int UserID, unsigned int TorrentID, unsigned int Downloaded, bool Expired) {

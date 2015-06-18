@@ -31,4 +31,5 @@ class User {
 		bool addIPRestriction(std::string, int);
 		void removeIPRestriction(std::string);
 		bool isRestricted(std::string);
+		bool hasChanged();
 };

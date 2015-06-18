@@ -121,12 +121,15 @@ std::string RequestHandler::announce(const Request* req, const std::string& info
 	} else {
 		peer = tor->getSeeders()->getPeer(req->at("peer_id"), now);
 		if (req->at("event") == "stopped" || req->at("event") == "completed") {
-			if (peer != nullptr && Config::get("type") == "private") {
-				peer->updateStats(std::stoul(req->at("uploaded")), std::stoul(req->at("left")), corrupt, now);
-				tor->incBalance(peer->getStats());
-				peer->inactive();
-				db->recordPeer(peer, now);
-				db->recordUser(peer->User());
+			if (peer != nullptr) {
+				if (Config::get("type") == "private") {
+					peer->updateStats(std::stoul(req->at("uploaded")), std::stoul(req->at("left")), corrupt, now);
+					tor->incBalance(peer->getStats());
+					peer->inactive();
+					db->recordPeer(peer, now);
+					db->recordUser(peer->User());
+				}
+				tor->getSeeders()->removePeer(*req);
 			} else if (req->at("event") == "completed") {
 				if (peer == nullptr) {
 					peer = tor->getLeechers()->getPeer(req->at("peer_id"), now);

@@ -92,3 +92,7 @@ bool User::isRestricted(std::string ip) {
 	}
 	return true;
 }
+
+bool User::hasChanged() {
+	return (downloaded != 0) || (uploaded != 0);
+}
