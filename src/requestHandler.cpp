@@ -443,7 +443,7 @@ void RequestHandler::clearTorrentPeers(ev::timer& timer, int revents)
 	long long now = std::chrono::duration_cast<std::chrono::seconds>(duration).count();
 	auto t = torMap.begin();
 	while (t != torMap.end()) {
-		bool seedersChanged = false, leechersChanged = false;
+		bool seedersChanged, leechersChanged;
 		seedersChanged = t->second.getSeeders()->timedOut(now, db);
 		leechersChanged = t->second.getLeechers()->timedOut(now, db);
 		if(Config::get("type") == "public" && t->second.getSeeders()->size() == 0 && t->second.getLeechers()->size() == 0) {

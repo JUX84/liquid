@@ -55,7 +55,7 @@ void ConnectionHandler::readRequest(ev::io& w, int revents)
 	memset(buffer, 0, BUFFER_SIZE);
 	size_t size = recv(sock, buffer, BUFFER_SIZE, 0);
 
-	if (size <= 0) {
+	if (size == 0) {
 		destroy();
 		return;
 	}

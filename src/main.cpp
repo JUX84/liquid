@@ -44,7 +44,7 @@ int main(int argc, char **argv)
 
 	try {
 		LOG_INIT(static_cast<Logger::Level>(logLevel));
-		Config::load("liquid.conf");
+		Config::load(configFile);
 		int port = Config::getInt("port");
 		Server server(port);
 		Parser::init();
