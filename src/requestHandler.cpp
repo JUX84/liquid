@@ -455,7 +455,8 @@ void RequestHandler::clearTorrentPeers(ev::timer& timer, int revents)
 	while (t != torMap.end()) {
 		changed += t->second.getSeeders()->timedOut(now, db);
 		changed += t->second.getLeechers()->timedOut(now, db);
-		if(Config::get("type") == "public" && t->second.getSeeders()->size() == 0 && t->second.getLeechers()->size() == 0) {
+		if(Config::get("type") == "public") {
+			if (t->second.getSeeders()->size() == 0 && t->second.getLeechers()->size() == 0)
 			torMap.erase(t++);
 		} else {
 			if (changed > 0) {
