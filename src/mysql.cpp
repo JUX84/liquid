@@ -288,14 +288,15 @@ void MySQL::recordPeer(Peer* p, long long now) {
 	unsigned long total_stats,stats;
 	total_stats = p->getTotalStats();
 	stats = p->getStats();
-	LOG_INFO("Recording peer stats (ID: " + PeerID + ", left: " + Left + ", speed: " + std::to_string(p->getSpeed()/1024) + " Ko/s)");
-	unsigned int downloaded,uploaded,total_downloaded,total_uploaded,up_speed,down_speed = 0;
+	speed = p->getSpeed();
+	LOG_INFO("Recording peer stats (ID: " + PeerID + ", left: " + Left + ", stats: " + std::to_string(stats) + ", speed: " + std::to_string(speed/1024) + " Ko/s)");
+	unsigned int downloaded,uploaded,total_downloaded,total_uploaded,up_speed,down_speed;
 	if (p->isSeeding()) {
 		downloaded = 0;
 		uploaded = stats;
 		total_downloaded = 0;
 		total_uploaded = total_stats;
-		up_speed = p->getSpeed();
+		up_speed = speed;
 		down_speed = 0;
 	} else {
 		downloaded = stats;
@@ -303,7 +304,7 @@ void MySQL::recordPeer(Peer* p, long long now) {
 		total_downloaded = total_stats;
 		total_uploaded = 0;
 		up_speed = 0;
-		down_speed = p->getSpeed();
+		down_speed = speed;
 	}
 	peerRequests.push_back("('" +
 		std::to_string(p->User()->getID()) + "', " +
