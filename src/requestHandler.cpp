@@ -140,6 +140,7 @@ std::string RequestHandler::announce(const Request* req, const std::string& info
 					tor->decBalance(peer->getStats());
 					db->recordPeer(peer, now);
 					db->recordUser(peer->User());
+					db->recordSnatch(peer, now);
 					tor->incSnatches();
 				}
 				tor->getLeechers()->removePeer(*req);
