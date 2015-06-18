@@ -13,19 +13,29 @@ void MySQL::connect() {
 	} else {
 		LOG_INFO("Succesfully connected to database");
 		std::string query = "TRUNCATE xbt_files_users";
-		if (mysql_real_query(mysql, query.c_str(), query.size()))
+		if (mysql_real_query(mysql, query.c_str(), query.size())) {
+			LOG_ERROR("Couldn't truncate peers table");
 			return;
+		}
+		query = "UPDATE torrents SET Leechers = 0, Seeders = 0";
+		if (mysql_real_query(mysql, query.c_str(), query.size())) {
+			LOG_ERROR("Couldn't reset torrent peers count");
+			return;
+		}
 	}
 }
 
 void MySQL::disconnect() {
-	LOG_WARNING("Clearing database");
 	std::string query = "TRUNCATE xbt_files_users";
-	if (mysql_real_query(mysql, query.c_str(), query.size()))
+	if (mysql_real_query(mysql, query.c_str(), query.size())) {
+		LOG_ERROR("Couldn't truncate peers table");
 		return;
+	}
 	query = "UPDATE torrents SET Leechers = 0, Seeders = 0";
-	if (mysql_real_query(mysql, query.c_str(), query.size()))
+	if (mysql_real_query(mysql, query.c_str(), query.size())) {
+		LOG_ERROR("Couldn't reset torrent peers count");
 		return;
+	}
 	LOG_WARNING("Disconnecting from database");
 	mysql_free_result(result);
 	mysql_close(mysql);

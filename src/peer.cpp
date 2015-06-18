@@ -96,7 +96,7 @@ bool Peer::isSnatched() {
 }
 
 bool Peer::timedOut(long long now) {
-	return (now - lastUpdate > Config::getInt("timeout"));
+	return (now - lastUpdate) > Config::getInt("timeout");
 }
 
 void Peer::setSeedtime(long long seedtime) {
