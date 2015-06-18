@@ -22,7 +22,7 @@ class User {
 		unsigned long getDownloaded();
 		unsigned long getUploaded();
 		void reset();
-		void updateStats(unsigned int, unsigned int, long long);
+		void updateStats(unsigned int, unsigned int);
 		void addToken(unsigned int);
 		void addToken(unsigned int, long long);
 		void removeToken(unsigned int);

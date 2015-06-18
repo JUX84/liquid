@@ -292,15 +292,15 @@ void MySQL::recordPeer(Peer* p, long long now) {
 	unsigned int downloaded,uploaded,total_downloaded,total_uploaded,up_speed,down_speed = 0;
 	if (p->isSeeding()) {
 		downloaded = 0;
-		uploaded = total_stats;
+		uploaded = stats;
 		total_downloaded = 0;
-		total_uploaded = stats;
+		total_uploaded = total_stats;
 		up_speed = p->getSpeed();
 		down_speed = 0;
 	} else {
-		downloaded = total_stats;
+		downloaded = stats;
 		uploaded = 0;
-		total_downloaded = stats;
+		total_downloaded = total_stats;
 		total_uploaded = 0;
 		up_speed = 0;
 		down_speed = p->getSpeed();
@@ -321,7 +321,7 @@ void MySQL::recordPeer(Peer* p, long long now) {
 		"'" + std::to_string(p->getFID()) + "', " +
 		"'" + Utility::ip_hex_decode(p->getHexIP()) + "')");
 	p->reset(now);
-	p->User()->updateStats(downloaded,uploaded,now);
+	p->User()->updateStats(downloaded,uploaded);
 }
 
 void MySQL::recordSnatch(Peer* p, long long now) {
