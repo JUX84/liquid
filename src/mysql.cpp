@@ -197,7 +197,7 @@ void MySQL::flushTorrents() {
 			str += ", ";
 		str += it;
 	}
-	str += " ON DUPLICATE KEY UPDATE Seeders = VALUES(Seeders), Leechers = VALUES(Leechers), Snatched = Snatched + VALUES(Snatched), balance = VALUES(balance)";
+	str += " ON DUPLICATE KEY UPDATE Seeders = VALUES(Seeders), Leechers = VALUES(Leechers), Snatched = Snatched + VALUES(Snatched), balance = VALUES(balance), last_action = NOW()";
 	LOG_INFO("Flushing TORRENTS sql records (" + std::to_string(torrentRequests.size()) + ")");
 	if (mysql_real_query(mysql, str.c_str(), str.size())) {
 		LOG_ERROR("Couldn't flush record (" + str + ")");
