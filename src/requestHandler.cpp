@@ -161,7 +161,6 @@ std::string RequestHandler::announce(const Request* req, const std::string& info
 		}
 		i = std::min(std::min(i, static_cast<unsigned long>(Config::getInt("max_numwant"))), peers->size());
 	}
-	LOG_INFO("creating peer list (" + std::to_string(i) + ")");
 	while (i-- > 0) {
 		Peer* p = peers->nextPeer(now);
 		if (p != nullptr)
