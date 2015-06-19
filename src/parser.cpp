@@ -31,6 +31,7 @@ void Parser::init ()
 	required.emplace("add_ip_restriction", std::forward_list<std::string>{});
 	required.emplace("remove_ip_restriction", std::forward_list<std::string>{});
 	required.emplace("add_whitelist", std::forward_list<std::string>{"peer_id"});
+	required.emplace("edit_whitelist", std::forward_list<std::string>{"old_peer_id", "new_peer_id"});
 	required.emplace("remove_whitelist", std::forward_list<std::string>{"peer_id"});
 	required.emplace("set_leech_status", std::forward_list<std::string>{});
 }
