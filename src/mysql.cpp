@@ -81,7 +81,7 @@ void MySQL::loadUsers(UserMap& usrMap) {
 		unsigned int ip = std::stoul(row[2]);
 		try {
 			User* u = usrMap.at("passkey");
-			bool b = u->addIPRestriction(Utility::long2ip(ip), Config::getInt("max_ip"));
+			bool b = u->addIPRestriction(Utility::long2ip(ip));
 			if (!b)
 				LOG_WARNING("Too many IP restrictions for user " + std::to_string(userid));
 		} catch (const std::exception& e) {

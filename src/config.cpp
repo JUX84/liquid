@@ -9,23 +9,22 @@
 #include "config.hpp"
 
 std::unordered_map<std::string, std::pair<std::string, bool>> Config::vars = {
-//	{ "name",				{ "default value", is_integer} }
-	{ "type",				{ "private", false } },
-	{ "port",				{ "2710", true } },
-	{ "timeout",				{ "3600", true } },
+//	{ "name",						{ "default value", is_integer} }
+	{ "type",						{ "private", false } },
+	{ "port",						{ "2710", true } },
+	{ "timeout",					{ "3600", true } },
 	{ "clear_peers_interval",		{ "600", true } },
 	{ "flush_records_interval",		{ "5", true } },
 	{ "read_buffer_size",			{ "512", true } },
 	{ "max_request_size",			{ "4096", true } },
-	{ "max_ip",				{ "5", true } },
-	{ "max_numwant",			{ "50", true } },
+	{ "max_numwant",				{ "50", true } },
 	{ "default_numwant",			{ "20", true } },
-	{ "updatekey",				{ "00000000000000000000000000000000", false } },
-	{ "DB_Host",				{ "127.0.0.1", false } },
-	{ "DB_User",				{ "db_user", false } },
-	{ "DB_Password",			{ "db_password", false } },
-	{ "DB_DBName",				{ "db_name", false } },
-	{ "DB_Port",				{ "3306", true } },
+	{ "updatekey",					{ "00000000000000000000000000000000", false } },
+	{ "DB_Host",					{ "127.0.0.1", false } },
+	{ "DB_User",					{ "db_user", false } },
+	{ "DB_Password",				{ "db_password", false } },
+	{ "DB_DBName",					{ "db_name", false } },
+	{ "DB_Port",					{ "3306", true } },
 };
 
 std::string Config::get(const std::string& name)

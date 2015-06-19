@@ -70,9 +70,7 @@ bool User::isTokenExpired(unsigned int tid) {
 	}
 }
 
-bool User::addIPRestriction(std::string ip, int max) {
-	if (IPRestrictions.size() >= max || IPRestrictions.count(ip) > 0)
-		return false;
+bool User::addIPRestriction(std::string ip) {
 	IPRestrictions.emplace(ip);
 	return true;
 }

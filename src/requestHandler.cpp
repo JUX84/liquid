@@ -278,7 +278,10 @@ std::string RequestHandler::update(const Request* req, const std::forward_list<s
 std::string RequestHandler::addIPRestriction(const Request* req)
 {
 	try {
-		return (usrMap.at(req->at("passkey"))->addIPRestriction(req->at("ip"), Config::getInt("max_ip")) ? "success" : "failure");
+		std::string ip = Utility::long2ip(std::stoul(req->at("ip")));
+		const std::string& passkey = req->at("passkey");
+		LOG_INFO("Adding IP Restriction " + ip + " for User " + std::to_string(getUser(passkey)->getID()));
+		return (usrMap.at(passkey)->addIPRestriction(ip) ? "success" : "failure");
 	}
 	catch (const std::exception& e) {
 		return "failure";
@@ -288,7 +291,10 @@ std::string RequestHandler::addIPRestriction(const Request* req)
 std::string RequestHandler::removeIPRestriction(const Request* req)
 {
 	try {
-		usrMap.at(req->at("passkey"))->removeIPRestriction(req->at("ip"));
+		std::string ip = Utility::long2ip(std::stoul(req->at("ip")));
+		const std::string& passkey = req->at("passkey");
+		LOG_INFO("Removing IP Restriction " + ip + " for User " + std::to_string(getUser(passkey)->getID()));
+		usrMap.at(passkey)->removeIPRestriction(ip);
 		return "success";
 	}
 	catch (const std::exception& e) {
@@ -299,7 +305,10 @@ std::string RequestHandler::removeIPRestriction(const Request* req)
 std::string RequestHandler::addToken(const Request* req, const std::string& infoHash)
 {
 	try {
-		usrMap.at(req->at("userpasskey"))->addToken(torMap.at(infoHash).getID());
+		unsigned int torrentID = torMap.at(infoHash).getID();
+		const std::string& passkey = req->at("passkey");
+		LOG_INFO("Adding Token for User " + std::to_string(getUser(passkey)->getID()) + " on Torrent " + std::to_string(torrentID));
+		usrMap.at(passkey)->addToken(torrentID);
 		return "success";
 	}
 	catch (const std::exception& e) {
@@ -310,7 +319,10 @@ std::string RequestHandler::addToken(const Request* req, const std::string& info
 std::string RequestHandler::removeToken(const Request* req, const std::string& infoHash)
 {
 	try {
-		usrMap.at(req->at("userpasskey"))->removeToken(torMap.at(infoHash).getID());
+		unsigned int torrentID = torMap.at(infoHash).getID();
+		const std::string& passkey = req->at("passkey");
+		LOG_INFO("Removing Token for User " + std::to_string(getUser(passkey)->getID()) + " on Torrent " + std::to_string(torrentID));
+		usrMap.at(passkey)->removeToken(torrentID);
 		return "success";
 	}
 	catch (const std::exception& e) {
@@ -321,11 +333,12 @@ std::string RequestHandler::removeToken(const Request* req, const std::string& i
 std::string RequestHandler::changePasskey(const Request* req)
 {
 	try {
-		const std::string& old = req->at("oldpasskey");
-		User* user = usrMap.at(old);
-		usrMap.erase(old);
-		usrMap.emplace(req->at("newpasskey"), user);
-
+		const std::string& oldPasskey = req->at("old_passkey");
+		const std::string& newPasskey = req->at("new_passkey");
+		LOG_INFO("Changing passkey for User " + std::to_string(getUser(oldPasskey)->getID()) + "(" + oldPasskey + " -> " + newPasskey + ")");
+		User* user = usrMap.at(oldPasskey);
+		usrMap.erase(oldPasskey);
+		usrMap.emplace(newPasskey, user);
 		return "success";
 	}
 	catch (const std::exception& e) {
@@ -336,11 +349,15 @@ std::string RequestHandler::changePasskey(const Request* req)
 std::string RequestHandler::addTorrent(const Request* req, const std::string& infoHash)
 {
 	try {
-		auto t = torMap.emplace(infoHash, Torrent(std::stoul(req->at("id")), std::stoul(req->at("size")), 0, 0));
+		const std::string& torrentID = req->at("id");
+		unsigned long size = std::stoul(req->at("size"));
+		bool freetorrent = req->at("freetorrent") == "1";
+		LOG_INFO("Adding Torrent " + torrentID + " (" + Utility::formatSize(size) + ") " + (freetorrent ? "FREE" : "NORMAL"));
+		auto t = torMap.emplace(infoHash, Torrent(std::stoul(torrentID), size, 0, 0));
 		if (!t.second)
 			return "failure";
 		try {
-			if (req->at("freetorrent") == "1")
+			if (freetorrent)
 				t.first->second.setFree(100);
 			else
 				t.first->second.setFree(0);
@@ -356,8 +373,10 @@ std::string RequestHandler::addTorrent(const Request* req, const std::string& in
 std::string RequestHandler::deleteTorrent(const std::string& infoHash)
 {
 	const auto it = torMap.find(infoHash);
-	if (it != torMap.end())
+	if (it != torMap.end()) {
+		LOG_INFO("Deleting Torrent " + std::to_string(it->second.getID()));
 		torMap.erase(it);
+	}
 	return "success";
 }
 
@@ -365,7 +384,9 @@ std::string RequestHandler::updateTorrent(const Request* req, const std::string&
 {
 	auto it = torMap.find(infoHash);
 	if (it != torMap.end()) {
-		if (req->at("freetorrent") == "1")
+		bool freetorrent = req->at("freetorrent") == "1";
+		LOG_INFO("Updating Torrent " + std::to_string(it->second.getID()) + " to " + (freetorrent ? "FREE" : "NORMAL"));
+		if (freetorrent)
 			it->second.setFree(100);
 		else
 			it->second.setFree(0);
@@ -377,7 +398,10 @@ std::string RequestHandler::updateTorrent(const Request* req, const std::string&
 std::string RequestHandler::addUser(const Request* req)
 {
 	try {
-		return (usrMap.emplace(req->at("passkey"), new User(std::stoul(req->at("id")), true)).second) ? "success" : "failure";
+		std::string passkey = req->at("passkey");
+		std::string userID = req->at("id");
+		LOG_INFO("Adding User " + userID + " (" + passkey + ")");
+		return (usrMap.emplace(passkey, new User(std::stoul(userID), true)).second) ? "success" : "failure";
 	}
 	catch (const std::exception& e) {
 		return "failure";
@@ -386,13 +410,21 @@ std::string RequestHandler::addUser(const Request* req)
 
 std::string RequestHandler::removeUser(const Request* req)
 {
-	return (usrMap.erase(req->at("passkey")) == 1) ? "success" : "failure";
+	std::string passkey = req->at("passkey");
+	User* u = getUser(passkey);
+	if (u != nullptr) {
+		LOG_INFO("Removing User " + std::to_string(u->getID()) + " (" + passkey + ")");
+		usrMap.erase(passkey);
+		return "success";
+	}
+	return "failure";
 }
 
 std::string RequestHandler::addBan(const Request* req) {
 	try {
 		unsigned int from = std::stoul(req->at("fromip"));
 		unsigned int to = std::stoul(req->at("toip"));
+		LOG_INFO("Adding ban IP range (" + std::to_string(from) + " - " + std::to_string(to) + ")");
 		while (from != to)
 			bannedIPs.emplace(Utility::long2ip(from++));
 		bannedIPs.emplace(Utility::long2ip(from));
@@ -406,6 +438,7 @@ std::string RequestHandler::removeBan(const Request* req) {
 	try {
 		unsigned int from = std::stoul(req->at("fromip"));
 		unsigned int to = std::stoul(req->at("toip"));
+		LOG_INFO("Removing ban IP range (" + std::to_string(from) + " - " + std::to_string(to) + ")");
 		while (from != to)
 			bannedIPs.erase(Utility::long2ip(from++));
 		bannedIPs.erase(Utility::long2ip(from));
@@ -418,6 +451,7 @@ std::string RequestHandler::removeBan(const Request* req) {
 std::string RequestHandler::addWhitelist(const Request* req) {
 	try {
 		std::string peerID = req->at("peer_id");
+		LOG_INFO("Adding client whitelisted (" + peerID + ")");
 		clientWhitelist.push_back(peerID);
 		return "success";
 	} catch (const std::exception& e) {
@@ -428,6 +462,7 @@ std::string RequestHandler::addWhitelist(const Request* req) {
 std::string RequestHandler::removeWhitelist(const Request* req) {
 	try {
 		std::string peerID = req->at("peer_id");
+		LOG_INFO("Removing client whitelisted (" + peerID + ")");
 		clientWhitelist.remove(peerID);
 		return "success";
 	} catch (const std::exception& e) {
@@ -438,6 +473,8 @@ std::string RequestHandler::removeWhitelist(const Request* req) {
 std::string RequestHandler::setLeechStatus(const Request* req) {
 	try {
 		leechStatus = (req->at("leech_status") == "freeleech" ? FREELEECH : NORMAL);
+		std::string LeechStatus = (leechStatus == FREELEECH ? "FREE" : "NORMAL");
+		LOG_INFO("Updating leech status (" + LeechStatus  + ")");
 		return "success";
 	} catch (const std::exception& e) {
 		return "failure";
