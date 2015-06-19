@@ -22,7 +22,7 @@ class Peer {
 		unsigned int corrupt;
 		bool changed;
 	public:
-		Peer (std::string, std::string, User*, bool, unsigned long, unsigned int, std::string, std::string);
+		Peer (std::string, std::string, User*, bool, unsigned long, unsigned long, unsigned int, std::string, std::string);
 		User* getUser();
 		const std::string& getPeerID();
 		const std::string& getIP();

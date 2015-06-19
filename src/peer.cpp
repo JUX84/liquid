@@ -5,10 +5,10 @@
 #include "peers.hpp"
 #include "utility.hpp"
 
-Peer::Peer(std::string IP, std::string port, class User* u, bool seeding, unsigned long left, unsigned int torrentID, std::string client, std::string peerID) {
+Peer::Peer(std::string IP, std::string port, class User* u, bool seeding, unsigned long left, unsigned long stats, unsigned int torrentID, std::string client, std::string peerID) {
 	LOG_INFO("Creating peer on torrent " + std::to_string(torrentID) + " using client " + client);
 	user = u;
-	total_stats = 0;
+	total_stats = stats;
 	stats = 0;
 	this->left = left;
 	this->seeding = seeding;
