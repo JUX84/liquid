@@ -242,7 +242,7 @@ std::string RequestHandler::update(const Request* req, const std::forward_list<s
 	std::string resp = "failure";
 	const std::string& type = req->at("type");
 
-	if (type == "update_user")
+	if (type == "change_passkey")
 		resp = changePasskey(req);
 	else if (type == "add_torrent")
 		resp = addTorrent(req, infoHashes->front());
