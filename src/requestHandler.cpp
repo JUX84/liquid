@@ -83,22 +83,21 @@ std::string RequestHandler::announce(const Request* req, const std::string& info
 	}
 	if (req->at("left") != "0") {
 		peer = tor->getLeechers()->getPeer(req->at("peer_id"), now);
-		if (req->at("event") == "stopped") {
-			if (peer != nullptr) {
-				if (Config::get("type") == "private") {
-					peer->inactive();
-					db->recordPeer(peer, now);
-					db->recordUser(peer->User());
-				}
-				tor->getLeechers()->removePeer(*req);
-			}
-		} else if (peer == nullptr) {
-			if (peer == nullptr) {
-				peer = tor->getLeechers()->addPeer(*req, tor->getID(), now);
+		if (req->at("event") == "stopped" && peer != nullptr) {
+			if (Config::get("type") == "private") {
+				peer->inactive();
 				db->recordPeer(peer, now);
+				db->recordUser(peer->User());
 			}
+			tor->getLeechers()->removePeer(*req);
 		}
-		if (peer != nullptr && Config::get("type") == "private" && req->at("event") == "started") {
+		if (peer == nullptr) {
+			peer = tor->getLeechers()->addPeer(*req, tor->getID(), now);
+			if (req->at("event") == "stopped")
+				peer->inactive();
+			db->recordPeer(peer, now);
+		}
+		if (peer != nullptr && Config::get("type") == "private" && req->at("event") != "started") {
 			if (!peer->isSnatched() && (std::stoul(req->at("left")) < ((1-0.25)*tor->getSize())))
 				peer->snatched();
 			int free = tor->getFree();
@@ -128,7 +127,7 @@ std::string RequestHandler::announce(const Request* req, const std::string& info
 					db->recordUser(peer->User());
 				}
 				tor->getSeeders()->removePeer(*req);
-			} else if (req->at("event") == "completed") {
+			} else {
 				if (peer == nullptr) {
 					peer = tor->getLeechers()->getPeer(req->at("peer_id"), now);
 					if (peer == nullptr)
@@ -154,13 +153,14 @@ std::string RequestHandler::announce(const Request* req, const std::string& info
 				peer = tor->getSeeders()->addPeer(*req, tor->getID(), now);
 				db->recordPeer(peer, now);
 			}
-		} else if (peer == nullptr) {
-			if (peer == nullptr) {
-				peer = tor->getSeeders()->addPeer(*req, tor->getID(), now);
-				db->recordPeer(peer, now);
-			}
 		}
-		if (peer != nullptr && Config::get("type") == "private" && req->at("event") == "started") {
+		if (peer == nullptr) {
+			peer = tor->getSeeders()->addPeer(*req, tor->getID(), now);
+			if (req->at("event") == "stopped")
+				peer->inactive();
+			db->recordPeer(peer, now);
+		}
+		if (peer != nullptr && Config::get("type") == "private" && req->at("event") != "started") {
 			peer->updateStats(std::stoul(req->at("uploaded")), std::stoul(req->at("left")), corrupt, now);
 			tor->incBalance(peer->getStats());
 			db->recordPeer(peer, now);
