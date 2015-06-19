@@ -256,6 +256,8 @@ std::string RequestHandler::update(const Request* req, const std::forward_list<s
 		resp = updateUser(req);
 	else if (type == "remove_user")
 		resp = removeUser(req);
+	else if (type == "remove_users")
+		resp = removeUsers(req);
 	else if (type == "add_token")
 		resp = addToken(req, infoHashes->front());
 	else if (type == "remove_token")
@@ -435,6 +437,20 @@ std::string RequestHandler::removeUser(const Request* req)
 		return "success";
 	}
 	return "failure";
+}
+
+std::string RequestHandler::removeUsers(const Request* req)
+{
+	std::string passkeys = req->at("passkeys");
+	for (unsigned int i = 0; i < passkeys.length(); i += 32) {
+		std::string passkey = passkeys.substr(i, 32);
+		User* u = getUser(passkey);
+		if (u != nullptr) {
+			LOG_INFO("Removing User " + std::to_string(u->getID()) + " (" + passkey + ")");
+			usrMap.erase(passkey);
+		}
+	}
+	return "success";
 }
 
 std::string RequestHandler::addBan(const Request* req) {

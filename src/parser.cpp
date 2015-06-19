@@ -23,6 +23,7 @@ void Parser::init ()
 	required.emplace("add_user", std::forward_list<std::string>{"userpasskey", "id"});
 	required.emplace("update_user", std::forward_list<std::string>{"userpasskey", "can_leech"});
 	required.emplace("remove_user", std::forward_list<std::string>{"userpasskey"});
+	required.emplace("remove_users", std::forward_list<std::string>{"passkeys"});
 	required.emplace("add_token", std::forward_list<std::string>{"userpasskey"});
 	required.emplace("remove_token", std::forward_list<std::string>{"userpasskey"});
 	required.emplace("add_ban", std::forward_list<std::string>{"from", "to"});

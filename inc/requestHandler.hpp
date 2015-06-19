@@ -22,6 +22,7 @@ class RequestHandler {
 		static std::string addUser(const Request*);
 		static std::string updateUser(const Request*);
 		static std::string removeUser(const Request*);
+		static std::string removeUsers(const Request*);
 		static std::string addBan(const Request*);
 		static std::string removeBan(const Request*);
 		static std::string addWhitelist(const Request*);
