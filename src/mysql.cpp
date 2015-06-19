@@ -248,7 +248,7 @@ void MySQL::recordUser(User* u) {
 		std::string ID = std::to_string(u->getID());
 		std::string Downloaded = std::to_string(downloaded);
 		std::string Uploaded = std::to_string(uploaded);
-		LOG_INFO("Recording User " + ID + ": " + std::to_string(downloaded/1024) + " Kb downloaded, " + std::to_string(uploaded/1024) + " Kb uploaded");
+		LOG_INFO("Recording User " + ID + ": " + Utility::formatSize(downloaded) + " downloaded, " + Utility::formatSize(uploaded) + " uploaded");
 		userRequests.push_back("(" + ID + ", " + Downloaded + ", " + Uploaded + ")");
 		u->reset();
 	}
@@ -259,7 +259,7 @@ void MySQL::recordToken(unsigned int userID, unsigned int torrentID, unsigned in
 	std::string TorrentID = std::to_string(torrentID);
 	std::string Downloaded = std::to_string(downloaded);
 	std::string Expired = (expired ? "TRUE" : "FALSE");
-	LOG_INFO("Recording Token (UserID: " + UserID + ", TorrentID: " + TorrentID + ", " + std::to_string(downloaded/1024) + " Kb downloaded, Expired: " + Expired + ")");
+	LOG_INFO("Recording Token (UserID: " + UserID + ", TorrentID: " + TorrentID + ", " + Utility::formatSize(downloaded) + " downloaded, Expired: " + Expired + ")");
 	tokenRequests.push_back("(" + UserID + ", " + TorrentID + ", " + Downloaded + ", " + Expired + ")");
 }
 
@@ -288,7 +288,7 @@ void MySQL::recordPeer(Peer* p) {
 		std::string PeerID = p->getPeerID();
 		std::string Seedtime = std::to_string(p->getSeedtime());
 		std::string TorrentID = std::to_string(p->getTorrentID());
-		LOG_INFO("Recording Peer " + PeerID + " on Torrent " + TorrentID + ": " + std::to_string(left/1024) + " Kb left, " + std::to_string(stats/1024) + " Kb " + (seeding ? "uploaded" : "downloaded") + " (" + std::to_string(speed/1024) + " Kb/s), Seedtime: " + Seedtime + "");
+		LOG_INFO("Recording Peer " + PeerID + " on Torrent " + TorrentID + ": " + Utility::formatSize(left) + " left, " + Utility::formatSize(stats) + " " + (seeding ? "uploaded" : "downloaded") + " (" + Utility::formatSize(speed) + "/s), Seedtime: " + Seedtime + "");
 		unsigned int downloaded,uploaded,total_downloaded,total_uploaded,up_speed,down_speed;
 		if (seeding) {
 			downloaded = 0;

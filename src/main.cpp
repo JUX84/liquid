@@ -7,6 +7,7 @@
 #include "parser.hpp"
 #include "config.hpp"
 #include "requestHandler.hpp"
+#include "utility.hpp"
 
 void handler(int sig)
 {

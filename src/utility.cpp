@@ -92,3 +92,43 @@ std::string Utility::long2ip (unsigned int lip) {
 	x.s_addr = htonl(lip);
 	return inet_ntoa(x);
 }
+#include <iostream>
+std::string Utility::formatSize(unsigned long input) {
+	double output = input;
+	int level = 0;
+	while (output > 1024 && level < 8) {
+		output/=1024;
+		++level;
+	}
+	std::string bytes;
+	switch (level) {
+		case 1:
+			bytes = "k";
+			break;
+		case 2:
+			bytes = "M";
+			break;
+		case 3:
+			bytes = "G";
+			break;
+		case 4:
+			bytes = "T";
+			break;
+		case 5:
+			bytes = "P";
+			break;
+		case 6:
+			bytes = "E";
+			break;
+		case 7:
+			bytes = "Z";
+			break;
+		case 8:
+			bytes = "Y";
+			break;
+		default:
+			bytes = "";
+			break;
+	}
+	return std::to_string(output) + " " + bytes + "B";
+}
