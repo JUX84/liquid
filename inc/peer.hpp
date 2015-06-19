@@ -16,7 +16,7 @@ class Peer {
 		std::string peerID;
 		unsigned int fid;
 		std::string client;
-		long long seedtime;
+		unsigned long seedtime;
 		long long lastUpdate;
 		unsigned int speed;
 		unsigned int corrupt;
@@ -42,6 +42,7 @@ class Peer {
 		bool timedOut(long long);
 		bool isSnatched();
 		void snatched();
-		long long getSeedtime();
+		unsigned long getSeedtime();
 		void reset(long long);
+		bool hasChanged();
 };

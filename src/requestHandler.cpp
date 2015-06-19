@@ -83,8 +83,10 @@ std::string RequestHandler::announce(const Request* req, const std::string& info
 	}
 	if (req->at("left") != "0") {
 		peer = tor->getLeechers()->getPeer(req->at("peer_id"), now);
-		if (peer == nullptr)
+		if (peer == nullptr) {
 			peer = tor->getLeechers()->addPeer(*req, tor->getID(), now);
+			tor->change();
+		}
 		if (req->at("event") == "stopped")
 			peer->inactive();
 		if (Config::get("type") == "private" && req->at("event") != "started") {
@@ -102,15 +104,19 @@ std::string RequestHandler::announce(const Request* req, const std::string& info
 		}
 		db->recordPeer(peer, now);
 		db->recordUser(peer->User());
-		if (req->at("event") == "stopped")
+		if (req->at("event") == "stopped") {
 			tor->getLeechers()->removePeer(*req);
+			tor->change();
+		}
 		peers = tor->getSeeders();
 	} else {
 		peer = tor->getSeeders()->getPeer(req->at("peer_id"), now);
 		if (peer == nullptr) {
 			peer = tor->getLeechers()->getPeer(req->at("peer_id"), now);
-			if (peer == nullptr)
+			if (peer == nullptr) {
 				peer = tor->getSeeders()->addPeer(*req, tor->getID(), now);
+				tor->change();
+			}
 		}
 		if (req->at("event") == "stopped")
 		   peer->inactive();
@@ -134,10 +140,14 @@ std::string RequestHandler::announce(const Request* req, const std::string& info
 		}
 		db->recordPeer(peer, now);
 		db->recordUser(peer->User());
-		if (req->at("event") == "stopped")
+		if (req->at("event") == "stopped") {
 			tor->getSeeders()->removePeer(*req);
-		if (req->at("event") == "completed")
+			tor->change();
+		}
+		if (req->at("event") == "completed") {
 			tor->getLeechers()->removePeer(*req);
+			tor->change();
+		}
 		peers = tor->getLeechers();
 	}
 	db->recordTorrent(tor);

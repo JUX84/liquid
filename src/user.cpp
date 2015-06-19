@@ -27,7 +27,6 @@ void User::reset() {
 }
 
 void User::updateStats(unsigned int downloaded, unsigned int uploaded) {
-	LOG_INFO("Updating stats of user " + std::to_string(id) + ": down (" + std::to_string(this->downloaded+downloaded) + "), up (" + std::to_string(this->uploaded+uploaded) + ")");
 	this->downloaded += downloaded;
 	this->uploaded += uploaded;
 }
