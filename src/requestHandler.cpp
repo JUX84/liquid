@@ -92,12 +92,13 @@ std::string RequestHandler::announce(const Request* req, const std::string& info
 				}
 				tor->getLeechers()->removePeer(*req);
 			}
-		} else if (req->at("event") == "started" || peer == nullptr) {
+		} else if (peer == nullptr) {
 			if (peer == nullptr) {
 				peer = tor->getLeechers()->addPeer(*req, tor->getID(), now);
 				db->recordPeer(peer, now);
 			}
-		} else if (peer != nullptr && Config::get("type") == "private") {
+		}
+		if (peer != nullptr && Config::get("type") == "private" && req->at("event") == "started") {
 			if (!peer->isSnatched() && (std::stoul(req->at("left")) < ((1-0.25)*tor->getSize())))
 				peer->snatched();
 			int free = tor->getFree();
@@ -132,33 +133,34 @@ std::string RequestHandler::announce(const Request* req, const std::string& info
 					peer = tor->getLeechers()->getPeer(req->at("peer_id"), now);
 					if (peer == nullptr)
 						peer = tor->getLeechers()->addPeer(*req, tor->getID(), now);
-					int free = tor->getFree();
-					if (leechStatus == FREELEECH)
-						free = 100;
-					if (peer->User()->hasToken(tor->getID())) {
-						bool expired = peer->User()->isTokenExpired(tor->getID());
-						db->recordToken(peer->User()->getID(), tor->getID(), peer->getTotalStats()-std::stoul(req->at("downloaded")), expired);
-						free = 100;
-						db->recordToken(peer->User()->getID(), tor->getID(), peer->getTotalStats()-std::stoul(req->at("downloaded")), true);
-					}
-					tor->decBalance(peer->getCorrupt()-corrupt);
-					peer->updateStats(std::stoul(req->at("downloaded"))*(1-(free/100)), std::stoul(req->at("left")), corrupt, now);
-					tor->decBalance(peer->getStats());
-					db->recordPeer(peer, now);
-					db->recordUser(peer->User());
-					db->recordSnatch(peer, now);
-					tor->incSnatches();
 				}
+				int free = tor->getFree();
+				if (leechStatus == FREELEECH)
+					free = 100;
+				if (peer->User()->hasToken(tor->getID())) {
+					bool expired = peer->User()->isTokenExpired(tor->getID());
+					db->recordToken(peer->User()->getID(), tor->getID(), peer->getTotalStats()-std::stoul(req->at("downloaded")), expired);
+					free = 100;
+					db->recordToken(peer->User()->getID(), tor->getID(), peer->getTotalStats()-std::stoul(req->at("downloaded")), true);
+				}
+				tor->decBalance(peer->getCorrupt()-corrupt);
+				peer->updateStats(std::stoul(req->at("downloaded"))*(1-(free/100)), std::stoul(req->at("left")), corrupt, now);
+				tor->decBalance(peer->getStats());
+				db->recordPeer(peer, now);
+				db->recordUser(peer->User());
+				db->recordSnatch(peer, now);
+				tor->incSnatches();
 				tor->getLeechers()->removePeer(*req);
 				peer = tor->getSeeders()->addPeer(*req, tor->getID(), now);
 				db->recordPeer(peer, now);
 			}
-		} else if (req->at("event") == "started" || peer == nullptr) {
+		} else if (peer == nullptr) {
 			if (peer == nullptr) {
 				peer = tor->getSeeders()->addPeer(*req, tor->getID(), now);
 				db->recordPeer(peer, now);
 			}
-		} else if (peer != nullptr && Config::get("type") == "private") {
+		}
+		if (peer != nullptr && Config::get("type") == "private" && req->at("event") == "started") {
 			peer->updateStats(std::stoul(req->at("uploaded")), std::stoul(req->at("left")), corrupt, now);
 			tor->incBalance(peer->getStats());
 			db->recordPeer(peer, now);
