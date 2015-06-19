@@ -279,7 +279,7 @@ std::string RequestHandler::addIPRestriction(const Request* req)
 {
 	try {
 		std::string ip = Utility::long2ip(std::stoul(req->at("ip")));
-		const std::string& passkey = req->at("passkey");
+		const std::string& passkey = req->at("userpasskey");
 		LOG_INFO("Adding IP Restriction " + ip + " for User " + std::to_string(getUser(passkey)->getID()));
 		return (usrMap.at(passkey)->addIPRestriction(ip) ? "success" : "failure");
 	}
@@ -292,7 +292,7 @@ std::string RequestHandler::removeIPRestriction(const Request* req)
 {
 	try {
 		std::string ip = Utility::long2ip(std::stoul(req->at("ip")));
-		const std::string& passkey = req->at("passkey");
+		const std::string& passkey = req->at("userpasskey");
 		LOG_INFO("Removing IP Restriction " + ip + " for User " + std::to_string(getUser(passkey)->getID()));
 		usrMap.at(passkey)->removeIPRestriction(ip);
 		return "success";
@@ -306,7 +306,7 @@ std::string RequestHandler::addToken(const Request* req, const std::string& info
 {
 	try {
 		unsigned int torrentID = torMap.at(infoHash).getID();
-		const std::string& passkey = req->at("passkey");
+		const std::string& passkey = req->at("userpasskey");
 		LOG_INFO("Adding Token for User " + std::to_string(getUser(passkey)->getID()) + " on Torrent " + std::to_string(torrentID));
 		usrMap.at(passkey)->addToken(torrentID);
 		return "success";
@@ -320,7 +320,7 @@ std::string RequestHandler::removeToken(const Request* req, const std::string& i
 {
 	try {
 		unsigned int torrentID = torMap.at(infoHash).getID();
-		const std::string& passkey = req->at("passkey");
+		const std::string& passkey = req->at("userpasskey");
 		LOG_INFO("Removing Token for User " + std::to_string(getUser(passkey)->getID()) + " on Torrent " + std::to_string(torrentID));
 		usrMap.at(passkey)->removeToken(torrentID);
 		return "success";
@@ -398,7 +398,7 @@ std::string RequestHandler::updateTorrent(const Request* req, const std::string&
 std::string RequestHandler::addUser(const Request* req)
 {
 	try {
-		std::string passkey = req->at("passkey");
+		std::string passkey = req->at("userpasskey");
 		std::string userID = req->at("id");
 		LOG_INFO("Adding User " + userID + " (" + passkey + ")");
 		return (usrMap.emplace(passkey, new User(std::stoul(userID), true)).second) ? "success" : "failure";
@@ -410,7 +410,7 @@ std::string RequestHandler::addUser(const Request* req)
 
 std::string RequestHandler::removeUser(const Request* req)
 {
-	std::string passkey = req->at("passkey");
+	std::string passkey = req->at("userpasskey");
 	User* u = getUser(passkey);
 	if (u != nullptr) {
 		LOG_INFO("Removing User " + std::to_string(u->getID()) + " (" + passkey + ")");
