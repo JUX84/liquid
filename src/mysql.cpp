@@ -209,9 +209,9 @@ void MySQL::flushTorrents() {
 void MySQL::flushPeers() {
 	if (peerRequests.size() == 0)
 		return;
-	std::string str = "INSERT INTO xbt_files_users (uid,active,completed,downloaded,uploaded,remaining,upspeed,downspeed,corrupt,timespent,useragent,peer_id,fid,ip) VALUES ";
+	std::string str = "INSERT INTO xbt_files_users (uid,active,announced,completed,downloaded,uploaded,remaining,upspeed,downspeed,corrupt,timespent,useragent,peer_id,fid,ip) VALUES ";
 	for(const auto &it : peerRequests) {
-		if (str != "INSERT INTO xbt_files_users (uid,active,completed,downloaded,uploaded,remaining,upspeed,downspeed,corrupt,timespent,useragent,peer_id,fid,ip) VALUES ")
+		if (str != "INSERT INTO xbt_files_users (uid,active,announced,completed,downloaded,uploaded,remaining,upspeed,downspeed,corrupt,timespent,useragent,peer_id,fid,ip) VALUES ")
 			str += ", ";
 		str += it;
 	}
@@ -306,7 +306,7 @@ void MySQL::recordPeer(Peer* p) {
 	}
 	peerRequests.push_back("('" +
 			std::to_string(p->getUser()->getID()) + "', " +
-			(p->isActive() ? "1" : "0") + ", " +
+			(p->isActive() ? "1" : "0") + ", 1, " +
 			(p->isCompleted() ? "1" : "0") + ", " +
 			"'" + std::to_string(total_downloaded) + "', " +
 			"'" + std::to_string(total_uploaded) + "', " +
