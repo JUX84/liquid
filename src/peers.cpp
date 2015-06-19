@@ -22,9 +22,9 @@ Peer* Peers::addPeer(const Request& req, unsigned int torrentID, long long now) 
 	User* u = nullptr;
 	if (Config::get("type") == "private")
 		u = RequestHandler::getUser(req.at("passkey"));
-	Peer* p = new Peer(req.at("ip"), req.at("port"), u, req.at("left") == "0", std::stoul(req.at("left")), torrentID, req.at("user-agent"), req.at("peer_id"));
-	pMap.emplace(req.at("peer_id"), *p);
-	return p;
+	std::string peerID = req.at("peer_id");
+	pMap.emplace(peerID, Peer(req.at("ip"), req.at("port"), u, req.at("left") == "0", std::stoul(req.at("left")), torrentID, req.at("user-agent"), req.at("peer_id")));
+	return &pMap.at(peerID);
 }
 
 void Peers::removePeer(const Request& req) {
