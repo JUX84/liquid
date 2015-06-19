@@ -209,13 +209,13 @@ void MySQL::flushTorrents() {
 void MySQL::flushPeers() {
 	if (peerRequests.size() == 0)
 		return;
-	std::string str = "INSERT INTO xbt_files_users (uid,active,completed,downloaded,uploaded,remaining,upspeed,downspeed,corrupt,seedtime,useragent,peer_id,fid,ip) VALUES ";
+	std::string str = "INSERT INTO xbt_files_users (uid,active,completed,downloaded,uploaded,remaining,upspeed,downspeed,corrupt,timespent,useragent,peer_id,fid,ip) VALUES ";
 	for(const auto &it : peerRequests) {
-		if (str != "INSERT INTO xbt_files_users (uid,active,completed,downloaded,uploaded,remaining,upspeed,downspeed,corrupt,seedtime,useragent,peer_id,fid,ip) VALUES ")
+		if (str != "INSERT INTO xbt_files_users (uid,active,completed,downloaded,uploaded,remaining,upspeed,downspeed,corrupt,timespent,useragent,peer_id,fid,ip) VALUES ")
 			str += ", ";
 		str += it;
 	}
-	str += " ON DUPLICATE KEY UPDATE downloaded = VALUES(downloaded), uploaded = VALUES(uploaded), seedtime = seedtime + VALUES(seedtime), upspeed = VALUES(upspeed), downspeed = VALUES(downspeed), corrupt = VALUES(corrupt)";
+	str += " ON DUPLICATE KEY UPDATE downloaded = VALUES(downloaded), uploaded = VALUES(uploaded), timespent = timespent + VALUES(timespent), upspeed = VALUES(upspeed), downspeed = VALUES(downspeed), corrupt = VALUES(corrupt)";
 	LOG_INFO("Flushing PEERS sql records (" + std::to_string(peerRequests.size()) + ")");
 	if (mysql_real_query(mysql, str.c_str(), str.size())) {
 		LOG_ERROR("Couldn't flush record (" + str + ")");
@@ -286,9 +286,9 @@ void MySQL::recordPeer(Peer* p) {
 		stats = p->getStats();
 		std::string Left = std::to_string(left);
 		std::string PeerID = p->getPeerID();
-		std::string Seedtime = std::to_string(p->getSeedtime());
+		std::string Timespent = std::to_string(p->getTimespent());
 		std::string TorrentID = std::to_string(p->getTorrentID());
-		LOG_INFO("Recording Peer " + PeerID + " on Torrent " + TorrentID + ": " + Utility::formatSize(left) + " left, " + Utility::formatSize(stats) + " " + (seeding ? "uploaded" : "downloaded") + " (" + Utility::formatSize(speed) + "/s), Seedtime: " + Seedtime + "");
+		LOG_INFO("Recording Peer " + PeerID + " on Torrent " + TorrentID + ": " + Utility::formatSize(left) + " left, " + Utility::formatSize(stats) + " " + (seeding ? "uploaded" : "downloaded") + " (" + Utility::formatSize(speed) + "/s), Timespent: " + Timespent + "");
 		unsigned int downloaded,uploaded,total_downloaded,total_uploaded,up_speed,down_speed;
 		if (seeding) {
 			downloaded = 0;
@@ -315,7 +315,7 @@ void MySQL::recordPeer(Peer* p) {
 				"'" + std::to_string(up_speed) + "', " +
 				"'" + std::to_string(down_speed) + "', " +
 				"'" + std::to_string(p->getCorrupt()) + "', " +
-				"'" + Seedtime + "', " +
+				"'" + Timespent + "', " +
 				"'" + p->getClient() + "', " +
 				"'" + PeerID + "', " +
 				"'" + TorrentID + "', " +

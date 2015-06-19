@@ -19,7 +19,7 @@ Peer::Peer(std::string IP, std::string port, class User* u, bool seeding, unsign
 	this->peerID = peerID;
 	this->torrentID = torrentID;
 	this->client = client;
-	seedtime = 0;
+	timespent = 0;
 	auto duration = std::chrono::system_clock::now().time_since_epoch();
 	lastUpdate = std::chrono::duration_cast<std::chrono::seconds>(duration).count();
 	this->speed = 0;
@@ -55,10 +55,10 @@ void Peer::updateStats (unsigned long stats, unsigned long left, unsigned int co
 	else
 		speed = 0;
 	if (seeding)
-		seedtime += now - lastUpdate;
+		timespent += now - lastUpdate;
 	this->corrupt = corrupt;
 	lastUpdate = now;
-	if (this->stats > 0 || seedtime > 0)
+	if (this->stats > 0 || timespent > 0)
 		changed = true;
 }
 
@@ -102,8 +102,8 @@ bool Peer::timedOut(long long now) {
 	return (now - lastUpdate) > Config::getInt("timeout");
 }
 
-unsigned long Peer::getSeedtime() {
-	return seedtime;
+unsigned long Peer::getTimespent() {
+	return timespent;
 }
 
 bool Peer::isActive() {

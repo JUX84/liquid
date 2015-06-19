@@ -10,6 +10,7 @@ class RequestHandler {
 		static UserMap usrMap;
 		static Database *db;
 		static std::unordered_set<std::string> bannedIPs;
+		static std::list<std::string> clientWhitelist;
 		static LeechStatus leechStatus;
 		static std::string announce(const Request*, const std::string&, bool);
 		static std::string scrape(const std::forward_list<std::string>*, bool);
@@ -22,6 +23,8 @@ class RequestHandler {
 		static std::string removeUser(const Request*);
 		static std::string addBan(const Request*);
 		static std::string removeBan(const Request*);
+		static std::string addWhitelist(const Request*);
+		static std::string removeWhitelist(const Request*);
 		static std::string addIPRestriction(const Request*);
 		static std::string removeIPRestriction(const Request*);
 		static std::string addToken(const Request*, const std::string&);

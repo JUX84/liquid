@@ -14,6 +14,7 @@ TorrentMap RequestHandler::torMap;
 UserMap RequestHandler::usrMap;
 Database* RequestHandler::db;
 std::unordered_set<std::string> RequestHandler::bannedIPs;
+std::list<std::string> RequestHandler::clientWhitelist;
 LeechStatus RequestHandler::leechStatus;
 
 std::string RequestHandler::handle(std::string str, std::string ip)
@@ -62,6 +63,17 @@ std::string RequestHandler::handle(std::string str, std::string ip)
 std::string RequestHandler::announce(const Request* req, const std::string& infoHash, bool gzip)
 {
 	LOG_INFO("Announce request");
+	if (clientWhitelist.size() > 0) {
+		bool whitelisted = false;
+		for (const auto &it : clientWhitelist) {
+			if (req->at("peer_id").compare(0, it.length(), it) == 0) {
+				whitelisted = true;
+				break;
+			}
+		}
+		if (!whitelisted)
+			return error("client not in whitelist");
+	}
 	auto duration = std::chrono::system_clock::now().time_since_epoch();
 	long long now = std::chrono::duration_cast<std::chrono::seconds>(duration).count();
 	if (Config::get("type") != "private")
@@ -252,6 +264,10 @@ std::string RequestHandler::update(const Request* req, const std::forward_list<s
 		resp = addIPRestriction(req);
 	else if (type == "remove_ip_restriction")
 		resp = removeIPRestriction(req);
+	else if (type == "add_whitelist")
+		resp = addWhitelist(req);
+	else if (type == "remove_whitelist")
+		resp = removeWhitelist(req);
 	else if (type == "set_leech_status")
 		resp = setLeechStatus(req);
 
@@ -393,6 +409,26 @@ std::string RequestHandler::removeBan(const Request* req) {
 		while (from != to)
 			bannedIPs.erase(Utility::long2ip(from++));
 		bannedIPs.erase(Utility::long2ip(from));
+		return "success";
+	} catch (const std::exception& e) {
+		return "failure";
+	}
+}
+
+std::string RequestHandler::addWhitelist(const Request* req) {
+	try {
+		std::string peerID = req->at("peer_id");
+		clientWhitelist.push_back(peerID);
+		return "success";
+	} catch (const std::exception& e) {
+		return "failure";
+	}
+}
+
+std::string RequestHandler::removeWhitelist(const Request* req) {
+	try {
+		std::string peerID = req->at("peer_id");
+		clientWhitelist.remove(peerID);
 		return "success";
 	} catch (const std::exception& e) {
 		return "failure";

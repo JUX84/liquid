@@ -16,7 +16,7 @@ class Peer {
 		std::string peerID;
 		unsigned int torrentID;
 		std::string client;
-		unsigned long seedtime;
+		unsigned long timespent;
 		long long lastUpdate;
 		unsigned int speed;
 		unsigned int corrupt;
@@ -43,6 +43,6 @@ class Peer {
 		bool timedOut(long long);
 		bool isSnatched();
 		void snatched();
-		unsigned long getSeedtime();
+		unsigned long getTimespent();
 		bool hasChanged();
 };
