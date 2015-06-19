@@ -2,11 +2,11 @@
 #include "logger.hpp"
 #include "user.hpp"
 
-User::User (unsigned int id, bool canLeech) {
+User::User (unsigned int id, bool authorized) {
 	this->id = id;
 	downloaded = 0;
 	uploaded = 0;
-	this->canLeech = canLeech;
+	this->authorized = authorized;
 }
 
 unsigned int User::getID () {
@@ -87,6 +87,14 @@ bool User::isRestricted(std::string ip) {
 			return false;
 	}
 	return true;
+}
+
+bool User::isAuthorized() {
+	return authorized;
+}
+
+void User::setAuthorized(bool authorized) {
+	this->authorized = authorized;
 }
 
 bool User::hasChanged() {

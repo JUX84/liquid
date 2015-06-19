@@ -85,6 +85,8 @@ std::string RequestHandler::announce(const Request* req, const std::string& info
 		LOG_WARNING("Torrent not found");
 		return error("torrent not found", gzip);
 	}
+	if (!getUser(req->at("passkey"))->isAuthorized())
+		return error("user unauthorized");
 	Peers *peers = nullptr;
 	Peer *peer = nullptr;
 	unsigned int corrupt;
@@ -250,6 +252,8 @@ std::string RequestHandler::update(const Request* req, const std::forward_list<s
 		resp = updateTorrent(req, infoHashes->front());
 	else if (type == "add_user")
 		resp = addUser(req);
+	else if (type == "update_user")
+		resp = updateUser(req);
 	else if (type == "remove_user")
 		resp = removeUser(req);
 	else if (type == "add_token")
@@ -404,6 +408,19 @@ std::string RequestHandler::addUser(const Request* req)
 		return (usrMap.emplace(passkey, new User(std::stoul(userID), true)).second) ? "success" : "failure";
 	}
 	catch (const std::exception& e) {
+		return "failure";
+	}
+}
+
+std::string RequestHandler::updateUser(const Request* req) {
+	try {
+		std::string passkey = req->at("userpasskey");
+		bool authorized = req->at("can_leech") == "1";
+		User* u = getUser(passkey);
+		LOG_INFO("User " + std::to_string(u->getID()) + " " + (authorized ? "authorized" : "unauthroized"));
+		getUser(passkey)->setAuthorized(authorized);
+		return "success";
+	} catch (const std::exception& e) {
 		return "failure";
 	}
 }

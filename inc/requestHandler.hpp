@@ -20,6 +20,7 @@ class RequestHandler {
 		static std::string deleteTorrent(const std::string&);
 		static std::string updateTorrent(const Request*, const std::string&);
 		static std::string addUser(const Request*);
+		static std::string updateUser(const Request*);
 		static std::string removeUser(const Request*);
 		static std::string addBan(const Request*);
 		static std::string removeBan(const Request*);

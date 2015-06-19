@@ -12,7 +12,7 @@ class User {
 		unsigned int id;
 		unsigned long uploaded;
 		unsigned long downloaded;
-		bool canLeech;
+		bool authorized;
 		std::unordered_map<unsigned int, long long> tokens;
 		std::unordered_set<std::string> IPRestrictions;
 	public:
@@ -28,6 +28,8 @@ class User {
 		bool hasToken(unsigned int);
 		bool isTokenExpired(unsigned int);
 		bool addIPRestriction(std::string);
+		bool isAuthorized();
+		void setAuthorized(bool);
 		void removeIPRestriction(std::string);
 		bool isRestricted(std::string);
 		bool hasChanged();
