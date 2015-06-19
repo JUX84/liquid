@@ -11,7 +11,6 @@ class Peers {
 	private:
 		PeerMap::iterator it;
 		PeerMap pMap;
-		long long lastUpdate;
 	public:
 		Peers();
 		Peer* getPeer(const std::string&, long long);

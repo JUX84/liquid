@@ -36,7 +36,7 @@ class Database {
 		virtual void flushTokens() = 0;
 		virtual void recordUser(User*) = 0;
 		virtual void recordTorrent(Torrent*) = 0;
-		virtual void recordPeer(Peer*, long long) = 0;
+		virtual void recordPeer(Peer*) = 0;
 		virtual void recordSnatch(Peer*, long long) = 0;
 		virtual void recordToken(unsigned int, unsigned int, unsigned int, bool) = 0;
 };

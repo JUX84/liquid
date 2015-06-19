@@ -25,7 +25,7 @@ Peer::Peer(std::string IP, std::string port, class User* u, bool seeding, unsign
 	this->speed = 0;
 }
 
-User* Peer::User() {
+User* Peer::getUser() {
 	return user;
 }
 
@@ -80,11 +80,6 @@ unsigned long Peer::getStats() {
 
 unsigned long Peer::getTotalStats() {
 	return total_stats;
-}
-
-void Peer::reset(long long now) {
-	stats = seedtime = 0;
-	lastUpdate = now;
 }
 
 unsigned int Peer::getFID() {

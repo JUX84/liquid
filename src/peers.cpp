@@ -8,13 +8,9 @@
 Peers::Peers() {
 	pMap = PeerMap();
 	it = std::begin(pMap);
-	auto time_point = std::chrono::system_clock::now();
-	auto duration = time_point.time_since_epoch();
-	lastUpdate = std::chrono::duration_cast<std::chrono::seconds>(duration).count();
 }
 
 Peer* Peers::getPeer(const std::string& peerID, long long now) {
-	lastUpdate = now;
 	try {
 		return &pMap.at(peerID);
 	} catch (const std::exception& e) {
@@ -28,7 +24,6 @@ Peer* Peers::addPeer(const Request& req, unsigned int fid, long long now) {
 		u = RequestHandler::getUser(req.at("passkey"));
 	Peer* p = new Peer(req.at("ip"), req.at("port"), u, req.at("left") == "0", std::stoul(req.at("left")), fid, req.at("user-agent"), req.at("peer_id"));
 	pMap.emplace(req.at("peer_id"), *p);
-	lastUpdate = now;
 	return p;
 }
 
@@ -61,7 +56,7 @@ unsigned int Peers::timedOut(long long now, Database* db)
 		if (it->second.timedOut(now)) {
 			if (Config::get("type") == "private") {
 				it->second.inactive();
-				db->recordPeer(&it->second, now);
+				db->recordPeer(&it->second);
 				++changed;
 			}
 			pMap.erase(it++);

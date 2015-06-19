@@ -13,11 +13,10 @@ class User {
 		unsigned long uploaded;
 		unsigned long downloaded;
 		bool canLeech;
-		bool isVisible;
 		std::unordered_map<unsigned int, long long> tokens;
 		std::unordered_set<std::string> IPRestrictions;
 	public:
-		User (unsigned int, bool, bool);
+		User (unsigned int, bool);
 		unsigned int getID();
 		unsigned long getDownloaded();
 		unsigned long getUploaded();

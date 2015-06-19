@@ -93,17 +93,17 @@ std::string RequestHandler::announce(const Request* req, const std::string& info
 			int free = tor->getFree();
 			if (leechStatus == FREELEECH)
 				free = 100;
-			if (peer->User()->hasToken(tor->getID())) {
-				bool expired = peer->User()->isTokenExpired(tor->getID());
-				db->recordToken(peer->User()->getID(), tor->getID(), peer->getTotalStats()-std::stoul(req->at("downloaded")), expired);
+			if (peer->getUser()->hasToken(tor->getID())) {
+				bool expired = peer->getUser()->isTokenExpired(tor->getID());
+				db->recordToken(peer->getUser()->getID(), tor->getID(), peer->getTotalStats()-std::stoul(req->at("downloaded")), expired);
 				free = 100;
 			}
 			tor->decBalance(peer->getCorrupt()-corrupt);
 			peer->updateStats(std::stoul(req->at("downloaded"))*(1-(free/100)), std::stoul(req->at("left")), corrupt, now);
 			tor->decBalance(peer->getStats());
 		}
-		db->recordPeer(peer, now);
-		db->recordUser(peer->User());
+		db->recordPeer(peer);
+		db->recordUser(peer->getUser());
 		if (req->at("event") == "stopped") {
 			tor->getLeechers()->removePeer(*req);
 			tor->change();
@@ -125,9 +125,9 @@ std::string RequestHandler::announce(const Request* req, const std::string& info
 				int free = tor->getFree();
 				if (leechStatus == FREELEECH)
 					free = 100;
-				if (peer->User()->hasToken(tor->getID())) {
-					bool expired = peer->User()->isTokenExpired(tor->getID());
-					db->recordToken(peer->User()->getID(), tor->getID(), peer->getTotalStats()-std::stoul(req->at("downloaded")), expired);
+				if (peer->getUser()->hasToken(tor->getID())) {
+					bool expired = peer->getUser()->isTokenExpired(tor->getID());
+					db->recordToken(peer->getUser()->getID(), tor->getID(), peer->getTotalStats()-std::stoul(req->at("downloaded")), expired);
 					free = 100;
 				}
 				tor->decBalance(peer->getCorrupt()-corrupt);
@@ -138,8 +138,8 @@ std::string RequestHandler::announce(const Request* req, const std::string& info
 				tor->incBalance(peer->getStats());
 			}
 		}
-		db->recordPeer(peer, now);
-		db->recordUser(peer->User());
+		db->recordPeer(peer);
+		db->recordUser(peer->getUser());
 		if (req->at("event") == "stopped") {
 			tor->getSeeders()->removePeer(*req);
 			tor->change();
@@ -351,7 +351,7 @@ std::string RequestHandler::updateTorrent(const Request* req, const std::string&
 std::string RequestHandler::addUser(const Request* req)
 {
 	try {
-		return (usrMap.emplace(req->at("passkey"), new User(std::stoul(req->at("id")), true, true)).second) ? "success" : "failure";
+		return (usrMap.emplace(req->at("passkey"), new User(std::stoul(req->at("id")), true)).second) ? "success" : "failure";
 	}
 	catch (const std::exception& e) {
 		return "failure";

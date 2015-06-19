@@ -23,7 +23,7 @@ class MySQL : public Database {
 		void flushSnatches();
 		void recordUser(User*);
 		void recordTorrent(Torrent*);
-		void recordPeer(Peer*, long long);
+		void recordPeer(Peer*);
 		void recordSnatch(Peer*, long long);
 		void recordToken(unsigned int, unsigned int, unsigned int, bool);
 };

@@ -2,12 +2,11 @@
 #include "logger.hpp"
 #include "user.hpp"
 
-User::User (unsigned int id, bool canLeech, bool isVisible) {
+User::User (unsigned int id, bool canLeech) {
 	this->id = id;
 	downloaded = 0;
 	uploaded = 0;
 	this->canLeech = canLeech;
-	this->isVisible = isVisible;
 }
 
 unsigned int User::getID () {

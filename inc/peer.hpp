@@ -22,7 +22,7 @@ class Peer {
 		unsigned int corrupt;
 	public:
 		Peer (std::string, std::string, User*, bool, unsigned long, unsigned int, std::string, std::string);
-		User* User();
+		User* getUser();
 		const std::string& getPeerID();
 		const std::string& getIP();
 		const std::string& getHexIPPort();
@@ -43,6 +43,5 @@ class Peer {
 		bool isSnatched();
 		void snatched();
 		unsigned long getSeedtime();
-		void reset(long long);
 		bool hasChanged();
 };

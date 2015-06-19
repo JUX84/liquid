@@ -1,10 +1,7 @@
-short term:
-separate private and public tracker functions using #define's
-modular db management (associative array for db table/columns -> value)
-multithreading
-client whitelist
-ipv6
-down/up speeds
-
-long term:
-influxdb
+MultiThreading
+Optimize public tracker code by using #define on private tracker code
+Modular DB Management
+Tracker stats
+Client Whitelist
+IPv6
+Profiling and optimisation
