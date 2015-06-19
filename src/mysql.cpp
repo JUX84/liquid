@@ -278,7 +278,7 @@ void MySQL::recordTorrent(Torrent* t) {
 
 void MySQL::recordPeer(Peer* p) {
 	bool seeding = p->isSeeding();
-	if (p->hasChanged() || seeding) {
+	if (p->hasChanged()) {
 		unsigned long total_stats,stats,left;
 		unsigned int speed = p->getSpeed();
 		left = p->getLeft();
