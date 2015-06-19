@@ -23,7 +23,6 @@ Peer::Peer(std::string IP, std::string port, class User* u, bool seeding, unsign
 	auto duration = std::chrono::system_clock::now().time_since_epoch();
 	lastUpdate = std::chrono::duration_cast<std::chrono::seconds>(duration).count();
 	this->speed = 0;
-	changed = true;
 }
 
 User* Peer::getUser() {
@@ -58,8 +57,6 @@ void Peer::updateStats (unsigned long stats, unsigned long left, unsigned int co
 		timespent += now - lastUpdate;
 	this->corrupt = corrupt;
 	lastUpdate = now;
-	if (this->stats > 0 || timespent > 0)
-		changed = true;
 }
 
 unsigned long Peer::getLeft() {
@@ -120,12 +117,4 @@ unsigned int Peer::getSpeed() {
 
 unsigned int Peer::getCorrupt() {
 	return corrupt;
-}
-
-bool Peer::hasChanged() {
-	if (changed) {
-		changed = false;
-		return true;
-	}
-	return false;
 }

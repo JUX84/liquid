@@ -20,7 +20,6 @@ class Peer {
 		long long lastUpdate;
 		unsigned int speed;
 		unsigned int corrupt;
-		bool changed;
 	public:
 		Peer (std::string, std::string, User*, bool, unsigned long, unsigned long, unsigned int, std::string, std::string);
 		User* getUser();
@@ -44,5 +43,4 @@ class Peer {
 		bool isSnatched();
 		void snatched();
 		unsigned long getTimespent();
-		bool hasChanged();
 };
