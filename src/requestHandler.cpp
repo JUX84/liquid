@@ -467,6 +467,7 @@ void RequestHandler::init() {
 	db->loadUsers(usrMap);
 	db->loadTorrents(torMap);
 	db->loadBannedIPs(bannedIPs);
+	db->loadClientWhitelist(clientWhitelist);
 	if (Config::get("type") == "private")
 		db->loadLeechStatus(leechStatus);
 }

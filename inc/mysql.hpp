@@ -14,6 +14,7 @@ class MySQL : public Database {
 		void loadUsers(UserMap&);
 		void loadTorrents(TorrentMap&);
 		void loadBannedIPs(std::unordered_set<std::string>&);
+		void loadClientWhitelist(std::list<std::string>&);
 		void loadLeechStatus(LeechStatus&);
 		void flush();
 		void flushUsers();

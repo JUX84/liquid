@@ -44,7 +44,7 @@ void MySQL::disconnect() {
 void MySQL::loadUsers(UserMap& usrMap) {
 	std::string query = "SELECT ID, torrent_pass, can_leech FROM users_main";
 	if (mysql_real_query(mysql, query.c_str(), query.size())) {
-		LOG_ERROR("Couldn't load users database");
+		LOG_ERROR("Couldn't load users");
 		return;
 	}
 	result = mysql_use_result(mysql);
@@ -71,7 +71,7 @@ void MySQL::loadUsers(UserMap& usrMap) {
 	// load ip restrictions
 	query = "SELECT um.ID, um.torrent_pass, ir.IP FROM ip_restrictions AS ir INNER JOIN users_main as um ON um.ID = ir.UserID";
 	if (mysql_real_query(mysql, query.c_str(), query.size())) {
-		LOG_ERROR("Couldn't load IP restrictions addresses database");
+		LOG_ERROR("Couldn't load IP restrictions addresses");
 		return;
 	}
 	result = mysql_use_result(mysql);
@@ -94,7 +94,7 @@ void MySQL::loadUsers(UserMap& usrMap) {
 void MySQL::loadTorrents(TorrentMap& torMap) {
 	std::string query = "SELECT ID, Size, info_hash, freetorrent, balance FROM torrents";
 	if (mysql_real_query(mysql, query.c_str(), query.size())) {
-		LOG_ERROR("Couldn't load torrents database");
+		LOG_ERROR("Couldn't load torrents");
 		return;
 	}
 	result = mysql_use_result(mysql);
@@ -114,7 +114,7 @@ void MySQL::loadTorrents(TorrentMap& torMap) {
 void MySQL::loadBannedIPs(std::unordered_set<std::string> &bannedIPs) {
 	std::string query = "SELECT FromIP, ToIP FROM ip_bans";
 	if (mysql_real_query(mysql, query.c_str(), query.size())) {
-		LOG_ERROR("Couldn't load banned IP addresses database");
+		LOG_ERROR("Couldn't load banned IP addresses");
 		return;
 	}
 	result = mysql_use_result(mysql);
@@ -129,10 +129,23 @@ void MySQL::loadBannedIPs(std::unordered_set<std::string> &bannedIPs) {
 	LOG_INFO("Loaded " + std::to_string(mysql_num_rows(result)) + " banned IP addresses");
 }
 
+void MySQL::loadClientWhitelist(std::list<std::string> &clientWhitelist) {
+	std::string query = "SELECT peer_id FROM xbt_client_whitelist";
+	if (mysql_real_query(mysql, query.c_str(), query.size())) {
+		LOG_ERROR("Couldn't load client whitelist");
+		return;
+	}
+	result = mysql_use_result(mysql);
+	while((row = mysql_fetch_row(result))) {
+		clientWhitelist.push_back(row[0]);
+	}
+	LOG_INFO("Loaded " + std::to_string(mysql_num_rows(result)) + " whitelisted clients");
+}
+
 void MySQL::loadLeechStatus(LeechStatus &leechStatus) {
 	std::string query = "SELECT `Data` FROM site_options WHERE `Option` = 'leech_status'";
 	if (mysql_real_query(mysql, query.c_str(), query.size())) {
-		LOG_ERROR("Couldn't load banned IP addresses database");
+		LOG_ERROR("Couldn't load banned IP addresses");
 		return;
 	}
 	result = mysql_use_result(mysql);

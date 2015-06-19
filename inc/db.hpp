@@ -27,6 +27,7 @@ class Database {
 		virtual void loadUsers(UserMap&) = 0;
 		virtual void loadTorrents(TorrentMap&) = 0;
 		virtual void loadBannedIPs(std::unordered_set<std::string>&) = 0;
+		virtual void loadClientWhitelist(std::list<std::string>&) = 0;
 		virtual void loadLeechStatus(LeechStatus&) = 0;
 		virtual void flush() = 0;
 		virtual void flushUsers() = 0;
