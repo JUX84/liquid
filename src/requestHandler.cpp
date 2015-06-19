@@ -90,7 +90,7 @@ std::string RequestHandler::announce(const Request* req, const std::string& info
 		}
 		if (req->at("event") == "stopped")
 			peer->inactive();
-		if (Config::get("type") == "private" && req->at("event") != "started") {
+		if (Config::get("type") == "private") {
 			int free = tor->getFree();
 			if (leechStatus == FREELEECH)
 				free = 100;
@@ -140,9 +140,9 @@ std::string RequestHandler::announce(const Request* req, const std::string& info
 					tor->decBalance(balance);
 				peer->updateStats(std::stoul(req->at("downloaded"))*(1-(free/100)), std::stoul(req->at("left")), corrupt, now);
 				balance = peer->getStats();
-			if (balance > 0)
-				tor->decBalance(balance);
-			} else if (req->at("event") != "started") {
+				if (balance > 0)
+					tor->decBalance(balance);
+			} else {
 				peer->updateStats(std::stoul(req->at("uploaded")), std::stoul(req->at("left")), corrupt, now);
 				balance = peer->getStats();
 				if (balance > 0)
