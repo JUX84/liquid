@@ -248,7 +248,7 @@ void MySQL::recordUser(User* u) {
 		std::string ID = std::to_string(u->getID());
 		std::string Downloaded = std::to_string(downloaded);
 		std::string Uploaded = std::to_string(uploaded);
-		LOG_INFO("Recording User (" + ID + "): " + std::to_string(downloaded/1024) + " Kb downloaded, " + std::to_string(uploaded/1024) + " Kb uploaded");
+		LOG_INFO("Recording User " + ID + ": " + std::to_string(downloaded/1024) + " Kb downloaded, " + std::to_string(uploaded/1024) + " Kb uploaded");
 		userRequests.push_back("(" + ID + ", " + Downloaded + ", " + Uploaded + ")");
 		u->reset();
 	}
@@ -270,7 +270,7 @@ void MySQL::recordTorrent(Torrent* t) {
 		std::string Leechers = std::to_string(t->getLeechers()->size());
 		std::string Snatches = std::to_string(t->getSnatches());
 		std::string Balance = std::to_string(t->getBalance());
-		LOG_INFO("Recording Torrent (" + ID + "): " + Seeders + " Seeders, " + Leechers + " Leechers, " + Snatches + " new Snatches, Balance: " + Balance + "");
+		LOG_INFO("Recording Torrent " + ID + ": " + Seeders + " Seeders, " + Leechers + " Leechers, " + Snatches + " new Snatches, Balance: " + Balance + "");
 		torrentRequests.push_back("(" + ID + ", " + Seeders + ", " + Leechers + ", " + Snatches + ", " + Balance + ")");
 		t->reset();
 	}
@@ -287,7 +287,8 @@ void MySQL::recordPeer(Peer* p) {
 		std::string Left = std::to_string(left);
 		std::string PeerID = p->getPeerID();
 		std::string Seedtime = std::to_string(p->getSeedtime());
-		LOG_INFO("Recording Peer (" + PeerID + "): " + std::to_string(left/1024) + " Kb left, " + std::to_string(stats/1024) + " Kb " + (seeding ? "uploaded" : "downloaded") + " (" + std::to_string(speed/1024) + " Kb/s), Seedtime: " + Seedtime + "");
+		std::string TorrentID = std::to_string(p->getTorrentID());
+		LOG_INFO("Recording Peer " + PeerID + " on Torrent " + TorrentID + ": " + std::to_string(left/1024) + " Kb left, " + std::to_string(stats/1024) + " Kb " + (seeding ? "uploaded" : "downloaded") + " (" + std::to_string(speed/1024) + " Kb/s), Seedtime: " + Seedtime + "");
 		unsigned int downloaded,uploaded,total_downloaded,total_uploaded,up_speed,down_speed;
 		if (seeding) {
 			downloaded = 0;
@@ -317,7 +318,7 @@ void MySQL::recordPeer(Peer* p) {
 				"'" + Seedtime + "', " +
 				"'" + p->getClient() + "', " +
 				"'" + PeerID + "', " +
-				"'" + std::to_string(p->getFID()) + "', " +
+				"'" + TorrentID + "', " +
 				"'" + p->getIP() + "')");
 		p->getUser()->updateStats(downloaded,uploaded);
 	}
@@ -325,11 +326,11 @@ void MySQL::recordPeer(Peer* p) {
 
 void MySQL::recordSnatch(Peer* p, long long now) {
 	std::string PeerID = p->getPeerID();
-	std::string FID = std::to_string(p->getFID());
-	LOG_INFO("Peer " + PeerID + " snatched torrent " + FID);
+	std::string TorrentID = std::to_string(p->getTorrentID());
+	LOG_INFO("Peer " + PeerID + " snatched torrent " + TorrentID);
 	snatchRequests.push_back("('"
 		+ std::to_string(p->getUser()->getID()) + "', " +
 		"'" + std::to_string(now) + "', " +
-		"'" + FID + "', " +
+		"'" + TorrentID + "', " +
 		"'" + p->getIP() + "')");
 }

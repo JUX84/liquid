@@ -14,7 +14,7 @@ class Peer {
 		std::string IP;
 		std::string hexIPPort;
 		std::string peerID;
-		unsigned int fid;
+		unsigned int torrentID;
 		std::string client;
 		unsigned long seedtime;
 		long long lastUpdate;
@@ -34,7 +34,7 @@ class Peer {
 		unsigned long getLeft();
 		long long getLastUpdate();
 		unsigned int getSpeed();
-		unsigned int getFID();
+		unsigned int getTorrentID();
 		unsigned int getCorrupt();
 		bool isSeeding();
 		bool isCompleted();

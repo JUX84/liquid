@@ -55,17 +55,13 @@ long Torrent::getBalance() {
 }
 
 void Torrent::incBalance(unsigned long inc) {
-	if (inc > 0) {
-		changed = true;
-		balance += inc;
-	}
+	changed = true;
+	balance += inc;
 }
 
 void Torrent::decBalance(unsigned long dec) {
-	if (dec > 0) {
-		changed = true;
-		balance -= dec;
-	}
+	changed = true;
+	balance -= dec;
 }
 
 void Torrent::change() {

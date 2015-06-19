@@ -5,8 +5,8 @@
 #include "peers.hpp"
 #include "utility.hpp"
 
-Peer::Peer(std::string IP, std::string port, class User* u, bool seeding, unsigned long left, unsigned int fid, std::string client, std::string peerID) {
-	LOG_INFO("Creating peer on torrent " + std::to_string(fid) + " using client " + client);
+Peer::Peer(std::string IP, std::string port, class User* u, bool seeding, unsigned long left, unsigned int torrentID, std::string client, std::string peerID) {
+	LOG_INFO("Creating peer on torrent " + std::to_string(torrentID) + " using client " + client);
 	user = u;
 	total_stats = 0;
 	stats = 0;
@@ -17,7 +17,7 @@ Peer::Peer(std::string IP, std::string port, class User* u, bool seeding, unsign
 	this->IP = IP;
 	this->hexIPPort = Utility::ip_port_hex_encode(IP, port);
 	this->peerID = peerID;
-	this->fid = fid;
+	this->torrentID = torrentID;
 	this->client = client;
 	seedtime = 0;
 	auto duration = std::chrono::system_clock::now().time_since_epoch();
@@ -86,8 +86,8 @@ unsigned long Peer::getTotalStats() {
 	return total_stats;
 }
 
-unsigned int Peer::getFID() {
-	return fid;
+unsigned int Peer::getTorrentID() {
+	return torrentID;
 }
 
 void Peer::snatched() {
