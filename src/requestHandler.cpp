@@ -405,7 +405,7 @@ std::string RequestHandler::addUser(const Request* req)
 		std::string passkey = req->at("userpasskey");
 		std::string userID = req->at("id");
 		LOG_INFO("Adding User " + userID + " (" + passkey + ")");
-		return (usrMap.emplace(passkey, new User(std::stoul(userID), true)).second) ? "success" : "failure";
+		return "success";
 	}
 	catch (const std::exception& e) {
 		return "failure";
