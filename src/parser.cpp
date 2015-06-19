@@ -15,17 +15,22 @@ void Parser::init ()
 		required.at("announce").push_front("passkey");
 	required.emplace("scrape", std::forward_list<std::string>{});
 
-	required.emplace("update", std::forward_list<std::string>{"type"});
-	required.emplace("change_passkey", std::forward_list<std::string>{"oldpasskey", "newpasskey"});
+	required.emplace("update", std::forward_list<std::string>{"type","passkey"});
+	required.emplace("change_passkey", std::forward_list<std::string>{"old_passkey", "new_passkey"});
 	required.emplace("add_torrent", std::forward_list<std::string>{"id", "size"});
 	required.emplace("delete_torrent", std::forward_list<std::string>{});
 	required.emplace("update_torrent", std::forward_list<std::string>{"freetorrent"});
-	required.emplace("add_user", std::forward_list<std::string>{"passkey", "id"});
-	required.emplace("remove_user", std::forward_list<std::string>{"passkey"});
+	required.emplace("add_user", std::forward_list<std::string>{"userpasskey", "id"});
+	required.emplace("update_user", std::forward_list<std::string>{"userpasskey", "can_leech"});
+	required.emplace("remove_user", std::forward_list<std::string>{"userpasskey"});
+	required.emplace("add_token", std::forward_list<std::string>{"userpasskey"});
+	required.emplace("remove_token", std::forward_list<std::string>{"userpasskey"});
 	required.emplace("add_ban", std::forward_list<std::string>{"from", "to"});
 	required.emplace("remove_ban", std::forward_list<std::string>{"from", "to"});
 	required.emplace("add_ip_restriction", std::forward_list<std::string>{});
 	required.emplace("remove_ip_restriction", std::forward_list<std::string>{});
+	required.emplace("add_whitelist", std::forward_list<std::string>{"peer_id"});
+	required.emplace("remove_whitelist", std::forward_list<std::string>{"peer_id"});
 	required.emplace("set_leech_status", std::forward_list<std::string>{});
 }
 
