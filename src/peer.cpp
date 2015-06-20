@@ -5,7 +5,7 @@
 #include "peers.hpp"
 #include "utility.hpp"
 
-Peer::Peer(std::string IP, std::string port, class User* u, bool seeding, unsigned long announcedLeft, unsigned long announcedDownloaded, unsigned long announcedUploaded, unsigned int torrentID, std::string client, std::string peerID) {
+Peer::Peer(std::string IP, std::string port, class User* u, unsigned long announcedLeft, unsigned long announcedDownloaded, unsigned long announcedUploaded, unsigned int torrentID, std::string client, std::string peerID) {
 	LOG_INFO("Creating peer on torrent " + std::to_string(torrentID) + " using client " + client);
 	user = u;
 	totalDownloaded = announcedDownloaded;
@@ -13,8 +13,7 @@ Peer::Peer(std::string IP, std::string port, class User* u, bool seeding, unsign
 	downloaded = 0;
 	uploaded = 0;
 	left = announcedLeft;
-	this->seeding = seeding;
-	completed = seeding;
+	completed = left == 0;
 	active = true;
 	this->IP = IP;
 	this->hexIPPort = Utility::ip_port_hex_encode(IP, port);
@@ -82,8 +81,8 @@ long long Peer::getLastUpdate() {
 	return lastUpdate;
 }
 
-bool Peer::isSeeding() {
-	return seeding;
+void Peer::complete() {
+	completed = true;
 }
 
 bool Peer::isCompleted() {
@@ -108,14 +107,6 @@ unsigned long Peer::getTotalUploaded() {
 
 unsigned int Peer::getTorrentID() {
 	return torrentID;
-}
-
-void Peer::snatched() {
-	completed = true;
-}
-
-bool Peer::isSnatched() {
-	return completed;
 }
 
 bool Peer::timedOut(long long now) {

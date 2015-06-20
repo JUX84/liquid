@@ -12,7 +12,6 @@ class Peer {
 		unsigned int downSpeed;
 		unsigned int upSpeed;
 		unsigned long left;
-		bool seeding;
 		bool completed;
 		bool active;
 		std::string IP;
@@ -24,7 +23,7 @@ class Peer {
 		long long lastUpdate;
 		unsigned int corrupt;
 	public:
-		Peer (std::string, std::string, User*, bool, unsigned long, unsigned long, unsigned long, unsigned int, std::string, std::string);
+		Peer (std::string, std::string, User*, unsigned long, unsigned long, unsigned long, unsigned int, std::string, std::string);
 		User* getUser();
 		const std::string& getPeerID();
 		const std::string& getIP();
@@ -41,12 +40,10 @@ class Peer {
 		long long getLastUpdate();
 		unsigned int getTorrentID();
 		unsigned int getCorrupt();
-		bool isSeeding();
+		void complete();
 		bool isCompleted();
 		bool isActive();
 		void inactive();
 		bool timedOut(long long);
-		bool isSnatched();
-		void snatched();
 		unsigned long getTimespent();
 };

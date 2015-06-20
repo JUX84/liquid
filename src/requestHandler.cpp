@@ -102,6 +102,8 @@ std::string RequestHandler::announce(const Request* req, const std::string& info
 		if (peer == nullptr) {
 			peer = tor->getLeechers()->addPeer(*req, tor->getID(), now);
 			tor->change();
+		} else {
+			peer->complete();
 		}
 		if (Config::get("type") == "private") {
 			free = tor->getFree();
@@ -114,7 +116,8 @@ std::string RequestHandler::announce(const Request* req, const std::string& info
 			}
 		}
 		peers = tor->getSeeders();
-	} else {
+	}
+	if (req->at("left") == "0") {
 		peer = tor->getSeeders()->getPeer(req->at("peer_id"), now);
 		if (peer == nullptr) {
 			peer = tor->getLeechers()->getPeer(req->at("peer_id"), now);
