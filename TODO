@@ -2,6 +2,5 @@ MultiThreading
 Optimize public tracker code by using #define on private tracker code
 Modular DB Management
 Tracker stats
-Client Whitelist
 IPv6
 Profiling and optimisation
