@@ -11,7 +11,7 @@
 #include "config.hpp"
 
 ConnectionHandler::ConnectionHandler(int socket)
-	: sock(socket), MAX_REQUEST_SIZE(Config::getInt("max_request_size")),
+	: ipv6(false), sock(socket), MAX_REQUEST_SIZE(Config::getInt("max_request_size")),
 	BUFFER_SIZE(Config::getInt("read_buffer_size")), sent(0)
 {}
 
@@ -68,7 +68,7 @@ void ConnectionHandler::readRequest(ev::io& w, int revents)
 			response = "request too long";
 		}
 		else {
-			response = RequestHandler::handle(request, binIp);
+			response = RequestHandler::handle(request, IP, ipv6);
 		}
 
 		writeWatcher.start();

@@ -33,7 +33,7 @@ class RequestHandler {
 		static std::string setLeechStatus(const Request*);
 	public:
 		static void init();
-		static std::string handle(std::string, std::string);
+		static std::string handle(std::string, std::string, bool);
 		static User* getUser(const std::string&);
 		static void stop();
 		static void clearTorrentPeers(ev::timer&, int);

@@ -41,36 +41,25 @@ std::string Utility::gzip_compress (const std::string& input)
 std::string Utility::ip_port_hex_encode (const std::string& ip, const std::string& port)
 {
 	in_addr addr4;
-	in6_addr addr6;
+	/* in6_addr addr6; */
 	char* addr = nullptr;
 	int af;
 	int size;
 
-	if (Config::get("ipv6") == "no") {
+	/* if (Config::get("ipv6") == "no") { */
 		af = AF_INET;
 		addr = reinterpret_cast<char*>(&(addr4.s_addr));
 		size = sizeof(addr4.s_addr);
-	}
-	else {
-		af = AF_INET6;
-		addr = reinterpret_cast<char*>(&(addr6.s6_addr));
-		size = sizeof(addr6.s6_addr);
-	}
+	/* } */
+	/* else { */
+	/* 	af = AF_INET6; */
+	/* 	addr = reinterpret_cast<char*>(&(addr6.s6_addr)); */
+	/* 	size = sizeof(addr6.s6_addr); */
+	/* } */
 
 	inet_pton(af, ip.c_str(), addr);
 	uint16_t value = htons(std::stoi(port));
 	return std::string(addr, size) + std::string(reinterpret_cast<const char*>(&value), sizeof(value));
-}
-
-std::string Utility::ip_hex_decode (const std::string& input) {
-	char ip[INET6_ADDRSTRLEN + 1] = {0};
-
-	if (Config::get("ipv6") == "no")
-		inet_ntop(AF_INET, input.data(), ip, INET_ADDRSTRLEN);
-	else
-		inet_ntop(AF_INET6, input.data(), ip, INET6_ADDRSTRLEN);
-
-	return ip;
 }
 
 std::string Utility::hex_to_bin(const std::string& input)

@@ -18,7 +18,8 @@ public:
 protected:
 	virtual void getPeerInfo() = 0;
 	void init();
-	std::string binIp;
+	bool ipv6;
+	std::string IP;
 	int sock;
 
 private:
