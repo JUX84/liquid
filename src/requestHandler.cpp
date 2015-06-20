@@ -455,7 +455,7 @@ void RequestHandler::stop() {
 
 void RequestHandler::clearTorrentPeers(ev::timer& timer, int revents)
 {
-	LOG_INFO("Cleaning torrent peers");
+	LOG_INFO("Checking timed out peers");
 	auto duration = std::chrono::system_clock::now().time_since_epoch();
 	long long now = std::chrono::duration_cast<std::chrono::seconds>(duration).count();
 	unsigned int changed = 0;

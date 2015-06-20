@@ -222,13 +222,13 @@ void MySQL::flushTorrents() {
 void MySQL::flushPeers() {
 	if (peerRequests.size() == 0)
 		return;
-	std::string str = "INSERT INTO xbt_files_users (uid,active,announced,completed,downloaded,uploaded,remaining,upspeed,downspeed,corrupt,timespent,useragent,peer_id,fid,ip) VALUES ";
+	std::string str = "INSERT INTO xbt_files_users (uid,active,announced,completed,downloaded,uploaded,remaining,upspeed,downspeed,corrupt,timespent,useragent,peer_id,fid,ip,mtime) VALUES ";
 	for(const auto &it : peerRequests) {
-		if (str != "INSERT INTO xbt_files_users (uid,active,announced,completed,downloaded,uploaded,remaining,upspeed,downspeed,corrupt,timespent,useragent,peer_id,fid,ip) VALUES ")
+		if (str != "INSERT INTO xbt_files_users (uid,active,announced,completed,downloaded,uploaded,remaining,upspeed,downspeed,corrupt,timespent,useragent,peer_id,fid,ip,mtime) VALUES ")
 			str += ", ";
 		str += it;
 	}
-	str += " ON DUPLICATE KEY UPDATE announced = announced + 1, downloaded = VALUES(downloaded), uploaded = VALUES(uploaded), timespent = timespent + VALUES(timespent), upspeed = VALUES(upspeed), downspeed = VALUES(downspeed), corrupt = VALUES(corrupt)";
+	str += " ON DUPLICATE KEY UPDATE announced = announced + 1, downloaded = VALUES(downloaded), uploaded = VALUES(uploaded), timespent = timespent + VALUES(timespent), upspeed = VALUES(upspeed), downspeed = VALUES(downspeed), corrupt = VALUES(corrupt), mtime = VALUES(mtime)";
 	LOG_INFO("Flushing PEERS sql records (" + std::to_string(peerRequests.size()) + ")");
 	if (mysql_real_query(mysql, str.c_str(), str.size())) {
 		LOG_ERROR("Couldn't flush record (" + str + ")");
@@ -318,7 +318,7 @@ void MySQL::recordPeer(Peer* p) {
 			"'" + p->getClient() + "', " +
 			"'" + PeerID + "', " +
 			"'" + TorrentID + "', " +
-			"'" + p->getIP() + "')");
+			"'" + p->getIP() + "', NOW())");
 	p->getUser()->updateStats(downloaded,uploaded);
 }
 
