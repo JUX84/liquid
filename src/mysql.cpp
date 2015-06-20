@@ -303,7 +303,7 @@ void MySQL::recordPeer(Peer* p) {
 	std::string PeerID = p->getPeerID();
 	std::string Timespent = std::to_string(p->getTimespent());
 	std::string TorrentID = std::to_string(p->getTorrentID());
-	LOG_INFO("Recording Peer " + PeerID + " on Torrent " + TorrentID + ": " + Utility::formatSize(left) + " left, " + Utility::formatSize(downloaded) + " downloaded (" + Utility::formatSize(downSpeed) + "), " + Utility::formatSize(uploaded) + " uploaded " + " (" + Utility::formatSize(upSpeed) + "/s), Timespent: " + Timespent + "");
+	LOG_INFO("Recording Peer " + PeerID + " on Torrent " + TorrentID + ": " + Utility::formatSize(left) + " left, " + Utility::formatSize(downloaded) + " downloaded (" + Utility::formatSize(downSpeed) + "/s), " + Utility::formatSize(uploaded) + " uploaded " + " (" + Utility::formatSize(upSpeed) + "/s), Timespent: " + Timespent + "");
 	peerRequests.push_back("('" +
 			std::to_string(p->getUser()->getID()) + "', " +
 			(p->isActive() ? "1" : "0") + ", 1, " +
