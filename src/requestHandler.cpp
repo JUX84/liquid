@@ -163,20 +163,20 @@ std::string RequestHandler::announce(const Request* req, const std::string& info
 	}
 	return response(
 			("d8:completei"
-			 + std::to_string(tor->getSeeders()->size())
-			 + "e10:incompletei"
-			 + std::to_string(tor->getLeechers()->size())
-			 + "e10:downloadedi"
-			 + std::to_string(tor->getSnatches())
-			 + "e8:intervali"
-			 + std::to_string(900)
-			 + "e12:min intervali"
-			 + std::to_string(300)
-			 + "e5:peers"
-			 + std::to_string(peerlist.length())
-			 + ":"
-			 + peerlist
-			 + "e"));
+			+ std::to_string(tor->getSeeders()->size())
+			+ "e10:incompletei"
+			+ std::to_string(tor->getLeechers()->size())
+			+ "e10:downloadedi"
+			+ std::to_string(tor->getSnatches())
+			+ "e8:intervali"
+			+ std::to_string(900)
+			+ "e12:min intervali"
+			+ std::to_string(300)
+			+ "e5:peers"
+			+ std::to_string(peerlist.length())
+			+ ":"
+			+ peerlist
+			+ "e"));
 }
 
 std::string RequestHandler::scrape(const std::forward_list<std::string>* infoHashes)
