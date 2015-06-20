@@ -145,16 +145,17 @@ void MySQL::loadClientWhitelist(std::list<std::string> &clientWhitelist) {
 void MySQL::loadLeechStatus(LeechStatus &leechStatus) {
 	std::string query = "SELECT `Data` FROM site_options WHERE `Option` = 'leech_status'";
 	if (mysql_real_query(mysql, query.c_str(), query.size())) {
-		LOG_ERROR("Couldn't load banned IP addresses");
+		LOG_ERROR("Couldn't load leech status");
 		return;
 	}
 	result = mysql_use_result(mysql);
+	std::string data = "NORMAL";
 	while((row = mysql_fetch_row(result)))
 	{
-		std::string data = row[0];
+		data = row[0];
 		leechStatus = (data == "freeleech" ? FREELEECH : NORMAL);
 	}
-	LOG_INFO("Loaded " + std::to_string(mysql_num_rows(result)) + " banned IP addresses");
+	LOG_INFO("Loaded leech status: " + data);
 }
 
 void MySQL::flush() {
