@@ -23,44 +23,39 @@ std::string RequestHandler::handle(std::string str, std::string ip)
 	std::pair<Request, std::forward_list<std::string>> infos = Parser::parse(str); // parse the request
 	Request* req = &infos.first;
 	std::forward_list<std::string>* infoHashes = &infos.second;
-	bool gzip = false;
-	try { // check if the client accepts gzip
-		if (req->at("accept-encoding").find("gzip") != std::string::npos)
-			gzip = true;
-	} catch (const std::exception& e) {}
 	std::string check = Parser::check(*req); // check if we have all we need to process (saves time if not the case
 	if (check != "success") { // missing params
 		LOG_WARNING("Couldn't parse request (" + check + ")");
-		return error(check, gzip);
+		return error(check);
 	}
 	if (Config::get("type") == "private" && req->at("action") == "update" && req->at("passkey") == Config::get("updatekey"))
 		return update(req, infoHashes);
 	User* u = getUser(req->at("passkey"));
 	if (Config::get("type") == "private" && u == nullptr) {
 		LOG_WARNING("Passkey " + req->at("passkey") + " not found");
-		return error("passkey not found", gzip);
+		return error("passkey not found");
 	}
 	if (infoHashes->begin() == infoHashes->end()) {
 		LOG_WARNING("Missing info hash");
-		return error("missing info_hash", gzip);
+		return error("missing info_hash");
 	}
 	if (req->find("ip") == req->end())
 		req->emplace("ip", Utility::ip_hex_decode(ip));
 	if (bannedIPs.find(req->at("ip")) != bannedIPs.end())
-		return error("banned ip", gzip);
+		return error("banned ip");
 	if (u->isRestricted(req->at("ip")))
 		return error("ip not associated with account");
 	if (req->at("action") == "announce") {
 		req->emplace("event", "updating");
-		return announce(req, infoHashes->front(), gzip);
+		return announce(req, infoHashes->front());
 	}
 	else if (req->at("action") == "scrape")
-		return scrape(infoHashes, gzip);
+		return scrape(infoHashes);
 	LOG_ERROR("Unexpected! Action not found");
-	return error("invalid action", gzip); // not possible, since the request is checked, but, well, who knows :3
+	return error("invalid action"); // not possible, since the request is checked, but, well, who knows :3
 }
 
-std::string RequestHandler::announce(const Request* req, const std::string& infoHash, bool gzip)
+std::string RequestHandler::announce(const Request* req, const std::string& infoHash)
 {
 	LOG_INFO("Announce request");
 	if (clientWhitelist.size() > 0) {
@@ -83,7 +78,7 @@ std::string RequestHandler::announce(const Request* req, const std::string& info
 		tor = &torMap.at(infoHash);
 	} catch (const std::exception& e) {
 		LOG_WARNING("Torrent not found");
-		return error("torrent not found", gzip);
+		return error("torrent not found");
 	}
 	if (!getUser(req->at("passkey"))->isAuthorized())
 		return error("user unauthorized");
@@ -181,12 +176,10 @@ std::string RequestHandler::announce(const Request* req, const std::string& info
 			 + std::to_string(peerlist.length())
 			 + ":"
 			 + peerlist
-			 + "e"),
-			gzip
-			);
+			 + "e"));
 }
 
-std::string RequestHandler::scrape(const std::forward_list<std::string>* infoHashes, bool gzip)
+std::string RequestHandler::scrape(const std::forward_list<std::string>* infoHashes)
 {
 	LOG_INFO("Scrape request");
 	std::string resp("d5:filesd");
@@ -208,7 +201,7 @@ std::string RequestHandler::scrape(const std::forward_list<std::string>* infoHas
 	}
 	resp += "ee";
 
-	return response(resp, gzip);
+	return response(resp);
 }
 
 std::string RequestHandler::update(const Request* req, const std::forward_list<std::string>* infoHashes)
@@ -253,7 +246,7 @@ std::string RequestHandler::update(const Request* req, const std::forward_list<s
 	else if (type == "set_leech_status")
 		setLeechStatus(req);
 
-	return response("success", false);
+	return response("success");
 }
 
 void RequestHandler::addIPRestriction(const Request* req)
@@ -305,15 +298,14 @@ void RequestHandler::changePasskey(const Request* req)
 void RequestHandler::addTorrent(const Request* req, const std::string& infoHash)
 {
 	const std::string& torrentID = req->at("id");
-	unsigned long size = std::stoul(req->at("size"));
 	bool freetorrent = req->at("freetorrent") == "1";
-	auto t = torMap.emplace(infoHash, Torrent(std::stoul(torrentID), size, 0, 0));
+	auto t = torMap.emplace(infoHash, Torrent(std::stoul(torrentID), std::stoul(req->at("size")), 0, 0));
 	if (freetorrent)
 		t.first->second.setFree(100);
 	else
 		t.first->second.setFree(0);
 	if (t.second)
-		LOG_INFO("Added Torrent " + torrentID + " (" + Utility::formatSize(size) + ") " + (freetorrent ? "FREE" : "NORMAL"));
+		LOG_INFO("Added Torrent " + torrentID + " (" + req->at("size") + ") " + (freetorrent ? "FREE" : "NORMAL"));
 	else
 		LOG_INFO("Torrent " + torrentID + " already exists");
 }

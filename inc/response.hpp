@@ -2,6 +2,6 @@
 
 #include <string>
 
-std::string responseHead (bool = false);
-std::string response (const std::string&, bool = false);
-std::string error (const std::string&, bool = false);
+std::string responseHead ();
+std::string response (const std::string&);
+std::string error (const std::string&);

@@ -1,41 +1,8 @@
-#include <zlib.h>
 #include <cassert>
 #include <arpa/inet.h>
 #include <cctype>
 #include <cstring>
 #include "utility.hpp"
-
-#define CHUNK 32768
-
-std::string Utility::gzip_compress (const std::string& input)
-{
-	z_stream zs;
-	int ret;
-	char out[CHUNK];
-	std::string output;
-	memset(&zs, 0, sizeof(zs));
-	zs.next_in = (Bytef*)input.data();
-	zs.zalloc = nullptr;
-	zs.zfree = nullptr;
-	zs.opaque = nullptr;
-	zs.avail_in = input.size();
-
-	deflateInit2(&zs, Z_BEST_COMPRESSION, Z_DEFLATED, 31, 8, Z_DEFAULT_STRATEGY);
-
-	do {
-		zs.next_out = reinterpret_cast<Bytef*>(out);
-		zs.avail_out = sizeof(out);
-
-		ret = deflate(&zs, Z_FINISH);
-
-		if (output.size() < zs.total_out)
-			output.append(out, zs.total_out - output.size());
-	} while (ret == Z_OK);
-
-	deflateEnd(&zs);
-
-	return output;
-}
 
 std::string Utility::ip_port_hex_encode (const std::string& ip, const std::string& port)
 {
@@ -91,44 +58,4 @@ std::string Utility::long2ip (unsigned int lip) {
 	in_addr x;
 	x.s_addr = htonl(lip);
 	return inet_ntoa(x);
-}
-#include <iostream>
-std::string Utility::formatSize(unsigned long input) {
-	double output = input;
-	int level = 0;
-	while (output > 1024 && level < 8) {
-		output/=1024;
-		++level;
-	}
-	std::string bytes;
-	switch (level) {
-		case 1:
-			bytes = "k";
-			break;
-		case 2:
-			bytes = "M";
-			break;
-		case 3:
-			bytes = "G";
-			break;
-		case 4:
-			bytes = "T";
-			break;
-		case 5:
-			bytes = "P";
-			break;
-		case 6:
-			bytes = "E";
-			break;
-		case 7:
-			bytes = "Z";
-			break;
-		case 8:
-			bytes = "Y";
-			break;
-		default:
-			bytes = "";
-			break;
-	}
-	return std::to_string(output) + " " + bytes + "B";
 }

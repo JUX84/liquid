@@ -12,8 +12,8 @@ class RequestHandler {
 		static std::unordered_set<std::string> bannedIPs;
 		static std::list<std::string> clientWhitelist;
 		static LeechStatus leechStatus;
-		static std::string announce(const Request*, const std::string&, bool);
-		static std::string scrape(const std::forward_list<std::string>*, bool);
+		static std::string announce(const Request*, const std::string&);
+		static std::string scrape(const std::forward_list<std::string>*);
 		static std::string update(const Request*, const std::forward_list<std::string>*);
 		static void changePasskey(const Request*);
 		static void addTorrent(const Request*, const std::string&);

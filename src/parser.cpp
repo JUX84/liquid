@@ -139,7 +139,7 @@ std::pair<Request, std::forward_list<std::string>> Parser::parse (const std::str
 		} else if (input[i] == '\n' || input[i] == '\r') {
 			if (found_data) {
 				std::transform(key.begin(), key.end(), key.begin(), ::tolower);
-				if (key != "host")
+				if (key == "user-agent")
 					output.emplace(key, input.substr(pos, i-pos));
 				i += 2;
 				pos = i;
