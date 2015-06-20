@@ -100,7 +100,9 @@ bool Peer::timedOut(long long now) {
 }
 
 unsigned long Peer::getTimespent() {
-	return timespent;
+	unsigned long tmp = timespent;
+	timespent = 0;
+	return tmp;
 }
 
 bool Peer::isActive() {
