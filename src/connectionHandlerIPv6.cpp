@@ -13,14 +13,14 @@ ConnectionHandlerIPv6::~ConnectionHandlerIPv6()
 void ConnectionHandlerIPv6::getPeerInfo()
 {
 	char ipBuffer[INET6_ADDRSTRLEN] = {0};
-	sockaddr_in client;
+	sockaddr_in6 client;
 	socklen_t addrLen = sizeof(client);
 	memset(&client, 0, addrLen);
 
 	if (getpeername(sock, reinterpret_cast<sockaddr*>(&client), &addrLen) == -1)
 		throw std::system_error(errno, std::system_category());
 
-	if (!inet_ntop(AF_INET6, &(client.sin_addr.s_addr), ipBuffer, INET6_ADDRSTRLEN))
+	if (!inet_ntop(AF_INET6, &(client.sin6_addr.s6_addr), ipBuffer, INET6_ADDRSTRLEN))
 		throw std::system_error(errno, std::system_category());
 
 	IP = ipBuffer;
