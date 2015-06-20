@@ -23,7 +23,7 @@ void Server::init(int domain, uint16_t port, sockaddr* address, socklen_t addrle
 {
 	int opt = 1;
 
-	if ((sock = socket(domain, SOCK_STREAM, IPPROTO_TCP)) == -1)
+	if ((sock = socket(domain, SOCK_STREAM, 0)) == -1)
 		throw std::system_error(errno, std::system_category());
 
 	if (setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) == -1)
