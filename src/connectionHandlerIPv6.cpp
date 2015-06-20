@@ -24,4 +24,11 @@ void ConnectionHandlerIPv6::getPeerInfo()
 		throw std::system_error(errno, std::system_category());
 
 	IP = ipBuffer;
+	std::string::size_type pos = IP.find_last_of('.');
+
+	if (pos != std::string::npos) { // IPv4
+		ipv6 = false;
+		pos = IP.find_last_of(':');
+		IP = IP.substr(pos + 1);
+	}
 }
