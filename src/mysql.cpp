@@ -318,7 +318,7 @@ void MySQL::recordPeer(Peer* p) {
 			"'" + p->getClient() + "', " +
 			"'" + PeerID + "', " +
 			"'" + TorrentID + "', " +
-			"'" + p->getIP() + "', NOW())");
+			"'" + p->getIP() + "', UNIX_TIMESTAMP())");
 	p->getUser()->updateStats(downloaded,uploaded);
 }
 
