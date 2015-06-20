@@ -3,7 +3,8 @@
 #include <signal.h>
 #include <unistd.h>
 #include "logger.hpp"
-#include "server.hpp"
+#include "serverIPv4.hpp"
+#include "serverIPv6.hpp"
 #include "parser.hpp"
 #include "config.hpp"
 #include "requestHandler.hpp"
@@ -46,13 +47,23 @@ int main(int argc, char **argv)
 	try {
 		LOG_INIT(static_cast<Logger::Level>(logLevel));
 		Config::load(configFile);
+
 		int port = Config::getInt("port");
-		Server server(port);
+		std::string ipv6 = Config::get("ipv6");
+		Server* server = nullptr;
+		if (ipv6 == "no") // factory?
+			server = new ServerIPv4(port);
+		else
+			server = new ServerIPv6(port);
+
 		Parser::init();
+
 		if (Config::get("type") == "private")
 			RequestHandler::init();
+
 		LOG_INFO("Starting " + Config::get("type") + " server on port " + std::to_string(port));
-		server.run();
+		server->run();
+		delete server;
 	}
 	catch (const std::exception& e) {
 		LOG_ERROR(e.what());
