@@ -89,43 +89,29 @@ std::string RequestHandler::announce(const Request* req, const std::string& info
 		return error("user unauthorized");
 	Peers *peers = nullptr;
 	Peer *peer = nullptr;
-	unsigned int corrupt;
-	unsigned long balance;
+	long balance = 0;
+	int free = 0;
+	unsigned long corrupt;
 	try {
 		corrupt = std::stoul(req->at("corrupt"));
 	} catch (const std::exception& e) {
 		corrupt = 0;
 	}
-	if (req->at("left") != "0") {
+	if (req->at("left") != "0" || req->at("event") == "completed") {
 		peer = tor->getLeechers()->getPeer(req->at("peer_id"), now);
 		if (peer == nullptr) {
 			peer = tor->getLeechers()->addPeer(*req, tor->getID(), now);
 			tor->change();
 		}
-		if (req->at("event") == "stopped")
-			peer->inactive();
 		if (Config::get("type") == "private") {
-			int free = tor->getFree();
+			free = tor->getFree();
 			if (leechStatus == FREELEECH)
 				free = 100;
 			if (peer->getUser()->hasToken(tor->getID())) {
 				bool expired = peer->getUser()->isTokenExpired(tor->getID());
-				db->recordToken(peer->getUser()->getID(), tor->getID(), peer->getTotalStats()-std::stoul(req->at("downloaded")), expired);
+				db->recordToken(peer->getUser()->getID(), tor->getID(), peer->getTotalDownloaded()-std::stoul(req->at("downloaded")), expired);
 				free = 100;
 			}
-			balance = peer->getCorrupt()-corrupt;
-			if (balance > 0)
-				tor->decBalance(balance);
-			peer->updateStats(std::stoul(req->at("downloaded"))*(1-(free/100)), std::stoul(req->at("left")), corrupt, now);
-			balance = peer->getStats();
-			if (balance > 0)
-				tor->decBalance(balance);
-		}
-		db->recordPeer(peer);
-		db->recordUser(peer->getUser());
-		if (req->at("event") == "stopped") {
-			tor->getLeechers()->removePeer(*req);
-			tor->change();
 		}
 		peers = tor->getSeeders();
 	} else {
@@ -137,43 +123,29 @@ std::string RequestHandler::announce(const Request* req, const std::string& info
 				tor->change();
 			}
 		}
-		if (req->at("event") == "stopped")
-			peer->inactive();
-		if (Config::get("type") == "private") {
-			if (req->at("event") == "completed") {
-				int free = tor->getFree();
-				if (leechStatus == FREELEECH)
-					free = 100;
-				if (peer->getUser()->hasToken(tor->getID())) {
-					bool expired = peer->getUser()->isTokenExpired(tor->getID());
-					db->recordToken(peer->getUser()->getID(), tor->getID(), peer->getTotalStats()-std::stoul(req->at("downloaded")), expired);
-					free = 100;
-				}
-				balance = peer->getCorrupt()-corrupt;
-				if (balance > 0)
-					tor->decBalance(balance);
-				peer->updateStats(std::stoul(req->at("downloaded"))*(1-(free/100)), std::stoul(req->at("left")), corrupt, now);
-				balance = peer->getStats();
-				if (balance > 0)
-					tor->decBalance(balance);
-			} else {
-				peer->updateStats(std::stoul(req->at("uploaded")), std::stoul(req->at("left")), corrupt, now);
-				balance = peer->getStats();
-				if (balance > 0)
-					tor->incBalance(balance);
-			}
-		}
-		db->recordPeer(peer);
-		db->recordUser(peer->getUser());
-		if (req->at("event") == "stopped") {
-			tor->getSeeders()->removePeer(*req);
-			tor->change();
-		}
-		if (req->at("event") == "completed") {
-			tor->getLeechers()->removePeer(*req);
-			tor->change();
-		}
 		peers = tor->getLeechers();
+	}
+	if (req->at("event") == "stopped")
+		peer->inactive();
+	if (Config::get("type") == "private") {
+		balance -= peer->getCorrupt()-corrupt;
+		peer->updateStats(std::stoul(req->at("downloaded"))*(1-(free/100)), std::stoul(req->at("uploaded")), std::stoul(req->at("left")), corrupt, now);
+		balance -= peer->getDownloaded();
+		balance += peer->getUploaded();
+	}
+	tor->setBalance(balance);
+	db->recordPeer(peer);
+	db->recordUser(peer->getUser());
+	if (req->at("event") == "stopped") {
+		if (req->at("left") != "0")
+			tor->getLeechers()->removePeer(*req);
+		else
+			tor->getSeeders()->removePeer(*req);
+		tor->change();
+	}
+	if (req->at("event") == "completed") {
+		tor->getLeechers()->removePeer(*req);
+		tor->change();
 	}
 	db->recordTorrent(tor);
 	std::string peerlist;

@@ -5,8 +5,12 @@
 class Peer {
 	private:
 		User* user;
-		unsigned long total_stats;
-		unsigned long stats;
+		unsigned long downloaded;
+		unsigned long uploaded;
+		unsigned long totalDownloaded;
+		unsigned long totalUploaded;
+		unsigned int downSpeed;
+		unsigned int upSpeed;
 		unsigned long left;
 		bool seeding;
 		bool completed;
@@ -18,21 +22,23 @@ class Peer {
 		std::string client;
 		unsigned long timespent;
 		long long lastUpdate;
-		unsigned int speed;
 		unsigned int corrupt;
 	public:
-		Peer (std::string, std::string, User*, bool, unsigned long, unsigned long, unsigned int, std::string, std::string);
+		Peer (std::string, std::string, User*, bool, unsigned long, unsigned long, unsigned long, unsigned int, std::string, std::string);
 		User* getUser();
 		const std::string& getPeerID();
 		const std::string& getIP();
 		const std::string& getHexIPPort();
 		const std::string& getClient();
-		void updateStats(unsigned long, unsigned long, unsigned int, long long);
-		unsigned long getTotalStats();
-		unsigned long getStats();
+		void updateStats(unsigned long, unsigned long, unsigned long, unsigned int, long long);
+		unsigned long getTotalDownloaded();
+		unsigned long getDownloaded();
+		unsigned long getTotalUploaded();
+		unsigned long getUploaded();
+		unsigned int getDownSpeed();
+		unsigned int getUpSpeed();
 		unsigned long getLeft();
 		long long getLastUpdate();
-		unsigned int getSpeed();
 		unsigned int getTorrentID();
 		unsigned int getCorrupt();
 		bool isSeeding();

@@ -24,7 +24,7 @@ Peer* Peers::addPeer(const Request& req, unsigned int torrentID, long long now) 
 		u = RequestHandler::getUser(req.at("passkey"));
 	std::string peerID = req.at("peer_id");
 	bool seeding = req.at("left") == "0";
-	pMap.emplace(peerID, Peer(req.at("ip"), req.at("port"), u, seeding, std::stoul(req.at("left")), std::stoul((seeding ? req.at("uploaded") : req.at("downloaded"))), torrentID, req.at("user-agent"), req.at("peer_id")));
+	pMap.emplace(peerID, Peer(req.at("ip"), req.at("port"), u, seeding, std::stoul(req.at("left")), std::stoul(req.at("downloaded")), std::stoul(req.at("uploaded")), torrentID, req.at("user-agent"), req.at("peer_id")));
 	return &pMap.at(peerID);
 }
 

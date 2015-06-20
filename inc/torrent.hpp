@@ -24,8 +24,7 @@ class Torrent {
 		unsigned int getID();
 		unsigned int getSize();
 		unsigned char getFree();
-		void incBalance(unsigned long);
-		void decBalance(unsigned long);
+		void setBalance(long);
 		long getBalance();
 		void setFree(unsigned char);
 		void change();

@@ -5,12 +5,14 @@
 #include "peers.hpp"
 #include "utility.hpp"
 
-Peer::Peer(std::string IP, std::string port, class User* u, bool seeding, unsigned long left, unsigned long stats, unsigned int torrentID, std::string client, std::string peerID) {
+Peer::Peer(std::string IP, std::string port, class User* u, bool seeding, unsigned long announcedLeft, unsigned long announcedDownloaded, unsigned long announcedUploaded, unsigned int torrentID, std::string client, std::string peerID) {
 	LOG_INFO("Creating peer on torrent " + std::to_string(torrentID) + " using client " + client);
 	user = u;
-	total_stats = stats;
-	stats = 0;
-	this->left = left;
+	totalDownloaded = announcedDownloaded;
+	totalUploaded = announcedUploaded;
+	downloaded = 0;
+	uploaded = 0;
+	left = announcedLeft;
 	this->seeding = seeding;
 	completed = seeding;
 	active = true;
@@ -22,7 +24,8 @@ Peer::Peer(std::string IP, std::string port, class User* u, bool seeding, unsign
 	timespent = 0;
 	auto duration = std::chrono::system_clock::now().time_since_epoch();
 	lastUpdate = std::chrono::duration_cast<std::chrono::seconds>(duration).count();
-	this->speed = 0;
+	downSpeed = 0;
+	upSpeed = 0;
 }
 
 User* Peer::getUser() {
@@ -45,18 +48,30 @@ const std::string& Peer::getClient() {
 	return client;
 }
 
-void Peer::updateStats (unsigned long stats, unsigned long left, unsigned int corrupt, long long now) {
-	this->stats = stats - total_stats;
-	total_stats = stats;
-	this->left = left;
-	if (now > lastUpdate)
-		speed = (this->stats)/(now-lastUpdate);
-	else
-		speed = 0;
-	if (seeding)
-		timespent += now - lastUpdate;
-	this->corrupt = corrupt;
+void Peer::updateStats (unsigned long announcedDownloaded, unsigned long announcedUploaded, unsigned long announcedLeft, unsigned int announcedCorrupt, long long now) {
+	this->downloaded = announcedDownloaded - totalDownloaded;
+	totalDownloaded = announcedDownloaded;
+	this->uploaded = announcedUploaded - totalUploaded;
+	totalUploaded = announcedUploaded;
+	if (now > lastUpdate) {
+		downSpeed = this->downloaded/(now-lastUpdate);
+		upSpeed = this->uploaded/(now-lastUpdate);
+	} else {
+		downSpeed = 0;
+		upSpeed = 0;
+	}
+	left = announcedLeft;
+	corrupt = announcedCorrupt;
+	timespent += now - lastUpdate;
 	lastUpdate = now;
+}
+
+unsigned int Peer::getDownSpeed() {
+	return downSpeed;
+}
+
+unsigned int Peer::getUpSpeed() {
+	return upSpeed;
 }
 
 unsigned long Peer::getLeft() {
@@ -75,12 +90,20 @@ bool Peer::isCompleted() {
 	return completed;
 }
 
-unsigned long Peer::getStats() {
-	return stats;
+unsigned long Peer::getDownloaded() {
+	return downloaded;
 }
 
-unsigned long Peer::getTotalStats() {
-	return total_stats;
+unsigned long Peer::getTotalDownloaded() {
+	return totalDownloaded;
+}
+
+unsigned long Peer::getUploaded() {
+	return uploaded;
+}
+
+unsigned long Peer::getTotalUploaded() {
+	return totalUploaded;
 }
 
 unsigned int Peer::getTorrentID() {
@@ -111,10 +134,6 @@ bool Peer::isActive() {
 
 void Peer::inactive() {
 	active = false;
-}
-
-unsigned int Peer::getSpeed() {
-	return speed;
 }
 
 unsigned int Peer::getCorrupt() {
