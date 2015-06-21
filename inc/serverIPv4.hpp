@@ -9,5 +9,5 @@ class ServerIPv4 : public Server
 		virtual ~ServerIPv4();
 
 	protected:
-		virtual void handle(int responseSock) override;
+		virtual void handle(int responseSock) const override;
 };

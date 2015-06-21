@@ -1,11 +1,9 @@
-#include <iostream>
 #include <string>
 #include <cstring>
 #include <system_error>
 #include <stdexcept>
 #include <errno.h>
 #include <sys/socket.h>
-#include <netinet/in.h> // sockaddr_in
 #include "logger.hpp"
 #include "server.hpp"
 #include "connectionHandler.hpp"
@@ -13,7 +11,7 @@
 #include "config.hpp"
 
 Server::Server()
-	: watcher(EV_DEFAULT), timer(EV_DEFAULT), timer2(EV_DEFAULT)
+	: sock(-1), watcher(EV_DEFAULT), timer(EV_DEFAULT), timer2(EV_DEFAULT)
 {}
 
 Server::~Server()
@@ -21,13 +19,10 @@ Server::~Server()
 
 void Server::init(int domain, uint16_t port, sockaddr* address, socklen_t addrlen)
 {
-	int opt = 1;
-
 	if ((sock = socket(domain, SOCK_STREAM, 0)) == -1)
 		throw std::system_error(errno, std::system_category());
 
-	if (setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) == -1)
-		throw std::system_error(errno, std::system_category());
+	setSocketOptions();
 
 	if (bind(sock, address, addrlen) == -1)
 		throw std::system_error(errno, std::system_category());
@@ -46,6 +41,14 @@ void Server::init(int domain, uint16_t port, sockaddr* address, socklen_t addrle
 	timer2.set<&RequestHandler::flushSqlRecords>();
 	timer2.set(Config::getInt("flush_records_interval"), Config::getInt("flush_records_interval"));
 	timer2.start();
+}
+
+void Server::setSocketOptions() const
+{
+	const int opt = 1;
+
+	if (setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) == -1)
+		throw std::system_error(errno, std::system_category());
 }
 
 void Server::run()

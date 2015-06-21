@@ -54,7 +54,7 @@ int main(int argc, char **argv)
 		if (ipv6 == "no") // factory?
 			server = new ServerIPv4(port);
 		else
-			server = new ServerIPv6(port);
+			server = new ServerIPv6(port, (ipv6 == "only"));
 
 		Parser::init();
 

@@ -1,5 +1,5 @@
-#include "connectionHandlerIPv4.hpp"
 #include "serverIPv4.hpp"
+#include "connectionHandlerIPv4.hpp"
 
 ServerIPv4::ServerIPv4(uint16_t port) : Server()
 {
@@ -15,7 +15,7 @@ ServerIPv4::ServerIPv4(uint16_t port) : Server()
 ServerIPv4::~ServerIPv4()
 {}
 
-void ServerIPv4::handle(int responseSock)
+void ServerIPv4::handle(int responseSock) const
 {
 	new ConnectionHandlerIPv4(responseSock);
 }

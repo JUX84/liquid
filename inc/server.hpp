@@ -14,10 +14,12 @@ class Server
 
 	protected:
 		void init(int domain, uint16_t port, sockaddr* address, socklen_t addrlen);
-		virtual void handle(int responseSock) = 0;
+		virtual void handle(int responseSock) const = 0;
+		virtual void setSocketOptions() const;
+
+		int sock;
 
 	private:
-		int sock;
 		ev::io watcher;
 		ev::timer timer;
 		ev::timer timer2;
