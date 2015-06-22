@@ -46,6 +46,8 @@ std::string RequestHandler::handle(std::string str, std::string ip)
 	if (u->isRestricted(req->at("ip")))
 		return error("ip not associated with account");
 	if (req->at("action") == "announce") {
+		if (req->find("compact") != req->end() && req->at("compact") == "0")
+			return error("client does not support compact");
 		req->emplace("event", "updating");
 		return announce(req, infoHashes->front());
 	}
