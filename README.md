@@ -1,2 +1,6 @@
-liquid
-======
+# liquid
+
+## Dependencies
+- clang++
+- libev
+- libmariadbclient

@@ -11,13 +11,12 @@ class Torrent {
 		Peers leechers;
 		Peers leechers6;
 		unsigned int id;
-		unsigned long size;
 		unsigned char free;
 		unsigned int snatches;
 		long balance;
 		bool changed;
 	public:
-		Torrent(unsigned int, unsigned long, unsigned char, long);
+		Torrent(unsigned int, unsigned char, long);
 		Peers* getSeeders();
 		Peers* getSeeders6();
 		Peers* getLeechers();
@@ -26,7 +25,6 @@ class Torrent {
 		void incSnatches();
 		void reset();
 		unsigned int getID();
-		unsigned int getSize();
 		unsigned char getFree();
 		void setBalance(long);
 		long getBalance();

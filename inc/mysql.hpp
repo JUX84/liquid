@@ -11,6 +11,7 @@ class MySQL : public Database {
 	public:
 		void connect();
 		void disconnect();
+		void reset();
 		void loadUsers(UserMap&);
 		void loadTorrents(TorrentMap&);
 		void loadBannedIPs(std::unordered_set<std::string>&);

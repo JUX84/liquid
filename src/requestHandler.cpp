@@ -28,11 +28,11 @@ std::string RequestHandler::handle(std::string str, std::string ip)
 		LOG_WARNING("Couldn't parse request (" + check + ")");
 		return error(check);
 	}
-	if (Config::get("type") == "private" && req->at("action") == "update" && req->at("passkey") == Config::get("updatekey"))
+	if (Config::get("type") == "private" && req->at("action") == "update" && req->at("reqpasskey") == Config::get("updatekey"))
 		return update(req, infoHashes);
-	User* u = getUser(req->at("passkey"));
+	User* u = getUser(req->at("reqpasskey"));
 	if (Config::get("type") == "private" && u == nullptr) {
-		LOG_WARNING("Passkey " + req->at("passkey") + " not found");
+		LOG_WARNING("Passkey " + req->at("reqpasskey") + " not found");
 		return error("passkey not found");
 	}
 	if (infoHashes->begin() == infoHashes->end()) {
@@ -74,7 +74,7 @@ std::string RequestHandler::announce(const Request* req, const std::string& info
 	auto duration = std::chrono::system_clock::now().time_since_epoch();
 	long long now = std::chrono::duration_cast<std::chrono::seconds>(duration).count();
 	if (Config::get("type") != "private")
-		torMap.emplace(infoHash, Torrent(0, 0, 0, 0));
+		torMap.emplace(infoHash, Torrent(0, 0, 0));
 	Torrent *tor = nullptr;
 	try {
 		tor = &torMap.at(infoHash);
@@ -82,7 +82,7 @@ std::string RequestHandler::announce(const Request* req, const std::string& info
 		LOG_WARNING("Torrent not found");
 		return error("torrent not found");
 	}
-	if (!getUser(req->at("passkey"))->isAuthorized())
+	if (!getUser(req->at("reqpasskey"))->isAuthorized())
 		return error("user unauthorized");
 	Peers *peers = nullptr;
 	Peer *peer = nullptr;
@@ -254,7 +254,7 @@ std::string RequestHandler::update(const Request* req, const std::forward_list<s
 void RequestHandler::addIPRestriction(const Request* req)
 {
 	std::string ip = Utility::long2ip(std::stoul(req->at("ip")));
-	const std::string& passkey = req->at("userpasskey");
+	const std::string& passkey = req->at("passkey");
 	usrMap.at(passkey)->addIPRestriction(ip);
 	LOG_INFO("Added IP Restriction " + ip + " for User " + std::to_string(getUser(passkey)->getID()));
 }
@@ -262,7 +262,7 @@ void RequestHandler::addIPRestriction(const Request* req)
 void RequestHandler::removeIPRestriction(const Request* req)
 {
 	std::string ip = Utility::long2ip(std::stoul(req->at("ip")));
-	const std::string& passkey = req->at("userpasskey");
+	const std::string& passkey = req->at("passkey");
 	usrMap.at(passkey)->removeIPRestriction(ip);
 	LOG_INFO("Removed IP Restriction " + ip + " for User " + std::to_string(getUser(passkey)->getID()));
 }
@@ -270,15 +270,17 @@ void RequestHandler::removeIPRestriction(const Request* req)
 void RequestHandler::addToken(const Request* req, const std::string& infoHash)
 {
 	unsigned int torrentID = torMap.at(infoHash).getID();
-	const std::string& passkey = req->at("userpasskey");
-	usrMap.at(passkey)->addToken(torrentID);
+	const std::string& passkey = req->at("passkey");
+	auto duration = std::chrono::system_clock::now().time_since_epoch();                       
+    long long now = std::chrono::duration_cast<std::chrono::seconds>(duration).count();
+	usrMap.at(passkey)->addToken(torrentID, now);
 	LOG_INFO("Added Token for User " + std::to_string(getUser(passkey)->getID()) + " on Torrent " + std::to_string(torrentID));
 }
 
 void RequestHandler::removeToken(const Request* req, const std::string& infoHash)
 {
 	unsigned int torrentID = torMap.at(infoHash).getID();
-	const std::string& passkey = req->at("userpasskey");
+	const std::string& passkey = req->at("passkey");
 	usrMap.at(passkey)->removeToken(torrentID);
 	LOG_INFO("Removed Token for User " + std::to_string(getUser(passkey)->getID()) + " on Torrent " + std::to_string(torrentID));
 }
@@ -300,14 +302,13 @@ void RequestHandler::changePasskey(const Request* req)
 void RequestHandler::addTorrent(const Request* req, const std::string& infoHash)
 {
 	const std::string& torrentID = req->at("id");
-	bool freetorrent = req->at("freetorrent") == "1";
-	auto t = torMap.emplace(infoHash, Torrent(std::stoul(torrentID), std::stoul(req->at("size")), 0, 0));
-	if (freetorrent)
+	auto t = torMap.emplace(infoHash, Torrent(std::stoul(torrentID), 0, 0));
+	if (req->at("freetorrent") == "1")
 		t.first->second.setFree(100);
-	else
-		t.first->second.setFree(0);
+	else if (req->at("freetorrent") == "2")
+		t.first->second.setFree(50);
 	if (t.second)
-		LOG_INFO("Added Torrent " + torrentID + " (" + req->at("size") + ") " + (freetorrent ? "FREE" : "NORMAL"));
+		LOG_INFO("Added Torrent " + torrentID);
 	else
 		LOG_INFO("Torrent " + torrentID + " already exists");
 }
@@ -325,18 +326,20 @@ void RequestHandler::updateTorrent(const Request* req, const std::string& infoHa
 {
 	auto it = torMap.find(infoHash);
 	if (it != torMap.end()) {
-		bool freetorrent = req->at("freetorrent") == "1";
-		if (freetorrent)
+		std::string leech;
+		if (req->at("freetorrent") == "1")
 			it->second.setFree(100);
+		else if (req->at("freetorrent") == "2")
+			it->second.setFree(50);
 		else
 			it->second.setFree(0);
-		LOG_INFO("Updated Torrent " + std::to_string(it->second.getID()) + " to " + (freetorrent ? "FREE" : "NORMAL"));
+		LOG_INFO("Updated Torrent " + std::to_string(it->second.getID()));
 	}
 }
 
 void RequestHandler::addUser(const Request* req)
 {
-	std::string passkey = req->at("userpasskey");
+	std::string passkey = req->at("passkey");
 	std::string userID = req->at("id");
 	if (usrMap.emplace(passkey, new User(std::stoul(userID), true)).second)
 		LOG_INFO("Added User " + userID + " (" + passkey + ")");
@@ -345,7 +348,7 @@ void RequestHandler::addUser(const Request* req)
 }
 
 void RequestHandler::updateUser(const Request* req) {
-	std::string passkey = req->at("userpasskey");
+	std::string passkey = req->at("passkey");
 	bool authorized = req->at("can_leech") == "1";
 	User* u = getUser(passkey);
 	if (u != nullptr) {
@@ -356,7 +359,7 @@ void RequestHandler::updateUser(const Request* req) {
 
 void RequestHandler::removeUser(const Request* req)
 {
-	std::string passkey = req->at("userpasskey");
+	std::string passkey = req->at("passkey");
 	User* u = getUser(passkey);
 	if (u != nullptr) {
 		usrMap.erase(passkey);

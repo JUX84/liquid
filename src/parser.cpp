@@ -12,20 +12,20 @@ void Parser::init ()
 {
 	required.emplace("announce", std::forward_list<std::string>{"port","peer_id","left","user-agent","downloaded","uploaded"}); // init a set of required params in a request
 	if (Config::get("type") == "private")
-		required.at("announce").push_front("passkey");
+		required.at("announce").push_front("reqpasskey");
 	required.emplace("scrape", std::forward_list<std::string>{});
 
-	required.emplace("update", std::forward_list<std::string>{"type","passkey"});
+	required.emplace("update", std::forward_list<std::string>{"type","reqpasskey"});
 	required.emplace("change_passkey", std::forward_list<std::string>{"old_passkey", "new_passkey"});
 	required.emplace("add_torrent", std::forward_list<std::string>{"id", "size"});
 	required.emplace("delete_torrent", std::forward_list<std::string>{});
 	required.emplace("update_torrent", std::forward_list<std::string>{"freetorrent"});
-	required.emplace("add_user", std::forward_list<std::string>{"userpasskey", "id"});
-	required.emplace("update_user", std::forward_list<std::string>{"userpasskey", "can_leech"});
-	required.emplace("remove_user", std::forward_list<std::string>{"userpasskey"});
+	required.emplace("add_user", std::forward_list<std::string>{"passkey", "id"});
+	required.emplace("update_user", std::forward_list<std::string>{"passkey", "can_leech"});
+	required.emplace("remove_user", std::forward_list<std::string>{"passkey"});
 	required.emplace("remove_users", std::forward_list<std::string>{"passkeys"});
-	required.emplace("add_token", std::forward_list<std::string>{"userpasskey"});
-	required.emplace("remove_token", std::forward_list<std::string>{"userpasskey"});
+	required.emplace("add_token", std::forward_list<std::string>{"passkey"});
+	required.emplace("remove_token", std::forward_list<std::string>{"passkey"});
 	required.emplace("add_ban", std::forward_list<std::string>{"from", "to"});
 	required.emplace("remove_ban", std::forward_list<std::string>{"from", "to"});
 	required.emplace("add_ip_restriction", std::forward_list<std::string>{});
@@ -82,7 +82,7 @@ std::pair<Request, std::forward_list<std::string>> Parser::parse (const std::str
 	if ( input[pos] != '?' &&
 			(input.substr(pos,32).find('/') == std::string::npos) &&
 			(input.substr(pos,32).find('?') == std::string::npos)) { // Case 1, 2
-		output.emplace("passkey", input.substr(pos,32)); // Ocelot stated that substr 'exploded'. use for loop if necessary
+		output.emplace("reqpasskey", input.substr(pos,32)); // Ocelot stated that substr 'exploded'. use for loop if necessary
 		pos += 32;
 	}
 	if (input[pos] == '/') // Case 1

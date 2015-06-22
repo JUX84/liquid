@@ -24,6 +24,7 @@ class Database {
 	public:
 		virtual void connect() = 0;
 		virtual void disconnect() = 0;
+		virtual void reset() = 0;
 		virtual void loadUsers(UserMap&) = 0;
 		virtual void loadTorrents(TorrentMap&) = 0;
 		virtual void loadBannedIPs(std::unordered_set<std::string>&) = 0;

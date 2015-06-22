@@ -30,17 +30,6 @@ void User::updateStats(unsigned int downloaded, unsigned int uploaded) {
 	this->uploaded += uploaded;
 }
 
-void User::addToken(unsigned int tid)
-{
-	auto duration = std::chrono::system_clock::now().time_since_epoch();
-	long long now = std::chrono::duration_cast<std::chrono::seconds>(duration).count();
-	try {
-		tokens.at(tid) = now;
-	} catch (const std::exception& e) {
-		tokens.emplace(tid, now);
-	}
-}
-
 void User::addToken(unsigned int tid, long long time)
 {
 	try {
@@ -70,9 +59,8 @@ bool User::isTokenExpired(unsigned int tid) {
 	}
 }
 
-bool User::addIPRestriction(std::string ip) {
+void User::addIPRestriction(std::string ip) {
 	IPRestrictions.emplace(ip);
-	return true;
 }
 
 void User::removeIPRestriction(std::string ip) {

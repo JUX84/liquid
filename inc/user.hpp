@@ -22,14 +22,13 @@ class User {
 		unsigned long getUploaded();
 		void reset();
 		void updateStats(unsigned int, unsigned int);
-		void addToken(unsigned int);
 		void addToken(unsigned int, long long);
 		void removeToken(unsigned int);
 		bool hasToken(unsigned int);
 		bool isTokenExpired(unsigned int);
-		bool addIPRestriction(std::string);
 		bool isAuthorized();
 		void setAuthorized(bool);
+		void addIPRestriction(std::string);
 		void removeIPRestriction(std::string);
 		bool isRestricted(std::string);
 		bool hasChanged();

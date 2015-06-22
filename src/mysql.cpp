@@ -12,37 +12,40 @@ void MySQL::connect() {
 		LOG_ERROR("Couldn't connect to database");
 	} else {
 		LOG_INFO("Succesfully connected to database");
-		std::string query = "TRUNCATE xbt_files_users";
-		if (mysql_real_query(mysql, query.c_str(), query.size())) {
-			LOG_ERROR("Couldn't truncate peers table");
-			return;
-		}
-		query = "UPDATE torrents SET Leechers = 0, Seeders = 0";
-		if (mysql_real_query(mysql, query.c_str(), query.size())) {
-			LOG_ERROR("Couldn't reset torrent peers count");
-			return;
-		}
+		reset();
 	}
 }
 
-void MySQL::disconnect() {
-	std::string query = "TRUNCATE xbt_files_users";
+void MySQL::reset() {
+	std::string query = "TRUNCATE " + Config::get("DB_Peers");
 	if (mysql_real_query(mysql, query.c_str(), query.size())) {
-		LOG_ERROR("Couldn't truncate peers table");
+		LOG_ERROR("Couldn't reset peers table");
 		return;
 	}
-	query = "UPDATE torrents SET Leechers = 0, Seeders = 0";
+	query = "UPDATE " +
+		Config::get("DB_Torrents") + " "
+		"SET " +
+		Config::get("DB_Torrents_Seeders") + " = 0, " +
+		Config::get("DB_Torrents_Leechers") + " = 0";
 	if (mysql_real_query(mysql, query.c_str(), query.size())) {
 		LOG_ERROR("Couldn't reset torrent peers count");
 		return;
 	}
+}
+
+void MySQL::disconnect() {
+	reset();
 	LOG_WARNING("Disconnecting from database");
 	mysql_free_result(result);
 	mysql_close(mysql);
 }
 
 void MySQL::loadUsers(UserMap& usrMap) {
-	std::string query = "SELECT ID, torrent_pass, can_leech FROM users_main";
+	std::string query = "SELECT " +
+		Config::get("DB_Users_ID") + ", " +
+		Config::get("DB_Users_Passkey") + ", " +
+		Config::get("DB_Users_Authorized") + " "
+		"FROM users_main";
 	if (mysql_real_query(mysql, query.c_str(), query.size())) {
 		LOG_ERROR("Couldn't load users");
 		return;
@@ -53,7 +56,16 @@ void MySQL::loadUsers(UserMap& usrMap) {
 	LOG_INFO("Loaded " + std::to_string(mysql_num_rows(result)) + " users");
 
 	// load tokens
-	query = "SELECT u.torrent_pass, uf.TorrentID, UNIX_TIMESTAMP(uf.Time) FROM users_freeleeches AS uf LEFT JOIN users_main AS u ON uf.UserID = u.ID WHERE uf.Expired = '0'";
+	query = "SELECT "
+		"users." + Config::get("DB_Users_Passkey") + ", "
+		"tokens." + Config::get("DB_Tokens_TorrentID") + ", "
+		"UNIX_TIMESTAMP(tokens." + Config::get("DB_Tokens_ExpirationTime") + ") "
+		"FROM " +
+		Config::get("DB_Tokens") + " AS tokens "
+		"LEFT JOIN " +
+		Config::get("DB_Users") + " AS users "
+		"ON tokens." + Config::get("DB_Tokens_UserID") + " = " + Config::get("DB_Users_ID") + " "
+		"WHERE tokens." + Config::get("DB_Tokens_Expired") + " = '0'";
 	if (mysql_real_query(mysql, query.c_str(), query.size())) {
 		LOG_ERROR("Couldn't load user freeleeches");
 		return;
@@ -69,7 +81,15 @@ void MySQL::loadUsers(UserMap& usrMap) {
 	LOG_INFO("Loaded " + std::to_string(mysql_num_rows(result)) + " user tokens");
 
 	// load ip restrictions
-	query = "SELECT um.ID, um.torrent_pass, ir.IP FROM ip_restrictions AS ir INNER JOIN users_main as um ON um.ID = ir.UserID";
+	query = "SELECT "
+		"users." + Config::get("DB_Users_ID") + ", "
+		"users." + Config::get("DB_Users_Passkey") + ", "
+		"iprestrictions." + Config::get("DB_IPRestrictions_IP") + " "
+		"FROM " +
+		Config::get("DB_IPRestrictions") + " AS iprestrictions "
+		"INNER JOIN " +
+		Config::get("DB_Users") + " AS users "
+		"ON users." + Config::get("DB_Users_ID") + " = iprestrictions." + Config::get("DB_IPRestrictions_UserID");
 	if (mysql_real_query(mysql, query.c_str(), query.size())) {
 		LOG_ERROR("Couldn't load IP restrictions addresses");
 		return;
@@ -81,9 +101,7 @@ void MySQL::loadUsers(UserMap& usrMap) {
 		unsigned int ip = std::stoul(row[2]);
 		try {
 			User* u = usrMap.at("passkey");
-			bool b = u->addIPRestriction(Utility::long2ip(ip));
-			if (!b)
-				LOG_WARNING("Too many IP restrictions for user " + std::to_string(userid));
+			u->addIPRestriction(Utility::long2ip(ip));
 		} catch (const std::exception& e) {
 			LOG_ERROR("No user (" + std::to_string(userid) + ") with passkey " + passkey);
 		}
@@ -92,7 +110,13 @@ void MySQL::loadUsers(UserMap& usrMap) {
 }
 
 void MySQL::loadTorrents(TorrentMap& torMap) {
-	std::string query = "SELECT ID, Size, info_hash, freetorrent, balance FROM torrents";
+	std::string query = "SELECT " +
+		Config::get("DB_Torrents_ID") + ", " +
+		Config::get("DB_Torrents_InfoHash") + ", " +
+		Config::get("DB_Torrents_Freeleech") + ", " +
+		Config::get("DB_Torrents_Balance") + " "
+		"FROM " +
+		Config::get("DB_Torrents");
 	if (mysql_real_query(mysql, query.c_str(), query.size())) {
 		LOG_ERROR("Couldn't load torrents");
 		return;
@@ -104,13 +128,17 @@ void MySQL::loadTorrents(TorrentMap& torMap) {
 			free = 100;
 		else if (row[3] == std::string("2"))
 			free = 50;
-		torMap.emplace(row[2], Torrent(std::stoul(row[0]), std::stoul(row[1]), free, std::stoul(row[4])));
+		torMap.emplace(row[1], Torrent(std::stoul(row[0]), free, std::stoul(row[3])));
 	}
 	LOG_INFO("Loaded " + std::to_string(mysql_num_rows(result)) + " torrents");
 }
 
 void MySQL::loadBannedIPs(std::unordered_set<std::string> &bannedIPs) {
-	std::string query = "SELECT FromIP, ToIP FROM ip_bans";
+	std::string query = "SELECT " +
+		Config::get("DB_IPBans_FromIP") + ", " +
+		Config::get("DB_IPBans_ToIP") + " "
+		"FROM " +
+		Config::get("DB_IPBans");
 	if (mysql_real_query(mysql, query.c_str(), query.size())) {
 		LOG_ERROR("Couldn't load banned IP addresses");
 		return;
@@ -128,7 +156,10 @@ void MySQL::loadBannedIPs(std::unordered_set<std::string> &bannedIPs) {
 }
 
 void MySQL::loadClientWhitelist(std::list<std::string> &clientWhitelist) {
-	std::string query = "SELECT peer_id FROM xbt_client_whitelist";
+	std::string query = "SELECT " +
+		Config::get("DB_Whitelist_PeerID") + " "
+		"FROM " +
+		Config::get("DB_Whitelist");
 	if (mysql_real_query(mysql, query.c_str(), query.size())) {
 		LOG_ERROR("Couldn't load client whitelist");
 		return;
@@ -141,7 +172,9 @@ void MySQL::loadClientWhitelist(std::list<std::string> &clientWhitelist) {
 }
 
 void MySQL::loadLeechStatus(LeechStatus &leechStatus) {
-	std::string query = "SELECT `Data` FROM site_options WHERE `Option` = 'leech_status'";
+	std::string query = "SELECT Value FROM " +
+		Config::get("DB_SiteOptions") + " "
+		"WHERE Key = '" + Config::get("DB_SiteOptions_LeechStatus") + "'";
 	if (mysql_real_query(mysql, query.c_str(), query.size())) {
 		LOG_ERROR("Couldn't load leech status");
 		return;
@@ -167,13 +200,22 @@ void MySQL::flush() {
 void MySQL::flushUsers() {
 	if (userRequests.size() == 0)
 		return;
-	std::string str = "INSERT INTO users_main(ID, Downloaded, Uploaded) VALUES ";
+	std::string str = "INSERT INTO " +
+		Config::get("DB_Users") + "(" +
+		Config::get("DB_Users_ID") + ", " +
+		Config::get("DB_Users_Downloaded") + ", " +
+		Config::get("DB_Users_Uploaded") + ") "
+		"VALUES ";
+	bool first = true;
 	for(const auto &it : userRequests) {
-		if (str != "INSERT INTO users_main(ID, Downloaded, Uploaded) VALUES ")
+		if (!first)
 			str += ", ";
 		str += it;
+		first = false;
 	}
-	str += " ON DUPLICATE KEY UPDATE Downloaded = Downloaded + VALUES(Downloaded), Uploaded = Uploaded + VALUES(Uploaded)";
+	str += " ON DUPLICATE KEY UPDATE " +
+		Config::get("DB_Users_Downloaded") + " = " + Config::get("DB_Users_Downloaded") + " + VALUES(" + Config::get("DB_Users_Downloaded") + "), " +
+		Config::get("DB_Users_Uploaded") + " = " + Config::get("DB_Users_Uploaded") + " + VALUES(" + Config::get("DB_Users_Uploaded") + ")";
 	LOG_INFO("Flushing USERS sql records (" + std::to_string(userRequests.size()) + ")");
 	if (mysql_real_query(mysql, str.c_str(), str.size())) {
 		LOG_ERROR("Couldn't flush record (" + str + ")");
@@ -185,13 +227,23 @@ void MySQL::flushUsers() {
 void MySQL::flushTokens() {
 	if (tokenRequests.size() == 0)
 		return;
-	std::string str = "INSERT INTO users_freeleeches(UserID, TorrentID, Downloaded, Expired) VALUES ";
+	std::string str = "INSERT INTO " +
+		Config::get("DB_Tokens") + "(" +
+		Config::get("DB_Tokens_UserID") + ", " +
+		Config::get("DB_Tokens_TorrentID") + ", " +
+		Config::get("DB_Tokens_Downloaded") + ", " +
+		Config::get("DB_Tokens_Expired") + ") "
+		"VALUES ";
+	bool first = true;
 	for(const auto &it : tokenRequests) {
-		if (str != "INSERT INTO users_freeleeches(UserID, TorrentID, Downloaded, Expired) VALUES ")
+		if (!first)
 			str += ", ";
 		str += it;
+		first = false;
 	}
-	str += " ON DUPLICATE KEY UPDATE Downloaded = Downloaded + VALUES(Downloaded), Expired = VALUES(Expired)";
+	str += " ON DUPLICATE KEY UPDATE " +
+		Config::get("DB_Tokens_Downloaded") + " = " + Config::get("DB_Tokens_Downloaded") + " + VALUES(" + Config::get("DB_Tokens_Downloaded") + "), " +
+		Config::get("DB_Tokens_Expired") + " = VALUES(" + Config::get("DB_Tokens_Expired") + ")";
 	LOG_INFO("Flushing TOKENS sql records (" + std::to_string(tokenRequests.size()) + ")");
 	if (mysql_real_query(mysql, str.c_str(), str.size())) {
 		LOG_ERROR("Couldn't flush record (" + str + ")");
@@ -203,13 +255,27 @@ void MySQL::flushTokens() {
 void MySQL::flushTorrents() {
 	if (torrentRequests.size() == 0)
 		return;
-	std::string str = "INSERT INTO torrents(ID, Seeders, Leechers, Snatched, balance) VALUES ";
+	std::string str = "INSERT INTO " +
+		Config::get("DB_Torrents") + "(" +
+		Config::get("DB_Torrents_ID") + ", " +
+		Config::get("DB_Torrents_Seeders") + ", " +
+		Config::get("DB_Torrents_Leechers") + ", " +
+		Config::get("DB_Torrents_Snatches") + ", " +
+		Config::get("DB_Torrents_Balance") + ") "
+		"VALUES ";
+	bool first = true;
 	for(const auto &it : torrentRequests) {
-		if (str != "INSERT INTO torrents(ID, Seeders, Leechers, Snatched, balance) VALUES ")
+		if (!first)
 			str += ", ";
 		str += it;
+		first = false;
 	}
-	str += " ON DUPLICATE KEY UPDATE Seeders = VALUES(Seeders), Leechers = VALUES(Leechers), Snatched = Snatched + VALUES(Snatched), balance = VALUES(balance), last_action = NOW()";
+	str += " ON DUPLICATE KEY UPDATE " +
+		Config::get("DB_Torrents_Seeders") + " = VALUES(" + Config::get("DB_Torrents_Seeders") + "), " +
+		Config::get("DB_Torrents_Leechers") + " = VALUES(" + Config::get("DB_Torrents_Leechers") + "), " +
+		Config::get("DB_Torrents_Snatches") + " = " + Config::get("DB_Torrents_Snatches") + " + VALUES(" + Config::get("DB_Torrents_Snatches") + "), " +
+		Config::get("DB_Torrents_Balance") + " = VALUES(" + Config::get("DB_Torrents_Balance") + "), " +
+		Config::get("DB_Torrents_LastAction") + " = NOW()";
 	LOG_INFO("Flushing TORRENTS sql records (" + std::to_string(torrentRequests.size()) + ")");
 	if (mysql_real_query(mysql, str.c_str(), str.size())) {
 		LOG_ERROR("Couldn't flush record (" + str + ")");
@@ -221,13 +287,41 @@ void MySQL::flushTorrents() {
 void MySQL::flushPeers() {
 	if (peerRequests.size() == 0)
 		return;
-	std::string str = "INSERT INTO xbt_files_users (uid,active,announced,completed,downloaded,uploaded,remaining,upspeed,downspeed,corrupt,timespent,useragent,peer_id,fid,ip,mtime) VALUES ";
+	std::string str = "INSERT INTO " +
+		Config::get("DB_Peers") + "(" +
+		Config::get("DB_Peers_UserID") + ", " +
+		Config::get("DB_Peers_Active") + ", " +
+		Config::get("DB_Peers_AnnouncesCount") + ", " +
+		Config::get("DB_Peers_Completed") + ", " +
+		Config::get("DB_Peers_Downloaded") + ", " +
+		Config::get("DB_Peers_Uploaded") + ", " +
+		Config::get("DB_Peers_Left") + ", " +
+		Config::get("DB_Peers_UpSpeed") + ", " +
+		Config::get("DB_Peers_DownSpeed") + ", " +
+		Config::get("DB_Peers_Corrupt") + ", " +
+		Config::get("DB_Peers_TimeSpent") + ", " +
+		Config::get("DB_Peers_UserAgent") + ", " +
+		Config::get("DB_Peers_PeerID") + ", " +
+		Config::get("DB_Peers_TorrentID") + ", " +
+		Config::get("DB_Peers_IP") + ", " +
+		Config::get("DB_Peers_LastAction") + ") " +
+		"VALUES ";
+	bool first = true;
 	for(const auto &it : peerRequests) {
-		if (str != "INSERT INTO xbt_files_users (uid,active,announced,completed,downloaded,uploaded,remaining,upspeed,downspeed,corrupt,timespent,useragent,peer_id,fid,ip,mtime) VALUES ")
+		if (!first)
 			str += ", ";
 		str += it;
+		first = false;
 	}
-	str += " ON DUPLICATE KEY UPDATE announced = announced + 1, downloaded = VALUES(downloaded), uploaded = VALUES(uploaded), timespent = timespent + VALUES(timespent), upspeed = VALUES(upspeed), downspeed = VALUES(downspeed), corrupt = VALUES(corrupt), mtime = VALUES(mtime)";
+	str += " ON DUPLICATE KEY UPDATE " +
+		Config::get("DB_Peers_AnnouncesCount") + " = " + Config::get("DB_Peers_AnnouncesCount") + " + 1, " +
+		Config::get("DB_Peers_Downloaded") + " = VALUES(" + Config::get("DB_Peers_Downloaded") + "), " +
+		Config::get("DB_Peers_Uploaded") + " = VALUES(" + Config::get("DB_Peers_Uploaded") + "), " +
+		Config::get("DB_Peers_TimeSpent") + " = " + Config::get("DB_Peers_TimeSpent") + " + VALUES(" + Config::get("DB_Peers_TimeSpent") + "), " +
+		Config::get("DB_Peers_UpSpeed") + " = VALUES(" + Config::get("DB_Peers_UpSpeed") + "), " +
+		Config::get("DB_Peers_DownSpeed") + " = VALUES(" + Config::get("DB_Peers_DownSpeed") + "), " +
+		Config::get("DB_Peers_Corrupt") + " = VALUES(" + Config::get("DB_Peers_Corrupt") + "), " +
+		Config::get("DB_Peers_LastAction") + " = VALUES(" + Config::get("DB_Peers_LastAction") + ")";
 	LOG_INFO("Flushing PEERS sql records (" + std::to_string(peerRequests.size()) + ")");
 	if (mysql_real_query(mysql, str.c_str(), str.size())) {
 		LOG_ERROR("Couldn't flush record (" + str + ")");
@@ -239,11 +333,19 @@ void MySQL::flushPeers() {
 void MySQL::flushSnatches() {
 	if (snatchRequests.size() == 0)
 		return;
-	std::string str = "INSERT INTO xbt_snatched (uid,tstamp,fid,IP) VALUES ";
+	std::string str = "INSERT IGNORE INTO " +
+		Config::get("DB_Snatches") + "(" +
+		Config::get("DB_Snatches_UserID") + ", " +
+		Config::get("DB_Snatches_TimeStamp") + ", " +
+		Config::get("DB_Snatches_TorrentID") + ", " +
+		Config::get("DB_Snatches_IP") + ") " +
+		"VALUES ";
+	bool first = true;
 	for(const auto &it : snatchRequests) {
-		if (str != "INSERT INTO xbt_snatched (uid,tstamp,fid,IP) VALUES ")
+		if (!first)
 			str += ", ";
 		str += it;
+		first = false;
 	}
 	LOG_INFO("Flushing SNATCHES sql records (" + std::to_string(snatchRequests.size()) + ")");
 	if (mysql_real_query(mysql, str.c_str(), str.size())) {
