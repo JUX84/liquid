@@ -9,6 +9,7 @@ std::string response_head ()
 
 std::string response (const std::string& body)
 {
+	LOG_INFO(body);
 	return response_head() + body;
 }
 

@@ -20,6 +20,8 @@ std::unordered_map<std::string, std::pair<std::string, bool>> Config::vars = {
 	{ "max_request_size",				{ "4096", true } },
 	{ "max_numwant",					{ "50", true } },
 	{ "default_numwant",				{ "20", true } },
+	{ "default_announce_interval",		{ "900", true } },
+	{ "min_announce_interval",			{ "300", true } },
 	{ "updatekey",						{ "00000000000000000000000000000000", false } },
 	{ "DB_Host",						{ "127.0.0.1", false } },
 	{ "DB_User",						{ "db_user", false } },

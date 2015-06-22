@@ -23,7 +23,7 @@ class Peer {
 		long long lastUpdate;
 		unsigned int corrupt;
 	public:
-		Peer (std::string, std::string, User*, unsigned long, unsigned long, unsigned long, unsigned int, std::string, std::string);
+		Peer (std::string, std::string, User*, unsigned long, unsigned long, unsigned long, unsigned int, std::string, std::string, bool);
 		User* getUser();
 		const std::string& getPeerID();
 		const std::string& getIP();

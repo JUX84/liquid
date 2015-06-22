@@ -35,7 +35,7 @@ option(ENABLE_LOG "enable log messages" ON)
 set(CMAKE_CXX_FLAGS "-std=c++11 -Wall -O2 -D__FILENAME__='\"$(subst ${CMAKE_SOURCE_DIR}/src/,,$(abspath $<))\"'")
 if(USE_CLANG)
 	set(CMAKE_CXX_COMPILER "clang++")
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++")
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++ -g -Wall")
 	target_link_libraries(liquid c++abi)
 endif(USE_CLANG)
 

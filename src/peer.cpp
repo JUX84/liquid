@@ -5,7 +5,7 @@
 #include "peers.hpp"
 #include "utility.hpp"
 
-Peer::Peer(std::string IP, std::string port, class User* u, unsigned long announcedLeft, unsigned long announcedDownloaded, unsigned long announcedUploaded, unsigned int torrentID, std::string client, std::string peerID) {
+Peer::Peer(std::string IP, std::string port, class User* u, unsigned long announcedLeft, unsigned long announcedDownloaded, unsigned long announcedUploaded, unsigned int torrentID, std::string client, std::string peerID, bool ipv6) {
 	LOG_INFO("Creating peer on torrent " + std::to_string(torrentID) + " using client " + client);
 	user = u;
 	totalDownloaded = announcedDownloaded;
@@ -16,7 +16,7 @@ Peer::Peer(std::string IP, std::string port, class User* u, unsigned long announ
 	completed = left == 0;
 	active = true;
 	this->IP = IP;
-	this->hexIPPort = Utility::ip_port_hex_encode(IP, port);
+	this->hexIPPort = Utility::ip_port_hex_encode(IP, port, ipv6);
 	this->peerID = peerID;
 	this->torrentID = torrentID;
 	this->client = client;

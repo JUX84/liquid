@@ -18,12 +18,12 @@ Peer* Peers::getPeer(const std::string& peerID, long long now) {
 	}
 }
 
-Peer* Peers::addPeer(const Request& req, unsigned int torrentID, long long now) {
+Peer* Peers::addPeer(const Request& req, unsigned int torrentID, bool ipv6, long long now) {
 	User* u = nullptr;
 	if (Config::get("type") == "private")
 		u = RequestHandler::getUser(req.at("reqpasskey"));
 	std::string peerID = req.at("peer_id");
-	pMap.emplace(peerID, Peer(req.at("ip"), req.at("port"), u, std::stoul(req.at("left")), std::stoul(req.at("downloaded")), std::stoul(req.at("uploaded")), torrentID, req.at("user-agent"), req.at("peer_id")));
+	pMap.emplace(peerID, Peer(req.at("ip"), req.at("port"), u, std::stoul(req.at("left")), std::stoul(req.at("downloaded")), std::stoul(req.at("uploaded")), torrentID, req.at("user-agent"), req.at("peer_id"), ipv6));
 	return &pMap.at(peerID);
 }
 

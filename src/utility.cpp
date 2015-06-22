@@ -5,24 +5,23 @@
 #include "utility.hpp"
 #include "config.hpp"
 
-std::string Utility::ip_port_hex_encode (const std::string& ip, const std::string& port)
+std::string Utility::ip_port_hex_encode (const std::string& ip, const std::string& port, bool ipv6)
 {
 	in_addr addr4;
-	/* in6_addr addr6; */
+	in6_addr addr6;
 	char* addr = nullptr;
 	int af;
 	int size;
 
-	/* if (Config::get("ipv6") == "no") { */
+	if (ipv6) {
+		af = AF_INET6;
+		addr = reinterpret_cast<char*>(&(addr6.s6_addr));
+		size = sizeof(addr6.s6_addr);
+	} else {
 		af = AF_INET;
 		addr = reinterpret_cast<char*>(&(addr4.s_addr));
 		size = sizeof(addr4.s_addr);
-	/* } */
-	/* else { */
-	/* 	af = AF_INET6; */
-	/* 	addr = reinterpret_cast<char*>(&(addr6.s6_addr)); */
-	/* 	size = sizeof(addr6.s6_addr); */
-	/* } */
+	}
 
 	inet_pton(af, ip.c_str(), addr);
 	uint16_t value = htons(std::stoi(port));

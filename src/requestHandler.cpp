@@ -20,10 +20,6 @@ LeechStatus RequestHandler::leechStatus;
 std::string RequestHandler::handle(std::string str, std::string ip, bool ipv6)
 {
 	LOG_INFO("Handling new request");
-	if (ipv6) {
-		LOG_ERROR("IPv6 unsupported: ip = " + ip);
-		return error("IPv6 unsupported");
-	}
 	std::pair<Request, std::forward_list<std::string>> infos = Parser::parse(str); // parse the request
 	Request* req = &infos.first;
 	std::forward_list<std::string>* infoHashes = &infos.second;
@@ -53,7 +49,7 @@ std::string RequestHandler::handle(std::string str, std::string ip, bool ipv6)
 		if (req->find("compact") != req->end() && req->at("compact") == "0")
 			return error("client does not support compact");
 		req->emplace("event", "updating");
-		return announce(req, infoHashes->front());
+		return announce(req, infoHashes->front(), ipv6);
 	}
 	else if (req->at("action") == "scrape")
 		return scrape(infoHashes);
@@ -61,7 +57,7 @@ std::string RequestHandler::handle(std::string str, std::string ip, bool ipv6)
 	return error("invalid action"); // not possible, since the request is checked, but, well, who knows :3
 }
 
-std::string RequestHandler::announce(const Request* req, const std::string& infoHash)
+std::string RequestHandler::announce(const Request* req, const std::string& infoHash, bool ipv6)
 {
 	LOG_INFO("Announce request");
 	if (clientWhitelist.size() > 0) {
@@ -89,6 +85,7 @@ std::string RequestHandler::announce(const Request* req, const std::string& info
 	if (!getUser(req->at("reqpasskey"))->isAuthorized())
 		return error("user unauthorized");
 	Peers *peers = nullptr;
+	Peers *peers6 = nullptr;
 	Peer *peer = nullptr;
 	long balance = 0;
 	int free = 0;
@@ -100,10 +97,14 @@ std::string RequestHandler::announce(const Request* req, const std::string& info
 	}
 	if (req->at("left") != "0" || req->at("event") == "completed") {
 		peer = tor->getLeechers()->getPeer(req->at("peer_id"), now);
-		if (peer == nullptr)
-			peer = tor->getLeechers()->addPeer(*req, tor->getID(), now);
-		else
+		if (peer == nullptr) {
+			if (ipv6)
+				peer = tor->getLeechers6()->addPeer(*req, tor->getID(), ipv6, now);
+			else
+				peer = tor->getLeechers()->addPeer(*req, tor->getID(), ipv6, now);
+		} else {
 			peer->complete();
+		}
 		if (Config::get("type") == "private") {
 			free = tor->getFree();
 			if (leechStatus == FREELEECH)
@@ -114,15 +115,26 @@ std::string RequestHandler::announce(const Request* req, const std::string& info
 				free = 100;
 			}
 		}
+		if (ipv6)
+			peers6 = tor->getSeeders6();
 		peers = tor->getSeeders();
 	}
 	if (req->at("left") == "0") {
-		peer = tor->getSeeders()->getPeer(req->at("peer_id"), now);
+		if (ipv6)
+			peer = tor->getSeeders6()->getPeer(req->at("peer_id"), now);
+		else
+			peer = tor->getSeeders()->getPeer(req->at("peer_id"), now);
 		if (peer == nullptr) {
 			peer = tor->getLeechers()->getPeer(req->at("peer_id"), now);
-			if (peer == nullptr)
-				peer = tor->getSeeders()->addPeer(*req, tor->getID(), now);
+			if (peer == nullptr) {
+				if (ipv6)
+					peer = tor->getSeeders6()->addPeer(*req, tor->getID(), ipv6, now);
+				else
+					peer = tor->getSeeders()->addPeer(*req, tor->getID(), ipv6, now);
+			}
 		}
+		if (ipv6)
+			peers6 = tor->getLeechers6();
 		peers = tor->getLeechers();
 	}
 	if (req->at("event") == "stopped")
@@ -137,16 +149,25 @@ std::string RequestHandler::announce(const Request* req, const std::string& info
 	db->recordPeer(peer);
 	db->recordUser(peer->getUser());
 	if (req->at("event") == "stopped") {
-		if (req->at("left") != "0")
-			tor->getLeechers()->removePeer(*req);
-		else
-			tor->getSeeders()->removePeer(*req);
+		if (req->at("left") != "0") {
+			if (ipv6)
+				tor->getLeechers6()->removePeer(*req);
+			else
+				tor->getLeechers()->removePeer(*req);
+		} else {
+			if (ipv6)
+				tor->getSeeders6()->removePeer(*req);
+			else
+				tor->getSeeders()->removePeer(*req);
+		}
 	}
 	if (req->at("event") == "completed")
 		tor->getLeechers()->removePeer(*req);
 	db->recordTorrent(tor);
 	std::string peerlist;
+	std::string peerlist6;
 	unsigned long i = 0;
+	unsigned long j = 0;
 	if (req->at("event") != "stopped") {
 		try {
 			i = std::stoi(req->at("numwant"));
@@ -154,6 +175,17 @@ std::string RequestHandler::announce(const Request* req, const std::string& info
 			i = Config::getInt("default_numwant");;
 		}
 		i = std::min(std::min(i, static_cast<unsigned long>(Config::getInt("max_numwant"))), peers->size());
+		if (ipv6)
+			j = std::min(std::min(i, static_cast<unsigned long>(Config::getInt("max_numwant"))), peers6->size());
+	}
+	if (ipv6) {
+		while (j-- > 0) {
+			Peer* p = peers6->nextPeer(now);
+			if (p != nullptr) {
+				peerlist6.append(p->getHexIPPort());
+				--i;
+			}
+		}
 	}
 	while (i-- > 0) {
 		Peer* p = peers->nextPeer(now);
@@ -162,15 +194,16 @@ std::string RequestHandler::announce(const Request* req, const std::string& info
 	}
 	return response(
 			("d8:completei"
-			+ std::to_string(tor->getSeeders()->size())
+			+ std::to_string(tor->getSeeders()->size() + tor->getSeeders6()->size())
 			+ "e10:incompletei"
-			+ std::to_string(tor->getLeechers()->size())
+			+ std::to_string(tor->getLeechers()->size() + tor->getLeechers6()->size())
 			+ "e10:downloadedi"
 			+ std::to_string(tor->getSnatches())
 			+ "e8:intervali"
-			+ std::to_string(900)
+			+ Config::get("default_announce_interval")
 			+ "e12:min intervali"
-			+ std::to_string(300)
+			+ Config::get("min_announce_interval")
+			+ (ipv6 ? "e6:peers6" + std::to_string(peerlist6.length()) + ":" + peerlist6 + "e" : "")
 			+ "e5:peers"
 			+ std::to_string(peerlist.length())
 			+ ":"
@@ -190,9 +223,9 @@ std::string RequestHandler::scrape(const std::forward_list<std::string>* infoHas
 				+ ":"
 				+ infoHash
 				+ "d8:completei"
-				+ std::to_string(it->second.getSeeders()->size())
+				+ std::to_string(it->second.getSeeders()->size() + it->second.getSeeders6()->size())
 				+ "e10:incompletei"
-				+ std::to_string(it->second.getLeechers()->size())
+				+ std::to_string(it->second.getLeechers()->size() + it->second.getLeechers()->size())
 				+ "e10:downloadedi"
 				+ std::to_string(it->second.getSnatches())
 				+ "ee";
@@ -268,7 +301,7 @@ void RequestHandler::addToken(const Request* req, const std::string& infoHash)
 {
 	unsigned int torrentID = torMap.at(infoHash).getID();
 	const std::string& passkey = req->at("passkey");
-	auto duration = std::chrono::system_clock::now().time_since_epoch();                       
+	auto duration = std::chrono::system_clock::now().time_since_epoch();
     long long now = std::chrono::duration_cast<std::chrono::seconds>(duration).count();
 	usrMap.at(passkey)->addToken(torrentID, now);
 	LOG_INFO("Added Token for User " + std::to_string(getUser(passkey)->getID()) + " on Torrent " + std::to_string(torrentID));
@@ -456,9 +489,11 @@ void RequestHandler::clearTorrentPeers(ev::timer& timer, int revents)
 	auto t = torMap.begin();
 	while (t != torMap.end()) {
 		changed += t->second.getSeeders()->timedOut(now, db);
+		changed += t->second.getSeeders6()->timedOut(now, db);
 		changed += t->second.getLeechers()->timedOut(now, db);
+		changed += t->second.getLeechers6()->timedOut(now, db);
 		if(Config::get("type") == "public") {
-			if (t->second.getSeeders()->size() == 0 && t->second.getLeechers()->size() == 0)
+			if (t->second.getSeeders()->size() == 0 && t->second.getSeeders6()->size() == 0 && t->second.getLeechers()->size() == 0 && t->second.getLeechers6()->size() == 0)
 				torMap.erase(t++);
 		} else {
 			if (changed > 0) {
