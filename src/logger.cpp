@@ -21,6 +21,8 @@ void Logger::write(Logger::Level level, const char* file, int line, const std::s
 			char timestr[9];
 			if (std::strftime(timestr, sizeof(timestr), "%H:%M:%S", std::localtime(&time)))
 				std::cout << "[" << timestr << "] ";
-			std::cout << file << ':' << line << ": " << levelNames[level] << ": " << message << '\n';
+			if (level > 0)
+				std::cout << file << ':' << line << " - " << levelNames[level] << " -- ";
+			std::cout << message << '\n';
 	}
 }

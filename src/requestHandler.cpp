@@ -9,6 +9,7 @@
 #include "torrent.hpp"
 #include "utility.hpp"
 #include "mysql.hpp"
+#include "stats.hpp"
 
 TorrentMap RequestHandler::torMap;
 UserMap RequestHandler::usrMap;
@@ -507,4 +508,8 @@ void RequestHandler::clearTorrentPeers(ev::timer& timer, int revents)
 
 void RequestHandler::flushSqlRecords(ev::timer& timer, int revents) {
 	db->flush();
+}
+
+void RequestHandler::showStats(ev::timer& timer, int revents) {
+	LOG_INFO("Stats - " + std::to_string(Stats::getPeersCount()) + " active peers");
 }

@@ -41,6 +41,10 @@ void Server::init(int domain, uint16_t port, sockaddr* address, socklen_t addrle
 	timer2.set<&RequestHandler::flushSqlRecords>();
 	timer2.set(Config::getInt("flush_records_interval"), Config::getInt("flush_records_interval"));
 	timer2.start();
+
+	timer3.set<&RequestHandler::showStats>();
+	timer3.set(10, 10);
+	timer3.start();
 }
 
 void Server::setSocketOptions() const
