@@ -378,16 +378,14 @@ void MySQL::recordToken(unsigned int userID, unsigned int torrentID, unsigned in
 }
 
 void MySQL::recordTorrent(Torrent* t) {
-	if (t->hasChanged()) {
-		std::string ID = std::to_string(t->getID());
-		std::string Seeders = std::to_string(t->getSeeders()->size() + t->getSeeders6()->size());
-		std::string Leechers = std::to_string(t->getLeechers()->size() + t->getLeechers6()->size());
-		std::string Snatches = std::to_string(t->getSnatches());
-		std::string Balance = std::to_string(t->getBalance());
-		LOG_INFO("Recording Torrent " + ID + ": " + Seeders + " Seeders, " + Leechers + " Leechers, " + Snatches + " new Snatches, Balance: " + Balance + "");
-		torrentRequests.push_back("(" + ID + ", " + Seeders + ", " + Leechers + ", " + Snatches + ", " + Balance + ")");
-		t->reset();
-	}
+	std::string ID = std::to_string(t->getID());
+	std::string Seeders = std::to_string(t->getSeeders()->size() + t->getSeeders6()->size());
+	std::string Leechers = std::to_string(t->getLeechers()->size() + t->getLeechers6()->size());
+	std::string Snatches = std::to_string(t->getSnatches());
+	std::string Balance = std::to_string(t->getBalance());
+	LOG_INFO("Recording Torrent " + ID + ": " + Seeders + " Seeders, " + Leechers + " Leechers, " + Snatches + " new Snatches, Balance: " + Balance + "");
+	torrentRequests.push_back("(" + ID + ", " + Seeders + ", " + Leechers + ", " + Snatches + ", " + Balance + ")");
+	t->reset();
 }
 
 void MySQL::recordPeer(Peer* p) {

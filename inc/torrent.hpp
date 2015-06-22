@@ -14,7 +14,6 @@ class Torrent {
 		unsigned char free;
 		unsigned int snatches;
 		long balance;
-		bool changed;
 	public:
 		Torrent(unsigned int, unsigned char, long);
 		Peers* getSeeders();
@@ -29,6 +28,4 @@ class Torrent {
 		void setBalance(long);
 		long getBalance();
 		void setFree(unsigned char);
-		void change();
-		bool hasChanged();
 };

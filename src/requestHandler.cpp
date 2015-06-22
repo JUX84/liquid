@@ -96,12 +96,10 @@ std::string RequestHandler::announce(const Request* req, const std::string& info
 	}
 	if (req->at("left") != "0" || req->at("event") == "completed") {
 		peer = tor->getLeechers()->getPeer(req->at("peer_id"), now);
-		if (peer == nullptr) {
+		if (peer == nullptr)
 			peer = tor->getLeechers()->addPeer(*req, tor->getID(), now);
-			tor->change();
-		} else {
+		else
 			peer->complete();
-		}
 		if (Config::get("type") == "private") {
 			free = tor->getFree();
 			if (leechStatus == FREELEECH)
@@ -118,10 +116,8 @@ std::string RequestHandler::announce(const Request* req, const std::string& info
 		peer = tor->getSeeders()->getPeer(req->at("peer_id"), now);
 		if (peer == nullptr) {
 			peer = tor->getLeechers()->getPeer(req->at("peer_id"), now);
-			if (peer == nullptr) {
+			if (peer == nullptr)
 				peer = tor->getSeeders()->addPeer(*req, tor->getID(), now);
-				tor->change();
-			}
 		}
 		peers = tor->getLeechers();
 	}
@@ -141,12 +137,9 @@ std::string RequestHandler::announce(const Request* req, const std::string& info
 			tor->getLeechers()->removePeer(*req);
 		else
 			tor->getSeeders()->removePeer(*req);
-		tor->change();
 	}
-	if (req->at("event") == "completed") {
+	if (req->at("event") == "completed")
 		tor->getLeechers()->removePeer(*req);
-		tor->change();
-	}
 	db->recordTorrent(tor);
 	std::string peerlist;
 	unsigned long i = 0;
