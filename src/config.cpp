@@ -11,6 +11,7 @@
 std::unordered_map<std::string, std::pair<std::string, bool>> Config::vars = {
 //	{ "name",							{ "default value", is_integer} }
 	{ "type",							{ "private", false } },
+	{ "ipv6",						{ "no", false } },
 	{ "port",							{ "2710", true } },
 	{ "timeout",						{ "3600", true } },
 	{ "clear_peers_interval",			{ "600", true } },

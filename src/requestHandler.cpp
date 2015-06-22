@@ -17,9 +17,13 @@ std::unordered_set<std::string> RequestHandler::bannedIPs;
 std::list<std::string> RequestHandler::clientWhitelist;
 LeechStatus RequestHandler::leechStatus;
 
-std::string RequestHandler::handle(std::string str, std::string ip)
+std::string RequestHandler::handle(std::string str, std::string ip, bool ipv6)
 {
 	LOG_INFO("Handling new request");
+	if (ipv6) {
+		LOG_ERROR("IPv6 unsupported: ip = " + ip);
+		return error("IPv6 unsupported", false);
+	}
 	std::pair<Request, std::forward_list<std::string>> infos = Parser::parse(str); // parse the request
 	Request* req = &infos.first;
 	std::forward_list<std::string>* infoHashes = &infos.second;
@@ -40,7 +44,7 @@ std::string RequestHandler::handle(std::string str, std::string ip)
 		return error("missing info_hash");
 	}
 	if (req->find("ip") == req->end())
-		req->emplace("ip", Utility::ip_hex_decode(ip));
+		req->emplace("ip", ip);
 	if (bannedIPs.find(req->at("ip")) != bannedIPs.end())
 		return error("banned ip");
 	if (u->isRestricted(req->at("ip")))

@@ -3,21 +3,30 @@
 #include <cctype>
 #include <cstring>
 #include "utility.hpp"
+#include "config.hpp"
 
 std::string Utility::ip_port_hex_encode (const std::string& ip, const std::string& port)
 {
-	in_addr addr;
-	inet_pton(AF_INET, ip.c_str(), &(addr.s_addr));
+	in_addr addr4;
+	/* in6_addr addr6; */
+	char* addr = nullptr;
+	int af;
+	int size;
+
+	/* if (Config::get("ipv6") == "no") { */
+		af = AF_INET;
+		addr = reinterpret_cast<char*>(&(addr4.s_addr));
+		size = sizeof(addr4.s_addr);
+	/* } */
+	/* else { */
+	/* 	af = AF_INET6; */
+	/* 	addr = reinterpret_cast<char*>(&(addr6.s6_addr)); */
+	/* 	size = sizeof(addr6.s6_addr); */
+	/* } */
+
+	inet_pton(af, ip.c_str(), addr);
 	uint16_t value = htons(std::stoi(port));
-	return std::string(reinterpret_cast<const char*>(&(addr.s_addr)), sizeof(addr.s_addr)) + std::string(reinterpret_cast<const char*>(&value), sizeof(value));
-}
-
-std::string Utility::ip_hex_decode (const std::string& input) {
-	char ip[INET_ADDRSTRLEN] = {0};
-	std::string tmp(input, 0, 4);
-
-	inet_ntop(AF_INET, tmp.data(), ip, INET_ADDRSTRLEN);
-	return ip;
+	return std::string(addr, size) + std::string(reinterpret_cast<const char*>(&value), sizeof(value));
 }
 
 std::string Utility::hex_to_bin(const std::string& input)

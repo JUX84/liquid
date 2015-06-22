@@ -11,8 +11,11 @@
 #include "config.hpp"
 
 ConnectionHandler::ConnectionHandler(int socket)
-	: sock(socket), MAX_REQUEST_SIZE(Config::getInt("max_request_size")),
+	: ipv6(false), sock(socket), MAX_REQUEST_SIZE(Config::getInt("max_request_size")),
 	BUFFER_SIZE(Config::getInt("read_buffer_size")), sent(0)
+{}
+
+void ConnectionHandler::init()
 {
 	setSocketOptions();
 	getPeerInfo();
@@ -32,20 +35,14 @@ ConnectionHandler::ConnectionHandler(int socket)
 	ptr = std::unique_ptr<ConnectionHandler>(this);
 }
 
+ConnectionHandler::~ConnectionHandler()
+{}
+
 void ConnectionHandler::setSocketOptions() const
 {
 	int flags = fcntl(sock, F_GETFL);
 
 	if (flags == -1 || fcntl(sock, F_SETFL, flags | O_NONBLOCK) == -1)
-		throw std::system_error(errno, std::system_category());
-}
-
-void ConnectionHandler::getPeerInfo()
-{
-	socklen_t addrLen = sizeof(client);
-	memset(&client, 0, sizeof(client));
-
-	if (getpeername(sock, reinterpret_cast<sockaddr*>(&client), &addrLen) == -1)
 		throw std::system_error(errno, std::system_category());
 }
 
@@ -71,8 +68,7 @@ void ConnectionHandler::readRequest(ev::io& w, int revents)
 			response = "request too long";
 		}
 		else {
-			std::string binIp(reinterpret_cast<const char*>(&(client.sin_addr.s_addr)), sizeof(client.sin_addr.s_addr));
-			response = RequestHandler::handle(request, binIp);
+			response = RequestHandler::handle(request, IP, ipv6);
 		}
 
 		writeWatcher.start();
