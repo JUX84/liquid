@@ -100,7 +100,7 @@ void MySQL::loadUsers(UserMap& usrMap) {
 		std::string passkey = row[1];
 		unsigned int ip = std::stoul(row[2]);
 		try {
-			User* u = usrMap.at("passkey");
+			User* u = usrMap.at(passkey);
 			u->addIPRestriction(Utility::long2ip(ip));
 		} catch (const std::exception& e) {
 			LOG_ERROR("No user (" + std::to_string(userid) + ") with passkey " + passkey);
@@ -299,7 +299,7 @@ void MySQL::flushPeers() {
 		Config::get("DB_Peers_UpSpeed") + ", " +
 		Config::get("DB_Peers_DownSpeed") + ", " +
 		Config::get("DB_Peers_Corrupt") + ", " +
-		Config::get("DB_Peers_TimeSpent") + ", " +
+		Config::get("DB_Peers_Timespent") + ", " +
 		Config::get("DB_Peers_UserAgent") + ", " +
 		Config::get("DB_Peers_PeerID") + ", " +
 		Config::get("DB_Peers_TorrentID") + ", " +
@@ -317,7 +317,7 @@ void MySQL::flushPeers() {
 		Config::get("DB_Peers_AnnouncesCount") + " = " + Config::get("DB_Peers_AnnouncesCount") + " + 1, " +
 		Config::get("DB_Peers_Downloaded") + " = VALUES(" + Config::get("DB_Peers_Downloaded") + "), " +
 		Config::get("DB_Peers_Uploaded") + " = VALUES(" + Config::get("DB_Peers_Uploaded") + "), " +
-		Config::get("DB_Peers_TimeSpent") + " = " + Config::get("DB_Peers_TimeSpent") + " + VALUES(" + Config::get("DB_Peers_TimeSpent") + "), " +
+		Config::get("DB_Peers_Timespent") + " = " + Config::get("DB_Peers_Timespent") + " + VALUES(" + Config::get("DB_Peers_Timespent") + "), " +
 		Config::get("DB_Peers_UpSpeed") + " = VALUES(" + Config::get("DB_Peers_UpSpeed") + "), " +
 		Config::get("DB_Peers_DownSpeed") + " = VALUES(" + Config::get("DB_Peers_DownSpeed") + "), " +
 		Config::get("DB_Peers_Corrupt") + " = VALUES(" + Config::get("DB_Peers_Corrupt") + "), " +

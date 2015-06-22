@@ -37,7 +37,7 @@ std::unordered_map<std::string, std::pair<std::string, bool>> Config::vars = {
 		{ "DB_Torrents_Freeleech",		{ "FreeTorrent", false } },
 		{ "DB_Torrents_Seeders",		{ "Seeders", false } },
 		{ "DB_Torrents_Leechers",		{ "Leechers", false } },
-		{ "DB_Torrents_Snatches",		{ "Snatches", false } },
+		{ "DB_Torrents_Snatches",		{ "Snatched", false } },
 		{ "DB_Torrents_Balance",		{ "balance", false } },
 		{ "DB_Torrents_LastAction",		{ "last_action", false } },
 	{ "DB_Peers",						{ "xbt_files_users", false } },
