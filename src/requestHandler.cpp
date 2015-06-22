@@ -22,7 +22,7 @@ std::string RequestHandler::handle(std::string str, std::string ip, bool ipv6)
 	LOG_INFO("Handling new request");
 	if (ipv6) {
 		LOG_ERROR("IPv6 unsupported: ip = " + ip);
-		return error("IPv6 unsupported", false);
+		return error("IPv6 unsupported");
 	}
 	std::pair<Request, std::forward_list<std::string>> infos = Parser::parse(str); // parse the request
 	Request* req = &infos.first;
