@@ -7,7 +7,6 @@ Torrent::Torrent (unsigned int id, unsigned char free, long balance) {
 	this->free = free;
 	this->balance = balance;
 	snatches = 0;
-	changed = false;
 }
 
 unsigned int Torrent::getID () {
@@ -37,12 +36,10 @@ unsigned int Torrent::getSnatches() {
 void Torrent::incSnatches() {
 	LOG_INFO("New snatch on torrent " + std::to_string(id));
 	++snatches;
-	changed = true;
 }
 
 void Torrent::reset() {
 	snatches = 0;
-	changed = false;
 }
 
 unsigned char Torrent::getFree() {
@@ -58,14 +55,5 @@ long Torrent::getBalance() {
 }
 
 void Torrent::setBalance(long balance) {
-	changed = true;
 	this->balance += balance;
-}
-
-void Torrent::change() {
-	changed = true;
-}
-
-bool Torrent::hasChanged() {
-	return changed;
 }
