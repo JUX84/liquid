@@ -23,7 +23,15 @@ Peers* Torrent::getSeeders() {
 	return &seeders;
 }
 
+Peers* Torrent::getSeeders6() {
+	return &seeders;
+}
+
 Peers* Torrent::getLeechers() {
+	return &leechers;
+}
+
+Peers* Torrent::getLeechers6() {
 	return &leechers;
 }
 

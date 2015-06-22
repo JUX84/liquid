@@ -7,7 +7,9 @@
 class Torrent {
 	private:
 		Peers seeders;
+		Peers seeders6;
 		Peers leechers;
+		Peers leechers6;
 		unsigned int id;
 		unsigned long size;
 		unsigned char free;
@@ -17,7 +19,9 @@ class Torrent {
 	public:
 		Torrent(unsigned int, unsigned long, unsigned char, long);
 		Peers* getSeeders();
+		Peers* getSeeders6();
 		Peers* getLeechers();
+		Peers* getLeechers6();
 		unsigned int getSnatches();
 		void incSnatches();
 		void reset();
