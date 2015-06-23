@@ -48,5 +48,5 @@ void Stats::incTransferred(unsigned long inctransferred) {
 }
 
 std::string Stats::getTransferred() {
-	return std::to_string(transferred) + " " + Utility::getPrefix(transferredLvl) + "B/s";
+	return std::to_string(transferred) + " " + Utility::getPrefix(transferredLvl) + "B";
 }
