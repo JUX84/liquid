@@ -1,18 +1,29 @@
 #include "stats.hpp"
 #include "utility.hpp"
 
+bool Stats::changed;
 unsigned long Stats::peers;
 double Stats::speed;
 unsigned char Stats::speedLvl;
 double Stats::transferred;
 unsigned char Stats::transferredLvl;
 
+void Stats::reset() {
+	changed = false;
+}
+
+bool Stats::hasChanged() {
+	return changed;
+}
+
 void Stats::incPeers() {
 	++peers;
+	changed = true;
 }
 
 void Stats::decPeers() {
 	--peers;
+	changed = true;
 }
 
 std::string Stats::getPeers() {
@@ -25,6 +36,7 @@ void Stats::incSpeed(unsigned long incspeed) {
 		speed /= 1024;
 		++speedLvl;
 	}
+	changed = true;
 }
 
 void Stats::decSpeed(unsigned long decspeed) {
@@ -33,6 +45,7 @@ void Stats::decSpeed(unsigned long decspeed) {
 		speed *= 1024;
 		--speedLvl;
 	}
+	changed = true;
 }
 
 std::string Stats::getSpeed() {
@@ -45,6 +58,7 @@ void Stats::incTransferred(unsigned long inctransferred) {
 		transferred /= 1024;
 		++transferredLvl;
 	}
+	changed = true;
 }
 
 std::string Stats::getTransferred() {

@@ -517,8 +517,11 @@ void RequestHandler::flushSqlRecords(ev::timer& timer, int revents) {
 }
 
 void RequestHandler::showStats(ev::timer& timer, int revents) {
-	LOG_INFO("Stats - " +
-			Stats::getPeers() + " active peers - " +
-			Stats::getSpeed() + " - " +
-			Stats::getTransferred() + " transferred since start");
+	if (Stats::hasChanged()) {
+		LOG_INFO("Stats - " +
+				Stats::getPeers() + " active peers - " +
+				Stats::getSpeed() + " - " +
+				Stats::getTransferred() + " transferred since start");
+		Stats::reset();
+	}
 }

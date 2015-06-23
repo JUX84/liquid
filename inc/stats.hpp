@@ -4,12 +4,15 @@
 
 class Stats {
 	private:
+		static bool changed;
 		static unsigned long peers;
 		static double speed;
 		static unsigned char speedLvl;
 		static double transferred;
 		static unsigned char transferredLvl;
 	public:
+		static void reset();
+		static bool hasChanged();
 		static void incPeers();
 		static void decPeers();
 		static std::string getPeers();
