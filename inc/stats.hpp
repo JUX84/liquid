@@ -6,6 +6,7 @@ class Stats {
 	private:
 		static bool changed;
 		static unsigned long peers;
+		static unsigned long torrents;
 		static double speed;
 		static unsigned char speedLvl;
 		static double transferred;
@@ -16,10 +17,15 @@ class Stats {
 		static void incPeers();
 		static void decPeers();
 		static std::string getPeers();
-		static void incSpeed(unsigned long speed);
-		static void decSpeed(unsigned long speed);
+		static void incTorrents();
+		static void decTorrents();
+		static void setTorrents(unsigned long);
+		static unsigned long getTorrents();
+		static std::string getTorrentsStr();
+		static void incSpeed(unsigned long);
+		static void decSpeed(unsigned long);
 		static std::string getSpeed();
-		static void incTransferred(unsigned long transferred);
+		static void incTransferred(unsigned long);
 		static std::string getTransferred();
 
 };

@@ -5,6 +5,7 @@
 #include "user.hpp"
 #include "torrent.hpp"
 #include "utility.hpp"
+#include "stats.hpp"
 
 void MySQL::connect() {
 	mysql = mysql_init(nullptr);
@@ -130,7 +131,9 @@ void MySQL::loadTorrents(TorrentMap& torMap) {
 			free = 50;
 		torMap.emplace(row[1], Torrent(std::stoul(row[0]), free, std::stoul(row[3])));
 	}
-	LOG_INFO("Loaded " + std::to_string(mysql_num_rows(result)) + " torrents");
+	unsigned long torrentsCount = mysql_num_rows(result);
+	Stats::setTorrents(torrentsCount);
+	LOG_INFO("Loaded " + std::to_string(torrentsCount) + " torrents");
 }
 
 void MySQL::loadBannedIPs(std::unordered_set<std::string> &bannedIPs) {

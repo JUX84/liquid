@@ -3,6 +3,7 @@
 
 bool Stats::changed;
 unsigned long Stats::peers;
+unsigned long Stats::torrents;
 double Stats::speed;
 unsigned char Stats::speedLvl;
 double Stats::transferred;
@@ -28,6 +29,28 @@ void Stats::decPeers() {
 
 std::string Stats::getPeers() {
 	return std::to_string(peers);
+}
+
+void Stats::incTorrents() {
+	++torrents;
+	changed = true;
+}
+
+void Stats::decTorrents() {
+	--torrents;
+	changed = true;
+}
+
+void Stats::setTorrents(unsigned long torrentsCount) {
+	torrents = torrentsCount;
+}
+
+unsigned long Stats::getTorrents() {
+	return torrents;
+}
+
+std::string Stats::getTorrentsStr() {
+	return std::to_string(torrents);
 }
 
 void Stats::incSpeed(unsigned long incspeed) {

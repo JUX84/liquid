@@ -74,8 +74,10 @@ std::string RequestHandler::announce(const Request* req, const std::string& info
 	}
 	auto duration = std::chrono::system_clock::now().time_since_epoch();
 	long long now = std::chrono::duration_cast<std::chrono::seconds>(duration).count();
-	if (Config::get("type") != "private")
-		torMap.emplace(infoHash, Torrent(0, 0, 0));
+	if (Config::get("type") == "public" && torMap.find(infoHash) == torMap.end()) {
+		torMap.emplace(infoHash, Torrent(Stats::getTorrents(), 0, 0));
+		Stats::incTorrents();
+	}
 	Torrent *tor = nullptr;
 	try {
 		tor = &torMap.at(infoHash);
@@ -508,8 +510,10 @@ void RequestHandler::clearTorrentPeers(ev::timer& timer, int revents)
 		changed += t->second.getLeechers()->timedOut(now, db);
 		changed += t->second.getLeechers6()->timedOut(now, db);
 		if(Config::get("type") == "public") {
-			if (t->second.getSeeders()->size() == 0 && t->second.getSeeders6()->size() == 0 && t->second.getLeechers()->size() == 0 && t->second.getLeechers6()->size() == 0)
+			if (t->second.getSeeders()->size() == 0 && t->second.getSeeders6()->size() == 0 && t->second.getLeechers()->size() == 0 && t->second.getLeechers6()->size() == 0) {
 				torMap.erase(t++);
+				Stats::decTorrents();
+			}
 		} else {
 			if (changed > 0) {
 				LOG_INFO(std::to_string(changed) + " new inactive peers");
@@ -529,7 +533,8 @@ void RequestHandler::flushSqlRecords(ev::timer& timer, int revents) {
 void RequestHandler::showStats(ev::timer& timer, int revents) {
 	if (Stats::hasChanged()) {
 		LOG_INFO("Stats - " +
-				Stats::getPeers() + " active peers - " +
+				Stats::getPeers() + " active peers on " +
+				Stats::getTorrentsStr() + " torrents - " +
 				Stats::getSpeed() + " - " +
 				Stats::getTransferred() + " transferred since start");
 		Stats::reset();
