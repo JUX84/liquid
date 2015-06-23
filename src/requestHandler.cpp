@@ -83,7 +83,7 @@ std::string RequestHandler::announce(const Request* req, const std::string& info
 		LOG_WARNING("Torrent not found");
 		return error("torrent not found");
 	}
-	if (!getUser(req->at("reqpasskey"))->isAuthorized())
+	if (Config::get("type") == "private" && !getUser(req->at("reqpasskey"))->isAuthorized())
 		return error("user unauthorized");
 	Peers *peers = nullptr;
 	Peers *peers6 = nullptr;
