@@ -193,6 +193,11 @@ std::string RequestHandler::announce(const Request* req, const std::string& info
 		if (p != nullptr)
 			peerlist.append(p->getHexIPPort());
 	}
+	bool gzip = false;
+	try {
+		if (req->at("accept-encoding").find("gzip") != std::string::npos && peerlist.length() > 120)
+			gzip = true;
+	} catch (const std::exception& e) {}
 	return response(
 			("d8:completei"
 			+ std::to_string(tor->getSeeders()->size() + tor->getSeeders6()->size())
@@ -209,7 +214,8 @@ std::string RequestHandler::announce(const Request* req, const std::string& info
 			+ std::to_string(peerlist.length())
 			+ ":"
 			+ peerlist
-			+ "e"));
+			+ "e"),
+			gzip);
 }
 
 std::string RequestHandler::scrape(const std::forward_list<std::string>* infoHashes)
@@ -511,5 +517,8 @@ void RequestHandler::flushSqlRecords(ev::timer& timer, int revents) {
 }
 
 void RequestHandler::showStats(ev::timer& timer, int revents) {
-	LOG_INFO("Stats - " + std::to_string(Stats::getPeersCount()) + " active peers");
+	LOG_INFO("Stats - " +
+			Stats::getPeers() + " active peers - " +
+			Stats::getSpeed() + " - " +
+			Stats::getTransferred() + " transferred since start");
 }

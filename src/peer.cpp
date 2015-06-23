@@ -4,6 +4,7 @@
 #include "config.hpp"
 #include "peers.hpp"
 #include "utility.hpp"
+#include "stats.hpp"
 
 Peer::Peer(std::string IP, std::string port, class User* u, unsigned long announcedLeft, unsigned long announcedDownloaded, unsigned long announcedUploaded, unsigned int torrentID, std::string client, std::string peerID, bool ipv6) {
 	LOG_INFO("Creating peer on torrent " + std::to_string(torrentID) + " using client " + client);
@@ -52,6 +53,8 @@ void Peer::updateStats (unsigned long announcedDownloaded, unsigned long announc
 	totalDownloaded = announcedDownloaded;
 	this->uploaded = announcedUploaded - totalUploaded;
 	totalUploaded = announcedUploaded;
+	Stats::incTransferred(this->downloaded+this->uploaded);
+	Stats::decSpeed(downSpeed+upSpeed);
 	if (now > lastUpdate) {
 		downSpeed = this->downloaded/(now-lastUpdate);
 		upSpeed = this->uploaded/(now-lastUpdate);
@@ -59,6 +62,7 @@ void Peer::updateStats (unsigned long announcedDownloaded, unsigned long announc
 		downSpeed = 0;
 		upSpeed = 0;
 	}
+	Stats::incSpeed(downSpeed+upSpeed);
 	left = announcedLeft;
 	corrupt = announcedCorrupt;
 	timespent += now - lastUpdate;

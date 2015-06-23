@@ -7,7 +7,7 @@ std::string response_head ()
 	return "HTTP/1.1 200 OK\r\nServer: liquid 0.0\r\nContent-Type: text/plain\r\nConnection: close\r\n\r\n";
 }
 
-std::string response (const std::string& body)
+std::string response (const std::string& body, bool gzip)
 {
 	LOG_INFO(body);
 	return response_head() + body;

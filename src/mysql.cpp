@@ -362,7 +362,7 @@ void MySQL::recordUser(User* u) {
 		std::string ID = std::to_string(u->getID());
 		std::string Downloaded = std::to_string(downloaded);
 		std::string Uploaded = std::to_string(uploaded);
-		LOG_INFO("Recording User " + ID + ": " + Downloaded + " downloaded, " + Uploaded + " uploaded");
+		LOG_INFO("Recording User " + ID + ": " + Downloaded + " B downloaded, " + Uploaded + " B uploaded");
 		userRequests.push_back("(" + ID + ", " + Downloaded + ", " + Uploaded + ")");
 		u->reset();
 	}
@@ -373,7 +373,7 @@ void MySQL::recordToken(unsigned int userID, unsigned int torrentID, unsigned in
 	std::string TorrentID = std::to_string(torrentID);
 	std::string Downloaded = std::to_string(downloaded);
 	std::string Expired = (expired ? "TRUE" : "FALSE");
-	LOG_INFO("Recording Token (UserID: " + UserID + ", TorrentID: " + TorrentID + ", " + Downloaded + " downloaded, Expired: " + Expired + ")");
+	LOG_INFO("Recording Token (UserID: " + UserID + ", TorrentID: " + TorrentID + ", " + Downloaded + " B downloaded, Expired: " + Expired + ")");
 	tokenRequests.push_back("(" + UserID + ", " + TorrentID + ", " + Downloaded + ", " + Expired + ")");
 }
 
@@ -404,7 +404,7 @@ void MySQL::recordPeer(Peer* p) {
 	std::string PeerID = p->getPeerID();
 	std::string Timespent = std::to_string(p->getTimespent());
 	std::string TorrentID = std::to_string(p->getTorrentID());
-	LOG_INFO("Recording Peer " + PeerID + " on Torrent " + TorrentID + ": " + Left + " left, " + std::to_string(downloaded) + " downloaded (" + DownSpeed + "/s), " + std::to_string(uploaded) + " uploaded " + " (" + UpSpeed + "/s), Timespent: " + Timespent + "");
+	LOG_INFO("Recording Peer " + PeerID + " on Torrent " + TorrentID + ": " + Left + " B left, " + std::to_string(downloaded) + " B downloaded (" + DownSpeed + " B/s), " + std::to_string(uploaded) + " B uploaded " + " (" + UpSpeed + " B/s), Timespent: " + Timespent);
 	peerRequests.push_back("('" +
 			std::to_string(p->getUser()->getID()) + "', " +
 			(p->isActive() ? "1" : "0") + ", 1, " +
