@@ -44,7 +44,7 @@ std::string RequestHandler::handle(std::string str, std::string ip, bool ipv6)
 		req->emplace("ip", ip);
 	if (bannedIPs.find(req->at("ip")) != bannedIPs.end())
 		return error("banned ip");
-	if (u->isRestricted(req->at("ip")))
+	if (Config::get("type") == "private" && u->isRestricted(req->at("ip")))
 		return error("ip not associated with account");
 	if (req->at("action") == "announce") {
 		if (req->find("compact") != req->end() && req->at("compact") == "0")
