@@ -147,8 +147,10 @@ std::string RequestHandler::announce(const Request* req, const std::string& info
 		balance += peer->getUploaded();
 	}
 	tor->setBalance(balance);
-	db->recordPeer(peer);
-	db->recordUser(peer->getUser());
+	if (Config::get("type") != "public")
+		db->recordPeer(peer);
+	if (Config::get("type") == "private")
+		db->recordUser(peer->getUser());
 	if (req->at("event") == "stopped") {
 		if (req->at("left") != "0") {
 			if (ipv6)
@@ -164,7 +166,8 @@ std::string RequestHandler::announce(const Request* req, const std::string& info
 	}
 	if (req->at("event") == "completed")
 		tor->getLeechers()->removePeer(*req);
-	db->recordTorrent(tor);
+	if (Config::get("type") != "public")
+		db->recordTorrent(tor);
 	std::string peerlist;
 	std::string peerlist6;
 	unsigned long i = 0;
@@ -471,20 +474,25 @@ User* RequestHandler::getUser(const std::string& passkey) {
 
 void RequestHandler::init() {
 	LOG_INFO("Initializing request handler");
-	db = new MySQL();
-	db->connect();
-	db->loadUsers(usrMap);
-	db->loadTorrents(torMap);
-	db->loadBannedIPs(bannedIPs);
-	db->loadClientWhitelist(clientWhitelist);
-	if (Config::get("type") == "private")
-		db->loadLeechStatus(leechStatus);
+	if (Config::get("type") != "public") {
+		db = new MySQL();
+		db->connect();
+		db->loadTorrents(torMap);
+		db->loadBannedIPs(bannedIPs);
+		db->loadClientWhitelist(clientWhitelist);
+		if (Config::get("type") == "private") {
+			db->loadUsers(usrMap);
+			db->loadLeechStatus(leechStatus);
+		}
+	}
 }
 
 void RequestHandler::stop() {
 	LOG_INFO("Stopping request handler");
-	db->flush();
-	db->disconnect();
+	if (Config::get("type") != "public") {
+		db->flush();
+		db->disconnect();
+	}
 }
 
 void RequestHandler::clearTorrentPeers(ev::timer& timer, int revents)
@@ -505,7 +513,8 @@ void RequestHandler::clearTorrentPeers(ev::timer& timer, int revents)
 		} else {
 			if (changed > 0) {
 				LOG_INFO(std::to_string(changed) + " new inactive peers");
-				db->recordTorrent(&t->second);
+				if (Config::get("type") != "public")
+					db->recordTorrent(&t->second);
 			}
 			++t;
 		}
@@ -513,7 +522,8 @@ void RequestHandler::clearTorrentPeers(ev::timer& timer, int revents)
 }
 
 void RequestHandler::flushSqlRecords(ev::timer& timer, int revents) {
-	db->flush();
+	if (Config::get("type") != "public")
+		db->flush();
 }
 
 void RequestHandler::showStats(ev::timer& timer, int revents) {

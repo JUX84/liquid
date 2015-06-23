@@ -57,7 +57,7 @@ unsigned int Peers::timedOut(long long now, Database* db)
 	unsigned int changed = 0;
 	while (it != pMap.end()) {
 		if (it->second.timedOut(now)) {
-			if (Config::get("type") == "private") {
+			if (Config::get("type") != "public") {
 				it->second.inactive();
 				db->recordPeer(&it->second);
 				++changed;
