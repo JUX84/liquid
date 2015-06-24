@@ -221,10 +221,10 @@ void MySQL::flushUsers() {
 			Config::get("DB_Users_Downloaded") + " = " + Config::get("DB_Users_Downloaded") + " + VALUES(" + Config::get("DB_Users_Downloaded") + "), " +
 			Config::get("DB_Users_Uploaded") + " = " + Config::get("DB_Users_Uploaded") + " + VALUES(" + Config::get("DB_Users_Uploaded") + ")";
 		LOG_INFO("Flushing USERS sql records (" + std::to_string(userRequests.size()) + ")");
-		userRecords.push_front(str);
+		userRecords.push_back(str);
 		userRequests.clear();
 	}
-	if (!usersFlushing) {
+	if (userRecords.size() != 0 && !usersFlushing) {
 		std::thread thread(&MySQL::doFlushUsers, this);
 		thread.detach();
 	}
@@ -264,10 +264,10 @@ void MySQL::flushTokens() {
 			Config::get("DB_Tokens_Downloaded") + " = " + Config::get("DB_Tokens_Downloaded") + " + VALUES(" + Config::get("DB_Tokens_Downloaded") + "), " +
 			Config::get("DB_Tokens_Expired") + " = VALUES(" + Config::get("DB_Tokens_Expired") + ")";
 		LOG_INFO("Flushing TOKENS sql records (" + std::to_string(tokenRequests.size()) + ")");
-		tokenRecords.push_front(str);
+		tokenRecords.push_back(str);
 		tokenRequests.clear();
 	}
-	if (!tokensFlushing) {
+	if (tokenRecords.size() != 0 && !tokensFlushing) {
 		std::thread thread(&MySQL::doFlushTokens, this);
 		thread.detach();
 	}
@@ -311,10 +311,10 @@ void MySQL::flushTorrents() {
 			Config::get("DB_Torrents_Balance") + " = VALUES(" + Config::get("DB_Torrents_Balance") + "), " +
 			Config::get("DB_Torrents_LastAction") + " = NOW()";
 		LOG_INFO("Flushing TORRENTS sql records (" + std::to_string(torrentRequests.size()) + ")");
-		torrentRecords.push_front(str);
+		torrentRecords.push_back(str);
 		torrentRequests.clear();
 	}
-	if (!torrentsFlushing) {
+	if (torrentRecords.size() != 0 && !torrentsFlushing) {
 		std::thread thread(&MySQL::doFlushTorrents, this);
 		thread.detach();
 	}
@@ -372,10 +372,10 @@ void MySQL::flushPeers() {
 			Config::get("DB_Peers_Corrupt") + " = VALUES(" + Config::get("DB_Peers_Corrupt") + "), " +
 			Config::get("DB_Peers_LastAction") + " = VALUES(" + Config::get("DB_Peers_LastAction") + ")";
 		LOG_INFO("Flushing PEERS sql records (" + std::to_string(peerRequests.size()) + ")");
-		peerRecords.push_front(str);
+		peerRecords.push_back(str);
 		peerRequests.clear();
 	}
-	if (!peersFlushing) {
+	if (peerRecords.size() != 0 && !peersFlushing) {
 		std::thread thread(&MySQL::doFlushPeers, this);
 		thread.detach();
 	}
@@ -412,10 +412,10 @@ void MySQL::flushSnatches() {
 			first = false;
 		}
 		LOG_INFO("Flushing SNATCHES sql records (" + std::to_string(snatchRequests.size()) + ")");
-		snatchRecords.push_front(str);
+		snatchRecords.push_back(str);
 		snatchRequests.clear();
 	}
-	if (!snatchesFlushing) {
+	if (snatchRecords.size() != 0 && !snatchesFlushing) {
 		std::thread thread(&MySQL::doFlushSnatches, this);
 		thread.detach();
 	}

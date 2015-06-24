@@ -18,7 +18,7 @@ enum LeechStatus {
 class Database {
 	protected:
 		std::list<std::string> userRequests, torrentRequests, peerRequests, tokenRequests, snatchRequests;
-		std::forward_list<std::string> userRecords, torrentRecords, peerRecords, tokenRecords, snatchRecords;
+		std::list<std::string> userRecords, torrentRecords, peerRecords, tokenRecords, snatchRecords;
 		//std::mutex userReqLock, torrentReqLock, peerReqLock, tokenReqLock, snatchReqLock;
 		std::mutex userRecLock, torrentRecLock, peerRecLock, tokenRecLock, snatchRecLock;
 		bool usersFlushing, torrentsFlushing, peersFlushing, tokensFlushing, snatchesFlushing;
