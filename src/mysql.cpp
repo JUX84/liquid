@@ -489,7 +489,7 @@ void MySQL::recordPeer(Peer* p) {
 	LOG_INFO("Recording Peer " + PeerID + " on Torrent " + TorrentID + ": " + Left + " B left, " + std::to_string(downloaded) + " B downloaded (" + DownSpeed + " B/s), " + std::to_string(uploaded) + " B uploaded " + " (" + UpSpeed + " B/s), Timespent: " + Timespent);
 	//std::lock_guard<std::mutex> lock(peerReqLock);
 	peerRequests.push_back("('" +
-			std::to_string(p->getUser()->getID()) + "', " +
+			(Config::get("type") == "private" ? std::to_string(p->getUser()->getID()) : "0") + "', " +
 			(p->isActive() ? "1" : "0") + ", 1, " +
 			(p->isCompleted() ? "1" : "0") + ", " +
 			"'" + std::to_string(totalDownloaded) + "', " +
@@ -510,8 +510,8 @@ void MySQL::recordSnatch(Peer* p, long long now) {
 	std::string TorrentID = std::to_string(p->getTorrentID());
 	LOG_INFO("Peer " + PeerID + " snatched torrent " + TorrentID);
 	//std::lock_guard<std::mutex> lock(snatchReqLock);
-	snatchRequests.push_back("('"
-		+ std::to_string(p->getUser()->getID()) + "', " +
+	snatchRequests.push_back("('" +
+		(Config::get("type") == "private" ? std::to_string(p->getUser()->getID()) : "0") + "', " +
 		"'" + std::to_string(now) + "', " +
 		"'" + TorrentID + "', " +
 		"'" + p->getIP() + "')");
