@@ -4,11 +4,11 @@
 #include <stdexcept>
 #include <errno.h>
 #include <sys/socket.h>
-#include "logger.hpp"
-#include "server.hpp"
-#include "connectionHandler.hpp"
-#include "requestHandler.hpp"
-#include "config.hpp"
+#include "handler/requestHandler.hpp"
+#include "misc/config.hpp"
+#include "misc/logger.hpp"
+#include "network/connectionHandler.hpp"
+#include "network/server.hpp"
 
 Server::Server()
 	: sock(-1), watcher(EV_DEFAULT), timer(EV_DEFAULT), timer2(EV_DEFAULT)

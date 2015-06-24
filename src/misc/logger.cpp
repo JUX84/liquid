@@ -1,5 +1,5 @@
 #include <iostream>
-#include "logger.hpp"
+#include "misc/logger.hpp"
 
 Logger::Level Logger::minLevel = Logger::Level::INFO;
 

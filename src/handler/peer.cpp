@@ -1,10 +1,9 @@
 #include <chrono>
-#include <iostream>
-#include "logger.hpp"
-#include "config.hpp"
-#include "peers.hpp"
-#include "utility.hpp"
-#include "stats.hpp"
+#include "handler/peers.hpp"
+#include "misc/config.hpp"
+#include "misc/logger.hpp"
+#include "misc/stats.hpp"
+#include "misc/utility.hpp"
 
 Peer::Peer(std::string IP, std::string port, class User* u, unsigned long announcedLeft, unsigned long announcedDownloaded, unsigned long announcedUploaded, unsigned int torrentID, std::string client, std::string peerID, bool ipv6) {
 	LOG_INFO("Creating peer on torrent " + std::to_string(torrentID) + " using client " + client);

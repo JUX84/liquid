@@ -1,6 +1,6 @@
-#include "logger.hpp"
-#include "response.hpp"
-#include "utility.hpp"
+#include "misc/logger.hpp"
+#include "misc/response.hpp"
+#include "misc/utility.hpp"
 
 std::string response_head ()
 {

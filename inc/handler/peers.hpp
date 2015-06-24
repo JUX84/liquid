@@ -1,8 +1,8 @@
 #pragma once
 
 #include <unordered_map>
-#include "parser.hpp"
-#include "peer.hpp"
+#include "handler/peer.hpp"
+#include "misc/parser.hpp"
 
 typedef std::unordered_map<std::string, Peer> PeerMap;
 class Database;

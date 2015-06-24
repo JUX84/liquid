@@ -4,8 +4,8 @@
 #include <list>
 #include <unordered_set>
 #include <mutex>
-#include "user.hpp"
-#include "torrent.hpp"
+#include "handler/torrent.hpp"
+#include "handler/user.hpp"
 
 typedef std::map<std::string, User*> UserMap;
 typedef std::map<std::string, Torrent> TorrentMap;

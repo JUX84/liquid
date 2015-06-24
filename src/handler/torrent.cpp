@@ -1,6 +1,5 @@
-#include <iostream>
-#include "logger.hpp"
-#include "torrent.hpp"
+#include "handler/torrent.hpp"
+#include "misc/logger.hpp"
 
 Torrent::Torrent (unsigned int id, unsigned char free, long balance) {
 	this->id = id;

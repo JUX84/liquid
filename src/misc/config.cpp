@@ -1,12 +1,11 @@
-#include <iostream>
 #include <fstream>
 #include <unordered_map>
 #include <string>
 #include <iterator>
 #include <utility>
 #include <stdexcept>
-#include "logger.hpp"
-#include "config.hpp"
+#include "misc/config.hpp"
+#include "misc/logger.hpp"
 
 std::unordered_map<std::string, std::pair<std::string, bool>> Config::vars = {
 //	{ "name",							{ "default value", is_integer} }

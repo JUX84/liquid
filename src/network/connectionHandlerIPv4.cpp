@@ -1,5 +1,5 @@
 #include <system_error>
-#include "connectionHandlerIPv4.hpp"
+#include "network/connectionHandlerIPv4.hpp"
 
 ConnectionHandlerIPv4::ConnectionHandlerIPv4(int socket) : ConnectionHandler(socket)
 {

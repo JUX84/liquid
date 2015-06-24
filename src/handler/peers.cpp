@@ -1,10 +1,9 @@
 #include <chrono>
-#include <iostream>
-#include "peers.hpp"
-#include "config.hpp"
-#include "requestHandler.hpp"
-#include "utility.hpp"
-#include "stats.hpp"
+#include "handler/peers.hpp"
+#include "handler/requestHandler.hpp"
+#include "misc/config.hpp"
+#include "misc/stats.hpp"
+#include "misc/utility.hpp"
 
 Peers::Peers() {
 	pMap = PeerMap();

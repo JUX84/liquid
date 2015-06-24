@@ -1,12 +1,11 @@
-#include <iostream>
 #include <thread>
-#include "logger.hpp"
-#include "config.hpp"
-#include "mysql.hpp"
-#include "user.hpp"
-#include "torrent.hpp"
-#include "utility.hpp"
-#include "stats.hpp"
+#include "database/mysql.hpp"
+#include "handler/torrent.hpp"
+#include "handler/user.hpp"
+#include "misc/config.hpp"
+#include "misc/logger.hpp"
+#include "misc/stats.hpp"
+#include "misc/utility.hpp"
 
 void MySQL::connect() {
 	mysql = mysql_init(nullptr);

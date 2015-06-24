@@ -1,6 +1,6 @@
-#include <iostream>
-#include "logger.hpp"
-#include "user.hpp"
+#include <chrono>
+#include "handler/user.hpp"
+#include "misc/logger.hpp"
 
 User::User (unsigned int id, bool authorized) {
 	this->id = id;

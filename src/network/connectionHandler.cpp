@@ -6,9 +6,9 @@
 #include <errno.h>
 #include <sys/socket.h>
 #include <arpa/inet.h>
-#include "connectionHandler.hpp"
-#include "requestHandler.hpp"
-#include "config.hpp"
+#include "handler/requestHandler.hpp"
+#include "misc/config.hpp"
+#include "network/connectionHandler.hpp"
 
 ConnectionHandler::ConnectionHandler(int socket)
 	: ipv6(false), sock(socket), MAX_REQUEST_SIZE(Config::getInt("max_request_size")),

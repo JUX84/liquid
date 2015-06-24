@@ -1,5 +1,5 @@
-#include "stats.hpp"
-#include "utility.hpp"
+#include "misc/stats.hpp"
+#include "misc/utility.hpp"
 
 bool Stats::changed;
 unsigned long Stats::peers;

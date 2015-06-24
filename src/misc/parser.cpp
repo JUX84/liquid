@@ -1,10 +1,9 @@
 #include <algorithm>
-#include <iostream>
 #include <stdexcept>
-#include "logger.hpp"
-#include "config.hpp"
-#include "parser.hpp"
-#include "utility.hpp"
+#include "misc/config.hpp"
+#include "misc/logger.hpp"
+#include "misc/parser.hpp"
+#include "misc/utility.hpp"
 
 Requirements Parser::required;
 

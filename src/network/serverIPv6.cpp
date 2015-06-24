@@ -1,6 +1,6 @@
 #include <system_error>
-#include "serverIPv6.hpp"
-#include "connectionHandlerIPv6.hpp"
+#include "network/connectionHandlerIPv6.hpp"
+#include "network/serverIPv6.hpp"
 
 ServerIPv6::ServerIPv6(uint16_t port, bool ipv6Only) : Server(), IPv6Only(ipv6Only)
 {

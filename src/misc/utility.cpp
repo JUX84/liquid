@@ -3,8 +3,8 @@
 #include <cctype>
 #include <cstring>
 #include <zlib.h>
-#include "utility.hpp"
-#include "config.hpp"
+#include "misc/config.hpp"
+#include "misc/utility.hpp"
 
 #define CHUNK 32768
 

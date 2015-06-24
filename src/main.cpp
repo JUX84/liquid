@@ -1,14 +1,14 @@
-#include <iostream>
 #include <cstdlib>
+#include <iostream>
 #include <signal.h>
 #include <unistd.h>
-#include "logger.hpp"
-#include "serverIPv4.hpp"
-#include "serverIPv6.hpp"
-#include "parser.hpp"
-#include "config.hpp"
-#include "requestHandler.hpp"
-#include "utility.hpp"
+#include "handler/requestHandler.hpp"
+#include "misc/config.hpp"
+#include "misc/logger.hpp"
+#include "misc/parser.hpp"
+#include "misc/utility.hpp"
+#include "network/serverIPv4.hpp"
+#include "network/serverIPv6.hpp"
 
 void handler(int sig)
 {

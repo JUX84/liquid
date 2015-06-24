@@ -1,15 +1,14 @@
 #include <algorithm>
-#include <iostream>
 #include <stdexcept>
 #include <chrono>
-#include "config.hpp"
-#include "logger.hpp"
-#include "requestHandler.hpp"
-#include "response.hpp"
-#include "torrent.hpp"
-#include "utility.hpp"
-#include "mysql.hpp"
-#include "stats.hpp"
+#include "database/mysql.hpp"
+#include "handler/requestHandler.hpp"
+#include "handler/torrent.hpp"
+#include "misc/config.hpp"
+#include "misc/logger.hpp"
+#include "misc/response.hpp"
+#include "misc/stats.hpp"
+#include "misc/utility.hpp"
 
 TorrentMap RequestHandler::torMap;
 UserMap RequestHandler::usrMap;

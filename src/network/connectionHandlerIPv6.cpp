@@ -1,5 +1,5 @@
 #include <system_error>
-#include "connectionHandlerIPv6.hpp"
+#include "network/connectionHandlerIPv6.hpp"
 
 ConnectionHandlerIPv6::ConnectionHandlerIPv6(int socket) : ConnectionHandler(socket)
 {

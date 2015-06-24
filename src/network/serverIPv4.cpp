@@ -1,5 +1,5 @@
-#include "serverIPv4.hpp"
-#include "connectionHandlerIPv4.hpp"
+#include "network/connectionHandlerIPv4.hpp"
+#include "network/serverIPv4.hpp"
 
 ServerIPv4::ServerIPv4(uint16_t port) : Server()
 {
