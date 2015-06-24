@@ -151,8 +151,10 @@ std::string RequestHandler::announce(const Request* req, const std::string& info
 	tor->setBalance(balance);
 	if (Config::get("type") != "public")
 		db->recordPeer(peer);
-	if (Config::get("type") == "private")
+	if (Config::get("type") == "private") {
+		peer->getUser()->updateStats(peer->getDownloaded(),peer->getUploaded());
 		db->recordUser(peer->getUser());
+	}
 	if (req->at("event") == "stopped") {
 		if (req->at("left") != "0") {
 			if (ipv6)

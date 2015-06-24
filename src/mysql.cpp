@@ -503,7 +503,6 @@ void MySQL::recordPeer(Peer* p) {
 			"'" + PeerID + "', " +
 			"'" + TorrentID + "', " +
 			"'" + p->getIP() + "', UNIX_TIMESTAMP())");
-	p->getUser()->updateStats(downloaded,uploaded);
 }
 
 void MySQL::recordSnatch(Peer* p, long long now) {
