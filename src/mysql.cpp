@@ -231,7 +231,7 @@ void MySQL::flushUsers() {
 }
 
 void MySQL::doFlushUsers() {
-	std::lock_guard<std::mutex> lock(userRecLock);
+	std::lock_guard<std::mutex> lock(sqlLock);
 	usersFlushing = true;
 	for (const auto &it : userRecords) {
 		if (mysql_real_query(mysql, it.c_str(), it.size())) {
@@ -274,7 +274,7 @@ void MySQL::flushTokens() {
 }
 
 void MySQL::doFlushTokens() {
-	std::lock_guard<std::mutex> lock(tokenRecLock);
+	std::lock_guard<std::mutex> lock(sqlLock);
 	tokensFlushing = true;
 	for (const auto &it : tokenRecords) {
 		if (mysql_real_query(mysql, it.c_str(), it.size())) {
@@ -321,8 +321,8 @@ void MySQL::flushTorrents() {
 }
 
 void MySQL::doFlushTorrents() {
+	std::lock_guard<std::mutex> lock(sqlLock);
 	torrentsFlushing = true;
-	std::lock_guard<std::mutex> lock(torrentRecLock);
 	for (const auto &it : torrentRecords) {
 		if (mysql_real_query(mysql, it.c_str(), it.size())) {
 			LOG_ERROR("Couldn't flush record (" + it + ")");
@@ -382,7 +382,7 @@ void MySQL::flushPeers() {
 }
 
 void MySQL::doFlushPeers() {
-	std::lock_guard<std::mutex> lock(peerRecLock);
+	std::lock_guard<std::mutex> lock(sqlLock);
 	peersFlushing = true;
 	for (const auto &it : peerRecords) {
 		if (mysql_real_query(mysql, it.c_str(), it.size())) {
@@ -422,7 +422,7 @@ void MySQL::flushSnatches() {
 }
 
 void MySQL::doFlushSnatches() {
-	std::lock_guard<std::mutex> lock(snatchRecLock);
+	std::lock_guard<std::mutex> lock(sqlLock);
 	snatchesFlushing = true;
 	for (const auto &it : snatchRecords) {
 		if (mysql_real_query(mysql, it.c_str(), it.size())) {
