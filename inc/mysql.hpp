@@ -23,6 +23,11 @@ class MySQL : public Database {
 		void flushPeers();
 		void flushTokens();
 		void flushSnatches();
+		void doFlushUsers();
+		void doFlushTorrents();
+		void doFlushPeers();
+		void doFlushTokens();
+		void doFlushSnatches();
 		void recordUser(User*);
 		void recordTorrent(Torrent*);
 		void recordPeer(Peer*);

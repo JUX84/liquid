@@ -3,6 +3,7 @@
 #include <map>
 #include <list>
 #include <unordered_set>
+#include <mutex>
 #include "user.hpp"
 #include "torrent.hpp"
 
@@ -16,11 +17,11 @@ enum LeechStatus {
 
 class Database {
 	protected:
-		std::list<std::string> userRequests;
-		std::list<std::string> torrentRequests;
-		std::list<std::string> peerRequests;
-		std::list<std::string> tokenRequests;
-		std::list<std::string> snatchRequests;
+		std::list<std::string> userRequests, torrentRequests, peerRequests, tokenRequests, snatchRequests;
+		std::forward_list<std::string> userRecords, torrentRecords, peerRecords, tokenRecords, snatchRecords;
+		//std::mutex userReqLock, torrentReqLock, peerReqLock, tokenReqLock, snatchReqLock;
+		std::mutex userRecLock, torrentRecLock, peerRecLock, tokenRecLock, snatchRecLock;
+		bool usersFlushing, torrentsFlushing, peersFlushing, tokensFlushing, snatchesFlushing;
 	public:
 		virtual void connect() = 0;
 		virtual void disconnect() = 0;
@@ -36,6 +37,11 @@ class Database {
 		virtual void flushPeers() = 0;
 		virtual void flushSnatches() = 0;
 		virtual void flushTokens() = 0;
+		virtual void doFlushUsers() = 0;
+		virtual void doFlushTorrents() = 0;
+		virtual void doFlushPeers() = 0;
+		virtual void doFlushSnatches() = 0;
+		virtual void doFlushTokens() = 0;
 		virtual void recordUser(User*) = 0;
 		virtual void recordTorrent(Torrent*) = 0;
 		virtual void recordPeer(Peer*) = 0;

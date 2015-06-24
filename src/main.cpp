@@ -58,7 +58,7 @@ int main(int argc, char **argv)
 
 		Parser::init();
 
-		if (Config::get("type") == "private")
+		if (Config::get("type") != "public")
 			RequestHandler::init();
 
 		LOG_INFO("Starting " + Config::get("type") + " server on port " + std::to_string(port));
