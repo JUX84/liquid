@@ -40,5 +40,4 @@ class RequestHandler {
 		static void stop();
 		static void clearTorrentPeers(ev::timer&, int);
 		static void flushSqlRecords(ev::timer&, int);
-		static void showStats(ev::timer&, int);
 };

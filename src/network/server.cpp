@@ -7,6 +7,7 @@
 #include "handler/requestHandler.hpp"
 #include "misc/config.hpp"
 #include "misc/logger.hpp"
+#include "misc/stats.hpp"
 #include "network/connectionHandler.hpp"
 #include "network/server.hpp"
 
@@ -42,7 +43,7 @@ void Server::init(int domain, uint16_t port, sockaddr* address, socklen_t addrle
 	timer2.set(Config::getInt("flush_records_interval"), Config::getInt("flush_records_interval"));
 	timer2.start();
 
-	timer3.set<&RequestHandler::showStats>();
+	timer3.set<&Stats::show>();
 	timer3.set(10, 10);
 	timer3.start();
 }

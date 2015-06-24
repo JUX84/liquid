@@ -530,14 +530,3 @@ void RequestHandler::flushSqlRecords(ev::timer& timer, int revents) {
 	if (Config::get("type") != "public")
 		db->flush();
 }
-
-void RequestHandler::showStats(ev::timer& timer, int revents) {
-	if (Stats::hasChanged()) {
-		LOG_INFO("Stats - " +
-				Stats::getPeers() + " active peers on " +
-				Stats::getTorrentsStr() + " torrents - " +
-				Stats::getSpeed() + " - " +
-				Stats::getTransferred() + " transferred since start");
-		Stats::reset();
-	}
-}
