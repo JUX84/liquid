@@ -217,7 +217,7 @@ std::string RequestHandler::announce(const Request* req, const std::string& info
 					peerlist.append(p->getHexIPPort());
 				} else {
 					peerlist.append("d7:peer id" + std::to_string(p->getPeerID().length()) + ":" + p->getPeerID() +
-							"e2:ip" + std::to_string(p->getIP().length()) + ":" + p->getIP() +
+							"2:ip" + std::to_string(p->getIP().length()) + ":" + p->getIP() +
 							"4:port" + std::to_string(p->getPort().length()) + ":" + p->getPort());
 				}
 			}
