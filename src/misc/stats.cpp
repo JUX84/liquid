@@ -58,6 +58,7 @@ void Stats::decSpeed(unsigned long decspeed) {
 void Stats::incTransferred(unsigned long inctransferred) {
 	transferred += inctransferred;
 	transferredShow = transferred;
+	transferredLvl = 0;
 	while (transferredShow > 1024 && transferredLvl < 9) {
 		transferredShow /= 1024;
 		++transferredLvl;
