@@ -188,7 +188,7 @@ std::string RequestHandler::announce(const Request* req, const std::string& info
 	}
 	if (ipv6) {
 		peerlist6.append("6:peers6");
-		if (!compact)
+		if (compact)
 			peerlist6.append(std::to_string(j*18) + ":");
 		else
 			peerlist6.append("d");
@@ -205,11 +205,11 @@ std::string RequestHandler::announce(const Request* req, const std::string& info
 				--i;
 			}
 		}
-		if (compact)
+		if (!compact)
 			peerlist6.append("e");
 	}
 	peerlist.append("5:peers");
-	if (!compact)
+	if (compact)
 		peerlist.append(std::to_string(i*6) + ":");
 	else
 		peerlist.append("d");
@@ -225,7 +225,7 @@ std::string RequestHandler::announce(const Request* req, const std::string& info
 			}
 		}
 	}
-	if (compact)
+	if (!compact)
 		peerlist.append("e");
 	bool gzip = false;
 	try {
