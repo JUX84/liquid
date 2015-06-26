@@ -17,7 +17,7 @@ Peers* Torrent::getSeeders() {
 }
 
 Peers* Torrent::getSeeders6() {
-	return &seeders;
+	return &seeders6;
 }
 
 Peers* Torrent::getLeechers() {
@@ -25,7 +25,7 @@ Peers* Torrent::getLeechers() {
 }
 
 Peers* Torrent::getLeechers6() {
-	return &leechers;
+	return &leechers6;
 }
 
 unsigned int Torrent::getSnatches() {
