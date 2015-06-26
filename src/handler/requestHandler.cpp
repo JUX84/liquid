@@ -186,10 +186,12 @@ std::string RequestHandler::announce(const Request* req, const std::string& info
 		if (ipv6)
 			j = std::min(std::min(i, static_cast<unsigned long>(Config::getInt("max_numwant"))), peers6->size());
 	}
-	if (ipv6 && j>0) {
+	if (ipv6) {
 		peerlist6.append("6:peers6");
-		if (compact)
-			peerlist6.append(std::to_string(j*18) + ":d");
+		if (!compact)
+			peerlist6.append(std::to_string(j*18) + ":");
+		else
+			peerlist6.append("d");
 		while (j-- > 0) {
 			Peer* p = peers6->nextPeer(now);
 			if (p != nullptr) {
@@ -203,11 +205,14 @@ std::string RequestHandler::announce(const Request* req, const std::string& info
 				--i;
 			}
 		}
-		peerlist6.append("e");
+		if (compact)
+			peerlist6.append("e");
 	}
 	peerlist.append("5:peers");
-	if (compact)
-		peerlist.append(std::to_string(i*6) + ":d");
+	if (!compact)
+		peerlist.append(std::to_string(i*6) + ":");
+	else
+		peerlist.append("d");
 	while (i-- > 0) {
 		Peer* p = peers->nextPeer(now);
 		if (p != nullptr) {
