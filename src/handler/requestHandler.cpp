@@ -186,7 +186,7 @@ std::string RequestHandler::announce(const Request* req, const std::string& info
 		if (ipv6)
 			j = std::min(std::min(i, static_cast<unsigned long>(Config::getInt("max_numwant"))), peers6->size());
 	}
-	if (ipv6) {
+	if (ipv6 && j > 0) {
 		if (compact)
 			peerlist6.append("e6:peers6" + std::to_string(j*18) + ":");
 		else
@@ -204,8 +204,6 @@ std::string RequestHandler::announce(const Request* req, const std::string& info
 				--i;
 			}
 		}
-		if (!compact)
-			peerlist6.append("e");
 		peerlist6.append("e");
 	}
 	if (compact)
@@ -224,8 +222,6 @@ std::string RequestHandler::announce(const Request* req, const std::string& info
 			}
 		}
 	}
-	if (!compact)
-		peerlist.append("e");
 	peerlist.append("e");
 	bool gzip = false;
 	try {
