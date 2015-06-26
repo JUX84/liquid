@@ -190,7 +190,7 @@ std::string RequestHandler::announce(const Request* req, const std::string& info
 		if (compact)
 			peerlist6.append("e6:peers6" + std::to_string(j*18) + ":");
 		else
-			peerlist.append("d6:peers6l");
+			peerlist6.append("d6:peers6l");
 		while (j-- > 0) {
 			Peer* p = peers6->nextPeer(now);
 			if (p != nullptr) {
@@ -199,12 +199,13 @@ std::string RequestHandler::announce(const Request* req, const std::string& info
 				} else {
 					peerlist6.append(std::to_string(p->getPeerID().length()) + ":" + p->getPeerID() +
 							std::to_string(p->getIP().length()) + ":" + p->getIP() +
-							std::to_string(p->getPort().length()) + ":" + p->getPort() +
-							"e");
+							std::to_string(p->getPort().length()) + ":" + p->getPort());
 				}
 				--i;
 			}
 		}
+		if (!compact)
+			peerlist6.append("e");
 		peerlist6.append("e");
 	}
 	if (compact)
@@ -219,11 +220,12 @@ std::string RequestHandler::announce(const Request* req, const std::string& info
 			} else {
 				peerlist.append(std::to_string(p->getPeerID().length()) + ":" + p->getPeerID() +
 						std::to_string(p->getIP().length()) + ":" + p->getIP() +
-						std::to_string(p->getPort().length()) + ":" + p->getPort() +
-						"e");
+						std::to_string(p->getPort().length()) + ":" + p->getPort());
 			}
 		}
 	}
+	if (!compact)
+		peerlist.append("e");
 	peerlist.append("e");
 	bool gzip = false;
 	try {
