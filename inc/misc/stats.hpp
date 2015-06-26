@@ -7,9 +7,11 @@ class Stats {
 		static bool changed;
 		static unsigned long peers;
 		static unsigned long torrents;
-		static double speed;
+		static unsigned long speed;
+		static double speedShow;
 		static unsigned char speedLvl;
-		static double transferred;
+		static unsigned long transferred;
+		static double transferredShow;
 		static unsigned char transferredLvl;
 	public:
 		static void incPeers();

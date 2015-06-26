@@ -5,9 +5,11 @@
 bool Stats::changed;
 unsigned long Stats::peers;
 unsigned long Stats::torrents;
-double Stats::speed;
+unsigned long Stats::speed;
+double Stats::speedShow;
 unsigned char Stats::speedLvl;
-double Stats::transferred;
+unsigned long Stats::transferred;
+double Stats::transferredShow;
 unsigned char Stats::transferredLvl;
 
 void Stats::incPeers() {
@@ -40,8 +42,9 @@ unsigned long Stats::getTorrents() {
 
 void Stats::incSpeed(unsigned long incspeed) {
 	speed += incspeed;
-	while (speed > 1024 && speedLvl < 9) {
-		speed /= 1024;
+	speedShow = speed;
+	while (speedShow > 1024 && speedLvl < 9) {
+		speedShow /= 1024;
 		++speedLvl;
 	}
 	changed = true;
@@ -49,8 +52,9 @@ void Stats::incSpeed(unsigned long incspeed) {
 
 void Stats::decSpeed(unsigned long decspeed) {
 	speed -= decspeed;
-	while (speed < 1024 && speedLvl > 0) {
-		speed *= 1024;
+	speedShow = speed;
+	while (speedShow < 1024 && speedLvl > 0) {
+		speedShow *= 1024;
 		--speedLvl;
 	}
 	changed = true;
@@ -58,8 +62,9 @@ void Stats::decSpeed(unsigned long decspeed) {
 
 void Stats::incTransferred(unsigned long inctransferred) {
 	transferred += inctransferred;
-	while (transferred > 1024 && transferredLvl < 9) {
-		transferred /= 1024;
+	transferredShow = transferred;
+	while (transferredShow > 1024 && transferredLvl < 9) {
+		transferredShow /= 1024;
 		++transferredLvl;
 	}
 	changed = true;
@@ -70,8 +75,8 @@ void Stats::show(ev::timer& timer, int revents) {
 		LOG_INFO("Stats - " +
 				std::to_string(peers) + " active peers on " +
 				std::to_string(torrents) + " torrents - " +
-				std::to_string(speed) + " " + Utility::getPrefix(speedLvl) + "B/s - " +
-				std::to_string(transferred) + " " + Utility::getPrefix(transferredLvl) + "B transferred since start");
+				std::to_string(speedShow) + " " + Utility::getPrefix(speedLvl) + "B/s - " +
+				std::to_string(transferredShow) + " " + Utility::getPrefix(transferredLvl) + "B transferred since start");
 		changed = false;
 	}
 }
