@@ -187,7 +187,7 @@ std::string RequestHandler::announce(const Request* req, const std::string& info
 			j = std::min(std::min(i, static_cast<unsigned long>(Config::getInt("max_numwant"))), peers6->size());
 	}
 	if (ipv6 && j > 0) {
-		peerlist6.append("e6:peers6");
+		peerlist6.append("6:peers6");
 		if (compact)
 			peerlist6.append(std::to_string(j*18) + ":");
 		while (j-- > 0) {
@@ -207,7 +207,7 @@ std::string RequestHandler::announce(const Request* req, const std::string& info
 			peerlist6.append("e");
 	}
 	if (i > 0) {
-		peerlist.append("e5:peers");
+		peerlist.append("5:peers");
 		if (compact)
 			peerlist.append(std::to_string(i*6) + ":");
 		while (i-- > 0) {
@@ -241,6 +241,7 @@ std::string RequestHandler::announce(const Request* req, const std::string& info
 			+ Config::get("default_announce_interval")
 			+ "e12:min intervali"
 			+ Config::get("min_announce_interval")
+			+ "e"
 			+ peerlist6
 			+ peerlist
 			+ "e"),
