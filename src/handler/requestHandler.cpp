@@ -172,7 +172,7 @@ std::string RequestHandler::announce(const Request* req, const std::string& info
 		tor->getLeechers()->removePeer(*req);
 	if (Config::get("type") != "public")
 		db->recordTorrent(tor);
-	std::string peerlist;
+	std::string peerlist = "";
 	std::string peerlist6 = "";
 	unsigned long i = 0;
 	unsigned long j = 0;
@@ -187,10 +187,9 @@ std::string RequestHandler::announce(const Request* req, const std::string& info
 			j = std::min(std::min(i, static_cast<unsigned long>(Config::getInt("max_numwant"))), peers6->size());
 	}
 	if (ipv6 && j > 0) {
+		peerlist6.append("e6:peers6");
 		if (compact)
-			peerlist6.append("e6:peers6" + std::to_string(j*18) + ":");
-		else
-			peerlist6.append("ed6:peers6");
+			peerlist6.append(std::to_string(j*18) + ":");
 		while (j-- > 0) {
 			Peer* p = peers6->nextPeer(now);
 			if (p != nullptr) {
@@ -204,25 +203,28 @@ std::string RequestHandler::announce(const Request* req, const std::string& info
 				--i;
 			}
 		}
-		peerlist6.append("e");
+		if (!compact)
+			peerlist6.append("e");
 	}
-	if (compact)
-		peerlist.append("e5:peers" + std::to_string(i*6) + ":");
-	else
-		peerlist.append("ed5:peers");
-	while (i-- > 0) {
-		Peer* p = peers->nextPeer(now);
-		if (p != nullptr) {
-			if (compact) {
-				peerlist.append(p->getHexIPPort());
-			} else {
-				peerlist.append("d7:peer id" + std::to_string(p->getPeerID().length()) + ":" + p->getPeerID() +
-						"e2:ip" + std::to_string(p->getIP().length()) + ":" + p->getIP() +
-						"4:port" + std::to_string(p->getPort().length()) + ":" + p->getPort());
+	if (i > 0) {
+		peerlist.append("e5:peers");
+		if (compact)
+			peerlist.append(std::to_string(i*6) + ":");
+		while (i-- > 0) {
+			Peer* p = peers->nextPeer(now);
+			if (p != nullptr) {
+				if (compact) {
+					peerlist.append(p->getHexIPPort());
+				} else {
+					peerlist.append("d7:peer id" + std::to_string(p->getPeerID().length()) + ":" + p->getPeerID() +
+							"e2:ip" + std::to_string(p->getIP().length()) + ":" + p->getIP() +
+							"4:port" + std::to_string(p->getPort().length()) + ":" + p->getPort());
+				}
 			}
 		}
+		if (!compact)
+			peerlist.append("e");
 	}
-	peerlist.append("e");
 	bool gzip = false;
 	try {
 		if (req->at("accept-encoding").find("gzip") != std::string::npos && (peerlist.length()+peerlist6.length()) > 120)
