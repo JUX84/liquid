@@ -190,7 +190,7 @@ std::string RequestHandler::announce(const Request* req, const std::string& info
 		if (compact)
 			peerlist6.append("e6:peers6" + std::to_string(j*18) + ":");
 		else
-			peerlist6.append("d6:peers6");
+			peerlist6.append("ed6:peers6");
 		while (j-- > 0) {
 			Peer* p = peers6->nextPeer(now);
 			if (p != nullptr) {
@@ -209,7 +209,7 @@ std::string RequestHandler::announce(const Request* req, const std::string& info
 	if (compact)
 		peerlist.append("e5:peers" + std::to_string(i*6) + ":");
 	else
-		peerlist.append("d5:peers");
+		peerlist.append("ed5:peers");
 	while (i-- > 0) {
 		Peer* p = peers->nextPeer(now);
 		if (p != nullptr) {
