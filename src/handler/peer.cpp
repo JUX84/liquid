@@ -16,7 +16,8 @@ Peer::Peer(std::string IP, std::string port, class User* u, unsigned long announ
 	completed = left == 0;
 	active = true;
 	this->IP = IP;
-	this->hexIPPort = Utility::ip_port_hex_encode(IP, port, ipv6);
+	this->port = port;
+	hexIPPort = Utility::ip_port_hex_encode(IP, port, ipv6);
 	this->peerID = peerID;
 	this->torrentID = torrentID;
 	this->client = client;
@@ -37,6 +38,10 @@ const std::string& Peer::getPeerID() {
 
 const std::string& Peer::getIP() {
 	return IP;
+}
+
+const std::string& Peer::getPort() {
+	return port;
 }
 
 const std::string& Peer::getHexIPPort() {

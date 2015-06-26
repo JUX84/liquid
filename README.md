@@ -12,4 +12,3 @@ It can track IPv4 and IPv6 peers.
 ## TODO
 - Profiling and optimization (ongoing effort)
 - Multithreading (already implemented for database actions)
-- Handling not compact responses

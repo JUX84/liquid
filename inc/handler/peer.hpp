@@ -15,6 +15,7 @@ class Peer {
 		bool completed;
 		bool active;
 		std::string IP;
+		std::string port;
 		std::string hexIPPort;
 		std::string peerID;
 		unsigned int torrentID;
@@ -27,6 +28,7 @@ class Peer {
 		User* getUser();
 		const std::string& getPeerID();
 		const std::string& getIP();
+		const std::string& getPort();
 		const std::string& getHexIPPort();
 		const std::string& getClient();
 		void updateStats(unsigned long, unsigned long, unsigned long, unsigned int, long long);

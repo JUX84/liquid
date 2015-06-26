@@ -46,8 +46,6 @@ std::string RequestHandler::handle(std::string str, std::string ip, bool ipv6)
 	if (Config::get("type") == "private" && u->isRestricted(req->at("ip")))
 		return error("ip not associated with account");
 	if (req->at("action") == "announce") {
-		if (req->find("compact") != req->end() && req->at("compact") == "0")
-			return error("client does not support compact");
 		req->emplace("event", "updating");
 		return announce(req, infoHashes->front(), ipv6);
 	}
@@ -189,15 +187,22 @@ std::string RequestHandler::announce(const Request* req, const std::string& info
 		while (j-- > 0) {
 			Peer* p = peers6->nextPeer(now);
 			if (p != nullptr) {
-				peerlist6.append(p->getHexIPPort());
+				if (req->find("compact") != req->end() && req->at("compact") == "0")
+					peerlist6.append(p->getIP() + ":" + p->getPort());
+				else
+					peerlist6.append(p->getHexIPPort());
 				--i;
 			}
 		}
 	}
 	while (i-- > 0) {
 		Peer* p = peers->nextPeer(now);
-		if (p != nullptr)
-			peerlist.append(p->getHexIPPort());
+		if (p != nullptr) {
+			if (req->find("compact") != req->end() && req->at("compact") == "0")
+				peerlist.append(p->getIP() + ":" + p->getPort());
+			else
+				peerlist.append(p->getHexIPPort());
+		}
 	}
 	bool gzip = false;
 	try {
@@ -369,7 +374,6 @@ void RequestHandler::updateTorrent(const Request* req, const std::string& infoHa
 {
 	auto it = torMap.find(infoHash);
 	if (it != torMap.end()) {
-		std::string leech;
 		if (req->at("freetorrent") == "1")
 			it->second.setFree(100);
 		else if (req->at("freetorrent") == "2")
