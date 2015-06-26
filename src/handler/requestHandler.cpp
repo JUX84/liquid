@@ -190,16 +190,16 @@ std::string RequestHandler::announce(const Request* req, const std::string& info
 		if (compact)
 			peerlist6.append("e6:peers6" + std::to_string(j*18) + ":");
 		else
-			peerlist6.append("d6:peers6l");
+			peerlist6.append("d6:peers6");
 		while (j-- > 0) {
 			Peer* p = peers6->nextPeer(now);
 			if (p != nullptr) {
 				if (compact) {
 					peerlist6.append(p->getHexIPPort());
 				} else {
-					peerlist6.append(std::to_string(p->getPeerID().length()) + ":" + p->getPeerID() +
-							std::to_string(p->getIP().length()) + ":" + p->getIP() +
-							std::to_string(p->getPort().length()) + ":" + p->getPort());
+					peerlist6.append("d7:peer id" + std::to_string(p->getPeerID().length()) + ":" + p->getPeerID() +
+							"2:ip" + std::to_string(p->getIP().length()) + ":" + p->getIP() +
+							"4:port" + std::to_string(p->getPort().length()) + ":" + p->getPort());
 				}
 				--i;
 			}
@@ -209,18 +209,18 @@ std::string RequestHandler::announce(const Request* req, const std::string& info
 		peerlist6.append("e");
 	}
 	if (compact)
-		peerlist.append("e5:peers" + std::to_string(j*6) + ":");
+		peerlist.append("e5:peers" + std::to_string(i*6) + ":");
 	else
-		peerlist.append("d5:peersl");
+		peerlist.append("d5:peers");
 	while (i-- > 0) {
 		Peer* p = peers->nextPeer(now);
 		if (p != nullptr) {
 			if (compact) {
 				peerlist.append(p->getHexIPPort());
 			} else {
-				peerlist.append(std::to_string(p->getPeerID().length()) + ":" + p->getPeerID() +
-						std::to_string(p->getIP().length()) + ":" + p->getIP() +
-						std::to_string(p->getPort().length()) + ":" + p->getPort());
+				peerlist.append("d7:peer id" + std::to_string(p->getPeerID().length()) + ":" + p->getPeerID() +
+						"e2:ip" + std::to_string(p->getIP().length()) + ":" + p->getIP() +
+						"4:port" + std::to_string(p->getPort().length()) + ":" + p->getPort());
 			}
 		}
 	}
