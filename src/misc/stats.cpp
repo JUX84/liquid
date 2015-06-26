@@ -70,8 +70,8 @@ void Stats::show(ev::timer& timer, int revents) {
 		LOG_INFO("Stats - " +
 				std::to_string(peers) + " active peers on " +
 				std::to_string(torrents) + " torrents - " +
-				std::to_string(speed) + " - " +
-				std::to_string(transferred) + " transferred since start");
+				std::to_string(speed) + " " + Utility::getPrefix(speedLvl) + "B/s - " +
+				std::to_string(transferred) + " " + Utility::getPrefix(transferredLvl) + "B transferred since start");
 		changed = false;
 	}
 }
