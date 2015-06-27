@@ -41,7 +41,7 @@ unsigned long Stats::getTorrents() {
 }
 
 void Stats::incSpeed(unsigned long incspeed) {
-	speed += incspeed;
+	speed += incspeed/2;
 	speedShow = speed;
 	speedLvl = 0;
 	while (speedShow > 1024 && speedLvl < 9) {
@@ -56,7 +56,7 @@ void Stats::decSpeed(unsigned long decspeed) {
 }
 
 void Stats::incTransferred(unsigned long inctransferred) {
-	transferred += inctransferred;
+	transferred += inctransferred/2;
 	transferredShow = transferred;
 	transferredLvl = 0;
 	while (transferredShow > 1024 && transferredLvl < 9) {
