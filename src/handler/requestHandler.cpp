@@ -98,7 +98,7 @@ std::string RequestHandler::announce(const Request* req, const std::string& info
 	bool compact = true;
 	if (req->find("compact") != req->end() && req->at("compact") == "0")
 		compact = false;
-	if (req->at("left") != "0" || ) {
+	if (req->at("left") != "0") {
 		peer = tor->getLeechers()->getPeer(req->at("peer_id"), now);
 		if (peer == nullptr) {
 			if (ipv6)
