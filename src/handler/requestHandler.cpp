@@ -98,15 +98,13 @@ std::string RequestHandler::announce(const Request* req, const std::string& info
 	bool compact = true;
 	if (req->find("compact") != req->end() && req->at("compact") == "0")
 		compact = false;
-	if (req->at("left") != "0" || req->at("event") == "completed") {
+	if (req->at("left") != "0" || ) {
 		peer = tor->getLeechers()->getPeer(req->at("peer_id"), now);
 		if (peer == nullptr) {
 			if (ipv6)
 				peer = tor->getLeechers6()->addPeer(*req, tor->getID(), ipv6, now);
 			else
 				peer = tor->getLeechers()->addPeer(*req, tor->getID(), ipv6, now);
-		} else {
-			peer->complete();
 		}
 		if (Config::get("type") == "private") {
 			free = tor->getFree();
@@ -140,6 +138,8 @@ std::string RequestHandler::announce(const Request* req, const std::string& info
 			peers6 = tor->getLeechers6();
 		peers = tor->getLeechers();
 	}
+	if (req->at("event") == "completed")
+		peer->complete();
 	if (req->at("event") == "stopped")
 		peer->inactive();
 	if (Config::get("type") == "private") {
