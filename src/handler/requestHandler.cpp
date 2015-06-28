@@ -109,7 +109,6 @@ std::string RequestHandler::announce(const Request* req, const std::string& info
 			else
 				peer = tor->getLeechers()->addPeer(*req, tor->getID(), ipv6, now);
 		}
-		peer->complete();
 		if (Config::get("type") == "private") {
 			free = tor->getFree();
 			if (leechStatus == FREELEECH)
@@ -120,6 +119,8 @@ std::string RequestHandler::announce(const Request* req, const std::string& info
 				free = 100;
 			}
 		}
+		if (req->at("event") == "completed")
+			peer->complete();
 		if (ipv6)
 			peers6 = tor->getSeeders6();
 		peers = tor->getSeeders();
@@ -238,7 +239,7 @@ std::string RequestHandler::announce(const Request* req, const std::string& info
 		peerlist.append("e");
 	bool gzip = false;
 	try {
-		if (req->at("accept-encoding").find("gzip") != std::string::npos && (peerlist.length()+peerlist6.length()) > 120)
+		if (req->at("accept-encoding").find("gzip") != std::string::npos && (i*6 + j*18) > 100)
 			gzip = true;
 	} catch (const std::exception& e) {}
 	return response(
