@@ -1,11 +1,11 @@
 #include "handler/torrent.hpp"
 #include "misc/logger.hpp"
 
-Torrent::Torrent (unsigned int id, unsigned char free, long balance) {
+Torrent::Torrent (unsigned int id, unsigned char free, unsigned int snatches, long balance) {
 	this->id = id;
 	this->free = free;
 	this->balance = balance;
-	snatches = 0;
+	this->snatches = snatches;
 }
 
 unsigned int Torrent::getID () {
@@ -35,10 +35,6 @@ unsigned int Torrent::getSnatches() {
 void Torrent::incSnatches() {
 	LOG_INFO("New snatch on torrent " + std::to_string(id));
 	++snatches;
-}
-
-void Torrent::reset() {
-	snatches = 0;
 }
 
 unsigned char Torrent::getFree() {

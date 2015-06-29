@@ -15,14 +15,13 @@ class Torrent {
 		unsigned int snatches;
 		long balance;
 	public:
-		Torrent(unsigned int, unsigned char, long);
+		Torrent(unsigned int, unsigned char, unsigned int, long);
 		Peers* getSeeders();
 		Peers* getSeeders6();
 		Peers* getLeechers();
 		Peers* getLeechers6();
 		unsigned int getSnatches();
 		void incSnatches();
-		void reset();
 		unsigned int getID();
 		unsigned char getFree();
 		void setBalance(long);

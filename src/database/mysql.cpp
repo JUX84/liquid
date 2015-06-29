@@ -115,6 +115,7 @@ void MySQL::loadTorrents(TorrentMap& torMap) {
 		Config::get("DB_Torrents_ID") + ", " +
 		Config::get("DB_Torrents_InfoHash") + ", " +
 		Config::get("DB_Torrents_Freeleech") + ", " +
+		Config::get("DB_Torrents_Snatched") + ", " +
 		Config::get("DB_Torrents_Balance") + " "
 		"FROM " +
 		Config::get("DB_Torrents");
@@ -125,11 +126,11 @@ void MySQL::loadTorrents(TorrentMap& torMap) {
 	result = mysql_use_result(mysql);
 	while((row = mysql_fetch_row(result))) {
 		unsigned char free = 0;
-		if (row[3] == std::string("1"))
+		if (row[2] == std::string("1"))
 			free = 100;
-		else if (row[3] == std::string("2"))
+		else if (row[2] == std::string("2"))
 			free = 50;
-		torMap.emplace(row[1], Torrent(std::stoul(row[0]), free, std::stoul(row[3])));
+		torMap.emplace(row[1], Torrent(std::stoul(row[0]), free, std::stoul(row[3]), std::stoul(row[4])));
 	}
 	unsigned long torrentsCount = mysql_num_rows(result);
 	Stats::setTorrents(torrentsCount);
@@ -306,7 +307,7 @@ void MySQL::flushTorrents() {
 		str += " ON DUPLICATE KEY UPDATE " +
 			Config::get("DB_Torrents_Seeders") + " = VALUES(" + Config::get("DB_Torrents_Seeders") + "), " +
 			Config::get("DB_Torrents_Leechers") + " = VALUES(" + Config::get("DB_Torrents_Leechers") + "), " +
-			Config::get("DB_Torrents_Snatches") + " = " + Config::get("DB_Torrents_Snatches") + " + VALUES(" + Config::get("DB_Torrents_Snatches") + "), " +
+			Config::get("DB_Torrents_Snatches") + " = VALUES(" + Config::get("DB_Torrents_Snatches") + "), " +
 			Config::get("DB_Torrents_Balance") + " = VALUES(" + Config::get("DB_Torrents_Balance") + "), " +
 			Config::get("DB_Torrents_LastAction") + " = NOW()";
 		LOG_INFO("Flushing TORRENTS sql records (" + std::to_string(torrentRequests.size()) + ")");
@@ -463,10 +464,9 @@ void MySQL::recordTorrent(Torrent* t) {
 	std::string Leechers = std::to_string(t->getLeechers()->size() + t->getLeechers6()->size());
 	std::string Snatches = std::to_string(t->getSnatches());
 	std::string Balance = std::to_string(t->getBalance());
-	LOG_INFO("Recording Torrent " + ID + ": " + Seeders + " Seeders, " + Leechers + " Leechers, " + Snatches + " new Snatches, Balance: " + Balance + "");
+	LOG_INFO("Recording Torrent " + ID + ": " + Seeders + " Seeders, " + Leechers + " Leechers, " + Snatches + " Snatches, Balance: " + Balance + "");
 	//std::lock_guard<std::mutex> lock(torrentReqLock);
 	torrentRequests.push_back("(" + ID + ", " + Seeders + ", " + Leechers + ", " + Snatches + ", " + Balance + ")");
-	t->reset();
 }
 
 void MySQL::recordPeer(Peer* p) {

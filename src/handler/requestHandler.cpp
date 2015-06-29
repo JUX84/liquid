@@ -72,7 +72,7 @@ std::string RequestHandler::announce(const Request* req, const std::string& info
 	auto duration = std::chrono::system_clock::now().time_since_epoch();
 	long long now = std::chrono::duration_cast<std::chrono::seconds>(duration).count();
 	if (Config::get("type") == "public" && torMap.find(infoHash) == torMap.end()) {
-		torMap.emplace(infoHash, Torrent(Stats::getTorrents(), 0, 0));
+		torMap.emplace(infoHash, Torrent(Stats::getTorrents(), 0, 0, 0));
 		Stats::incTorrents();
 	}
 	Torrent *tor = nullptr;
@@ -381,7 +381,7 @@ void RequestHandler::changePasskey(const Request* req)
 void RequestHandler::addTorrent(const Request* req, const std::string& infoHash)
 {
 	const std::string& torrentID = req->at("id");
-	auto t = torMap.emplace(infoHash, Torrent(std::stoul(torrentID), 0, 0));
+	auto t = torMap.emplace(infoHash, Torrent(std::stoul(torrentID), 0, 0, 0));
 	if (req->at("freetorrent") == "1")
 		t.first->second.setFree(100);
 	else if (req->at("freetorrent") == "2")
