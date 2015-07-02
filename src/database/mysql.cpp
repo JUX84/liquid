@@ -115,7 +115,7 @@ void MySQL::loadTorrents(TorrentMap& torMap) {
 		Config::get("DB_Torrents_ID") + ", " +
 		Config::get("DB_Torrents_InfoHash") + ", " +
 		Config::get("DB_Torrents_Freeleech") + ", " +
-		Config::get("DB_Torrents_Snatched") + ", " +
+		Config::get("DB_Torrents_Snatches") + ", " +
 		Config::get("DB_Torrents_Balance") + " "
 		"FROM " +
 		Config::get("DB_Torrents");
