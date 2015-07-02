@@ -33,11 +33,11 @@ void Peers::removePeer(const Request& req) {
 	Stats::decPeers();
 }
 
-Peer* Peers::nextPeer(long long now) {
+Peer* Peers::nextPeer() {
 	while (pMap.size() > 0) {
 		if (it == std::end(pMap)) {
 			it = std::begin(pMap);
-		} else if (!it->second.timedOut(now)) {
+		} else {
 			PeerMap::iterator tmp = it;
 			it = std::next(it);
 			return &tmp->second;

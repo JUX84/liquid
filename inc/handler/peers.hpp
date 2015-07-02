@@ -16,7 +16,7 @@ class Peers {
 		Peer* getPeer(const std::string&, long long);
 		Peer* addPeer(const Request&, unsigned int, bool, long long);
 		void removePeer(const Request&);
-		Peer* nextPeer(long long);
+		Peer* nextPeer();
 		unsigned long size();
 		unsigned int timedOut(long long, Database*);
 };

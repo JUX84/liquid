@@ -182,61 +182,23 @@ std::string RequestHandler::announce(const Request* req, const std::string& info
 	}
 	if (Config::get("type") != "public")
 		db->recordTorrent(tor);
-	std::string peerlist = "";
 	std::string peerlist6 = "";
-	unsigned long i = 0;
-	unsigned long j = 0;
+	int i = 0;
+	int j = 0;
 	if (req->at("event") != "stopped") {
 		try {
 			i = std::stoi(req->at("numwant"));
 		} catch (const std::exception& e) {
 			i = Config::getInt("default_numwant");;
 		}
-		i = std::min(std::min(i, static_cast<unsigned long>(Config::getInt("max_numwant"))), peers->size());
+		i = std::min(std::min(i, Config::getInt("max_numwant")), static_cast<int>(peers->size()));
 		if (ipv6)
-			j = std::min(std::min(i, static_cast<unsigned long>(Config::getInt("max_numwant"))), peers6->size());
+			j = std::min(std::min(i, Config::getInt("max_numwant")), static_cast<int>(peers6->size()));
+		i -= j;
 	}
-	if (ipv6) {
-		peerlist6.append("6:peers6");
-		if (compact)
-			peerlist6.append(std::to_string(j*18) + ":");
-		else
-			peerlist6.append("d");
-		while (j-- > 0) {
-			Peer* p = peers6->nextPeer(now);
-			if (p != nullptr) {
-				if (compact) {
-					peerlist6.append(p->getHexIPPort());
-				} else {
-					peerlist6.append("7:peer id" + std::to_string(p->getPeerID().length()) + ":" + p->getPeerID() +
-							"2:ip" + std::to_string(p->getIP().length()) + ":" + p->getIP() +
-							"4:port" + std::to_string(p->getPort().length()) + ":" + p->getPort());
-				}
-				--i;
-			}
-		}
-		if (!compact)
-			peerlist6.append("e");
-	}
-	peerlist.append("5:peers");
-	if (compact)
-		peerlist.append(std::to_string(i*6) + ":");
-	else
-		peerlist.append("d");
-	while (i-- > 0) {
-		Peer* p = peers->nextPeer(now);
-		if (p != nullptr) {
-			if (compact) {
-				peerlist.append(p->getHexIPPort());
-			} else {
-				peerlist.append("7:peer id" + std::to_string(p->getPeerID().length()) + ":" + p->getPeerID() +
-						"2:ip" + std::to_string(p->getIP().length()) + ":" + p->getIP() +
-						"4:port" + std::to_string(p->getPort().length()) + ":" + p->getPort());
-			}
-		}
-	}
-	if (!compact)
-		peerlist.append("e");
+	if (j > 0)
+		peerlist6 = getPeers(peers6, j, true, compact);
+	std::string peerlist = getPeers(peers, i, false, compact);
 	bool gzip = false;
 	try {
 		if (req->at("accept-encoding").find("gzip") != std::string::npos && (i*6 + j*18) > 100)
@@ -258,6 +220,36 @@ std::string RequestHandler::announce(const Request* req, const std::string& info
 			+ peerlist
 			+ "e"),
 			gzip);
+}
+
+std::string RequestHandler::getPeers(Peers* peers, int numwant, bool ipv6, bool compact) {
+	std::string peerlist;
+	if (ipv6)
+		peerlist.append("6:peers6");
+	else
+		peerlist.append("5:peers");
+	int bytes = 6;
+	if (ipv6)
+		bytes = 18;
+	if (compact)
+		peerlist.append(std::to_string(numwant*bytes) + ":");
+	else
+		peerlist.append("d");
+	while (numwant-- > 0) {
+		Peer* p = peers->nextPeer();
+		if (p != nullptr) {
+			if (compact) {
+				peerlist.append(p->getHexIPPort());
+			} else {
+				peerlist.append("7:peer id" + std::to_string(p->getPeerID().length()) + ":" + p->getPeerID() +
+						"2:ip" + std::to_string(p->getIP().length()) + ":" + p->getIP() +
+						"4:port" + std::to_string(p->getPort().length()) + ":" + p->getPort());
+			}
+		}
+	}
+	if (!compact)
+		peerlist.append("e");
+	return peerlist;
 }
 
 std::string RequestHandler::scrape(const std::forward_list<std::string>* infoHashes)

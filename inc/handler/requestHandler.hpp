@@ -13,6 +13,7 @@ class RequestHandler {
 		static std::list<std::string> clientWhitelist;
 		static LeechStatus leechStatus;
 		static std::string announce(const Request*, const std::string&, bool);
+		static std::string getPeers(Peers*, int, bool, bool);
 		static std::string scrape(const std::forward_list<std::string>*);
 		static std::string update(const Request*, const std::forward_list<std::string>*);
 		static void changePasskey(const Request*);
