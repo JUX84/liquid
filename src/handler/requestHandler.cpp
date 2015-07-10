@@ -46,6 +46,8 @@ std::string RequestHandler::handle(std::string str, std::string ip, bool ipv6)
 	if (Config::get("type") == "private" && u->isRestricted(req->at("ip")))
 		return error("ip not associated with account");
 	if (req->at("action") == "announce") {
+		if (req->at("peer_id").length() != 20)
+			return error("invalid peer id");
 		req->emplace("event", "updating");
 		return announce(req, infoHashes->front(), ipv6);
 	}
