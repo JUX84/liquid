@@ -532,10 +532,11 @@ void RequestHandler::clearTorrentPeers(ev::timer& timer, int revents)
 	LOG_INFO("Checking timed out peers");
 	auto duration = std::chrono::system_clock::now().time_since_epoch();
 	long long now = std::chrono::duration_cast<std::chrono::seconds>(duration).count();
-	unsigned int changed = 0;
+	unsigned int changed;
+	unsigned int changedTotal = 0;
 	auto t = torMap.begin();
 	while (t != torMap.end()) {
-		changed += t->second.getSeeders()->timedOut(now, db);
+		changed = t->second.getSeeders()->timedOut(now, db);
 		changed += t->second.getSeeders6()->timedOut(now, db);
 		changed += t->second.getLeechers()->timedOut(now, db);
 		changed += t->second.getLeechers6()->timedOut(now, db);
@@ -543,16 +544,17 @@ void RequestHandler::clearTorrentPeers(ev::timer& timer, int revents)
 			if (t->second.getSeeders()->size() == 0 && t->second.getSeeders6()->size() == 0 && t->second.getLeechers()->size() == 0 && t->second.getLeechers6()->size() == 0) {
 				torMap.erase(t++);
 				Stats::decTorrents();
+			} else {
+				++t;
 			}
 		} else {
-			if (changed > 0) {
-				LOG_INFO(std::to_string(changed) + " new inactive peers");
-				if (Config::get("type") != "public")
-					db->recordTorrent(&t->second);
-			}
+			if (changed > 0)
+				db->recordTorrent(&t->second);
 			++t;
 		}
+		changedTotal += changed;
 	}
+	LOG_INFO(std::to_string(changedTotal) + " new inactive peers");
 }
 
 void RequestHandler::flushSqlRecords(ev::timer& timer, int revents) {
