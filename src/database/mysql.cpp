@@ -501,7 +501,9 @@ void MySQL::recordPeer(Peer* p) {
 			"'" + p->getClient() + "', " +
 			"'" + PeerID + "', " +
 			"'" + TorrentID + "', " +
-			"'" + p->getIP() + "', UNIX_TIMESTAMP())");
+			"'" + p->getIP() + "', " +
+			(p->isActive() ? "UNIX_TIMESTAMP()" : std::to_string(p->getLastUpdate())) +
+			")");
 }
 
 void MySQL::recordSnatch(Peer* p, long long now) {
