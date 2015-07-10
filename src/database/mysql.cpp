@@ -363,7 +363,7 @@ void MySQL::flushPeers() {
 			first = false;
 		}
 		str += " ON DUPLICATE KEY UPDATE " +
-			Config::get("DB_Peers_Active") + " = " + Config::get("DB_Peers_Active") + ", " +
+			Config::get("DB_Peers_Active") + " = VALUES(" + Config::get("DB_Peers_Active") + "), " +
 			Config::get("DB_Peers_AnnouncesCount") + " = " + Config::get("DB_Peers_AnnouncesCount") + " + 1, " +
 			Config::get("DB_Peers_Downloaded") + " = VALUES(" + Config::get("DB_Peers_Downloaded") + "), " +
 			Config::get("DB_Peers_Uploaded") + " = VALUES(" + Config::get("DB_Peers_Uploaded") + "), " +
