@@ -59,7 +59,7 @@ std::string RequestHandler::handle(std::string str, std::string ip, bool ipv6)
 
 std::string RequestHandler::announce(const Request* req, const std::string& infoHash, bool ipv6)
 {
-	LOG_INFO("Announce request");
+	LOG_INFO("Announce request (" + req->at("event") + ")");
 	if (clientWhitelist.size() > 0) {
 		bool whitelisted = false;
 		for (const auto &it : clientWhitelist) {
