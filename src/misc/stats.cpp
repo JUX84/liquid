@@ -52,7 +52,7 @@ void Stats::incSpeed(unsigned long incspeed) {
 }
 
 void Stats::decSpeed(unsigned long decspeed) {
-	speed -= decspeed;
+	speed -= decspeed/2;
 }
 
 void Stats::incTransferred(unsigned long inctransferred) {
