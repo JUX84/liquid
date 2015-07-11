@@ -231,16 +231,7 @@ void MySQL::flushUsers() {
 }
 
 void MySQL::doFlushUsers() {
-	std::lock_guard<std::mutex> lock(sqlLock);
-	usersFlushing = true;
-	for (const auto &it : userRecords) {
-		if (mysql_real_query(mysql, it.c_str(), it.size())) {
-			LOG_ERROR("Couldn't flush record (" + it + ")");
-			return;
-		}
-	}
-	userRecords.clear();
-	usersFlushing = false;
+	doFlushRecords(userRecords);
 }
 
 void MySQL::flushTokens() {
@@ -274,16 +265,7 @@ void MySQL::flushTokens() {
 }
 
 void MySQL::doFlushTokens() {
-	std::lock_guard<std::mutex> lock(sqlLock);
-	tokensFlushing = true;
-	for (const auto &it : tokenRecords) {
-		if (mysql_real_query(mysql, it.c_str(), it.size())) {
-			LOG_ERROR("Couldn't flush record (" + it + ")");
-			return;
-		}
-	}
-	tokenRecords.clear();
-	tokensFlushing = false;
+	doFlushRecords(tokenRecords);
 }
 
 void MySQL::flushTorrents() {
@@ -321,16 +303,7 @@ void MySQL::flushTorrents() {
 }
 
 void MySQL::doFlushTorrents() {
-	std::lock_guard<std::mutex> lock(sqlLock);
-	torrentsFlushing = true;
-	for (const auto &it : torrentRecords) {
-		if (mysql_real_query(mysql, it.c_str(), it.size())) {
-			LOG_ERROR("Couldn't flush record (" + it + ")");
-			return;
-		}
-	}
-	torrentRecords.clear();
-	torrentsFlushing = false;
+	doFlushRecords(torrentRecords);
 }
 
 void MySQL::flushPeers() {
@@ -383,16 +356,7 @@ void MySQL::flushPeers() {
 }
 
 void MySQL::doFlushPeers() {
-	std::lock_guard<std::mutex> lock(sqlLock);
-	peersFlushing = true;
-	for (const auto &it : peerRecords) {
-		if (mysql_real_query(mysql, it.c_str(), it.size())) {
-			LOG_ERROR("Couldn't flush record (" + it + ")");
-			return;
-		}
-	}
-	peerRecords.clear();
-	peersFlushing = false;
+	doFlushRecords(peerRecords);
 }
 
 void MySQL::flushSnatches() {
@@ -423,16 +387,20 @@ void MySQL::flushSnatches() {
 }
 
 void MySQL::doFlushSnatches() {
+	doFlushRecords(snatchRecords);
+}
+
+void MySQL::doFlushRecords(std::list<std::string> &records) {
 	std::lock_guard<std::mutex> lock(sqlLock);
-	snatchesFlushing = true;
-	for (const auto &it : snatchRecords) {
-		if (mysql_real_query(mysql, it.c_str(), it.size())) {
-			LOG_ERROR("Couldn't flush record (" + it + ")");
-			return;
+	std::list<std::string>::iterator it = records.begin();
+	while (it != records.end()) {
+		if (mysql_real_query(mysql, (*it).c_str(), (*it).size())) {
+			LOG_ERROR("Couldn't flush record (" + (*it) + ")");
+			++it;
+		} else {
+			records.erase(it++);
 		}
 	}
-	snatchRecords.clear();
-	snatchesFlushing = false;
 }
 
 void MySQL::recordUser(User* u) {

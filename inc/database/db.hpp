@@ -42,6 +42,7 @@ class Database {
 		virtual void doFlushPeers() = 0;
 		virtual void doFlushSnatches() = 0;
 		virtual void doFlushTokens() = 0;
+		virtual void doFlushRecords(std::list<std::string>&) = 0;
 		virtual void recordUser(User*) = 0;
 		virtual void recordTorrent(Torrent*) = 0;
 		virtual void recordPeer(Peer*) = 0;

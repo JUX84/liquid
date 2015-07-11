@@ -28,6 +28,7 @@ class MySQL : public Database {
 		void doFlushPeers();
 		void doFlushTokens();
 		void doFlushSnatches();
+		void doFlushRecords(std::list<std::string>&);
 		void recordUser(User*);
 		void recordTorrent(Torrent*);
 		void recordPeer(Peer*);
