@@ -47,7 +47,7 @@ std::string RequestHandler::handle(std::string str, std::string ip, bool ipv6)
 		return error("ip not associated with account");
 	if (req->at("action") == "announce") {
 		if (req->at("peer_id").length() != 20)
-			req->at("peer_id") = Utility::hex_decode(req->at("peer_id"));
+			req->at("peer_id") = Utility::hex_to_bin(req->at("peer_id"));
 		if (req->at("peer_id").length() != 20)
 			return error("invalid peer id");
 		req->emplace("event", "updating");
