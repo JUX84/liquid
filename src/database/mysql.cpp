@@ -224,7 +224,7 @@ void MySQL::flushUsers() {
 		userRecords.push_back(str);
 		userRequests.clear();
 	}
-	if (!usersFlushing && userRecords.size() != 0) {
+	if (userRecords.size() != 0) {
 		std::thread thread(&MySQL::doFlushUsers, this);
 		thread.detach();
 	}
@@ -258,7 +258,7 @@ void MySQL::flushTokens() {
 		tokenRecords.push_back(str);
 		tokenRequests.clear();
 	}
-	if (!tokensFlushing && tokenRecords.size() != 0) {
+	if (tokenRecords.size() != 0) {
 		std::thread thread(&MySQL::doFlushTokens, this);
 		thread.detach();
 	}
@@ -296,7 +296,7 @@ void MySQL::flushTorrents() {
 		torrentRecords.push_back(str);
 		torrentRequests.clear();
 	}
-	if (!torrentsFlushing && torrentRecords.size() != 0) {
+	if (torrentRecords.size() != 0) {
 		std::thread thread(&MySQL::doFlushTorrents, this);
 		thread.detach();
 	}
@@ -349,7 +349,7 @@ void MySQL::flushPeers() {
 		peerRecords.push_back(str);
 		peerRequests.clear();
 	}
-	if (!peersFlushing && peerRecords.size() != 0) {
+	if (peerRecords.size() != 0) {
 		std::thread thread(&MySQL::doFlushPeers, this);
 		thread.detach();
 	}
@@ -380,7 +380,7 @@ void MySQL::flushSnatches() {
 		snatchRecords.push_back(str);
 		snatchRequests.clear();
 	}
-	if (!snatchesFlushing && snatchRecords.size() != 0) {
+	if (snatchRecords.size() != 0) {
 		std::thread thread(&MySQL::doFlushSnatches, this);
 		thread.detach();
 	}

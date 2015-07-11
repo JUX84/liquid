@@ -21,7 +21,6 @@ class Database {
 		std::list<std::string> userRequests, torrentRequests, peerRequests, tokenRequests, snatchRequests;
 		std::list<std::string> userRecords, torrentRecords, peerRecords, tokenRecords, snatchRecords;
 		//std::mutex userReqLock, torrentReqLock, peerReqLock, tokenReqLock, snatchReqLock;
-		bool usersFlushing, torrentsFlushing, peersFlushing, tokensFlushing, snatchesFlushing;
 	public:
 		virtual void connect() = 0;
 		virtual void disconnect() = 0;
