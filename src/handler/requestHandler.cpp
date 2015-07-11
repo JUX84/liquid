@@ -123,8 +123,10 @@ std::string RequestHandler::announce(const Request* req, const std::string& info
 				free = 100;
 			}
 		}
-		if (req->at("event") == "completed")
+		if (req->at("event") == "completed") {
 			peer->complete();
+			tor->incSnatches();
+		}
 		if (ipv6)
 			peers6 = tor->getSeeders6();
 		peers = tor->getSeeders();
