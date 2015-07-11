@@ -204,7 +204,7 @@ void MySQL::flush() {
 void MySQL::flushUsers() {
 	//std::lock_guard<std::mutex> lock(userReqLock);
 	if (userRequests.size() != 0) {
-		std::string str = "INSERT INTO " +
+		std::string str = "INSERT IGNORE INTO " +
 			Config::get("DB_Users") + "(" +
 			Config::get("DB_Users_ID") + ", " +
 			Config::get("DB_Users_Downloaded") + ", " +
@@ -237,7 +237,7 @@ void MySQL::doFlushUsers() {
 void MySQL::flushTokens() {
 	//std::lock_guard<std::mutex> lock(tokenReqLock);
 	if (tokenRequests.size() != 0) {
-		std::string str = "INSERT INTO " +
+		std::string str = "INSERT IGNORE INTO " +
 			Config::get("DB_Tokens") + "(" +
 			Config::get("DB_Tokens_UserID") + ", " +
 			Config::get("DB_Tokens_TorrentID") + ", " +
@@ -271,7 +271,7 @@ void MySQL::doFlushTokens() {
 void MySQL::flushTorrents() {
 	//std::lock_guard<std::mutex> lock(torrentReqLock);
 	if (torrentRequests.size() != 0) {
-		std::string str = "INSERT INTO " +
+		std::string str = "INSERT IGNORE INTO " +
 			Config::get("DB_Torrents") + "(" +
 			Config::get("DB_Torrents_ID") + ", " +
 			Config::get("DB_Torrents_Seeders") + ", " +
@@ -309,7 +309,7 @@ void MySQL::doFlushTorrents() {
 void MySQL::flushPeers() {
 	//std::lock_guard<std::mutex> lock(peerReqLock);
 	if (peerRequests.size() != 0) {
-		std::string str = "INSERT INTO " +
+		std::string str = "INSERT IGNORE INTO " +
 			Config::get("DB_Peers") + "(" +
 			Config::get("DB_Peers_UserID") + ", " +
 			Config::get("DB_Peers_Active") + ", " +
